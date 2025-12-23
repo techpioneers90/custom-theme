@@ -9,76 +9,127 @@ function openQuickView(productId, productSlug) {
       <div class="spinner-border" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
+      <p class="mt-3">جاري تحميل بيانات المنتج...</p>
     </div>
   `;
   
   modal.show();
   
-  // جلب بيانات المنتج
-  if (window.zid && window.zid.products && window.zid.products.get) {
-    window.zid.products.get(productId, { showErrorNotification: true })
-      .then(function(response) {
-        if (response && response.data && response.data.product) {
-          const product = response.data.product;
-          renderQuickView(product, productSlug);
-        } else {
-          // إذا فشل جلب البيانات، ننتقل لصفحة المنتج
-          window.location.href = '/products/' + productSlug;
-        }
-      })
-      .catch(function(error) {
-        console.error('Error loading product:', error);
-        // في حالة الخطأ، ننتقل لصفحة المنتج
-        window.location.href = '/products/' + productSlug;
-      });
-  } else {
-    // إذا لم يكن API متاحاً، ننتقل لصفحة المنتج
-    window.location.href = '/products/' + productSlug;
-  }
+  // جلب بيانات المنتج باستخدام fetch مباشرة
+  const apiUrl = `/api/v1/products/${productId}`;
+  
+  fetch(apiUrl)
+    .then(res => {
+      if (!res.ok) {
+        throw new Error('Failed to fetch product');
+      }
+      return res.json();
+    })
+    .then(data => {
+      // التحقق من هيكل البيانات
+      let product = null;
+      
+      // محاولة استخراج المنتج من هيكل البيانات المختلف
+      if (data && data.product) {
+        product = data.product;
+      } else if (data && data.data && data.data.product) {
+        product = data.data.product;
+      } else if (data && data.id) {
+        product = data;
+      }
+      
+      if (product) {
+        renderQuickView(product, productSlug);
+      } else {
+        console.error('Product data not found in response:', data);
+        showErrorAndRedirect(productSlug);
+      }
+    })
+    .catch(function(error) {
+      console.error('Error loading product:', error);
+      showErrorAndRedirect(productSlug);
+    });
+}
+
+function showErrorAndRedirect(productSlug) {
+  const modalBody = document.getElementById('quickview-modal-body');
+  modalBody.innerHTML = `
+    <div class="text-center py-5">
+      <p class="text-danger">فشل تحميل بيانات المنتج</p>
+      <button type="button" class="btn btn-primary" onclick="window.location.href='/products/${productSlug}'">
+        عرض صفحة المنتج
+      </button>
+    </div>
+  `;
 }
 
 function renderQuickView(product, productSlug) {
+  console.log('Rendering product:', product);
   const modalBody = document.getElementById('quickview-modal-body');
+  
+  if (!modalBody) {
+    console.error('Modal body not found');
+    return;
+  }
   
   // بناء صور المنتج
   let imagesHTML = '';
   if (product.images && product.images.length > 0) {
-    imagesHTML = product.images.map((img, index) => `
-      <div class="quickview-image-item ${index === 0 ? 'active' : ''}">
-        <img src="${img.image.medium || img.image.small || ''}" alt="${product.name}" class="img-fluid">
-      </div>
-    `).join('');
+    imagesHTML = product.images.map((img, index) => {
+      const imgSrc = (img.image && (img.image.medium || img.image.small)) || 
+                     (img.medium || img.small) || 
+                     (typeof img === 'string' ? img : '');
+      return `
+        <div class="quickview-image-item ${index === 0 ? 'active' : ''}">
+          <img src="${imgSrc}" alt="${product.name || ''}" class="img-fluid">
+        </div>
+      `;
+    }).join('');
   } else if (product.main_image) {
+    const imgSrc = (product.main_image.image && (product.main_image.image.medium || product.main_image.image.small)) ||
+                   (product.main_image.medium || product.main_image.small) ||
+                   (typeof product.main_image === 'string' ? product.main_image : '');
     imagesHTML = `
       <div class="quickview-image-item active">
-        <img src="${product.main_image.image.medium || product.main_image.image.small || ''}" alt="${product.name}" class="img-fluid">
+        <img src="${imgSrc}" alt="${product.name || ''}" class="img-fluid">
       </div>
     `;
   } else {
     imagesHTML = `
       <div class="quickview-image-item active">
-        <img src="/assets/product-img.svg" alt="${product.name}" class="img-fluid">
+        <img src="${window.asset_url || ''}product-img.svg" alt="${product.name || ''}" class="img-fluid">
       </div>
     `;
   }
   
-  // بناء السعر
+  // بناء السعر - التعامل مع variants إذا كان المنتج يحتوي على variants
+  let currentProduct = product;
   let priceHTML = '';
-  if (product.sale_price !== null && product.sale_price !== undefined) {
-    const discount = product.discount_percentage || 0;
+  
+  // إذا كان المنتج يحتوي على variants، نستخدم أول variant
+  if (product.variants && product.variants.length > 0) {
+    currentProduct = product.variants[0];
+  }
+  
+  if (currentProduct.sale_price !== null && currentProduct.sale_price !== undefined && 
+      currentProduct.price && currentProduct.sale_price < currentProduct.price) {
+    const discount = currentProduct.discount_percentage || 
+                     Math.round(((currentProduct.price - currentProduct.sale_price) / currentProduct.price) * 100);
+    const currencySymbol = currentProduct.currency_symbol || product.currency_symbol || '';
     priceHTML = `
       <div class="quickview-price">
-        <span class="price-new">${product.formatted_sale_price || (product.sale_price + ' ' + product.currency_symbol)}</span>
+        <span class="price-new">${currentProduct.formatted_sale_price || (currentProduct.sale_price + ' ' + currencySymbol)}</span>
         <div class="price-wafar">
-          <span class="price-old">${product.formatted_price || (product.price + ' ' + product.currency_symbol)}</span>
+          <span class="price-old">${currentProduct.formatted_price || (currentProduct.price + ' ' + currencySymbol)}</span>
           ${discount > 0 ? `<span class="discount">- ${discount}%</span>` : ''}
         </div>
       </div>
     `;
   } else {
+    const currencySymbol = currentProduct.currency_symbol || product.currency_symbol || '';
     priceHTML = `
       <div class="quickview-price">
-        <span class="price-new">${product.formatted_price || (product.price + ' ' + product.currency_symbol)}</span>
+        <span class="price-new">${currentProduct.formatted_price || (currentProduct.price + ' ' + currencySymbol)}</span>
       </div>
     `;
   }
@@ -170,18 +221,21 @@ function renderQuickView(product, productSlug) {
             </div>
             ${product.images && product.images.length > 1 ? `
               <div class="quickview-thumbnails">
-                ${product.images.map((img, index) => `
-                  <div class="quickview-thumb ${index === 0 ? 'active' : ''}" data-index="${index}">
-                    <img src="${img.image.small || ''}" alt="${product.name}">
-                  </div>
-                `).join('')}
+                ${product.images.map((img, index) => {
+                  const thumbSrc = (img.image && img.image.small) || (img.small) || (typeof img === 'string' ? img : '');
+                  return `
+                    <div class="quickview-thumb ${index === 0 ? 'active' : ''}" data-index="${index}">
+                      <img src="${thumbSrc}" alt="${product.name || ''}">
+                    </div>
+                  `;
+                }).join('')}
               </div>
             ` : ''}
           </div>
         </div>
         <div class="col-md-6">
           <div class="quickview-content">
-            <h2 class="quickview-title">${product.name}</h2>
+            <h2 class="quickview-title">${product.name || 'منتج'}</h2>
             ${priceHTML}
             
             ${product.short_description ? `
@@ -206,7 +260,7 @@ function renderQuickView(product, productSlug) {
                     <path d="M20 12L4 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </button>
-                <input type="number" id="quickview-quantity-input" class="product-quantity-input" value="1" min="1" ${product.is_infinite === false ? `max="${product.quantity}"` : 'max="100"'} readonly>
+                <input type="number" id="quickview-quantity-input" class="product-quantity-input" value="1" min="1" max="${(currentProduct.is_infinite === false && currentProduct.quantity) ? currentProduct.quantity : (product.is_infinite === false && product.quantity) ? product.quantity : 100}" readonly>
                 <button type="button" class="btn-quantity increase-quantity-quickview" aria-label="increase">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none">
                     <path d="M12 4V20M20 12H4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -218,10 +272,10 @@ function renderQuickView(product, productSlug) {
             <div class="quickview-actions">
               <button type="button" class="btn btn-primary btn-add-to-cart-quickview" onclick="addToCartFromQuickView('${product.id}')">
                 <img loading="lazy" class="add-to-cart-progress d-none" src="${window.asset_url || ''}spinner.gif" width="20" height="20"/>
-                أضف إلى السلة
+                ${window.i18n?.add_to_cart || 'أضف إلى السلة'}
               </button>
               <a href="/products/${productSlug}" class="btn btn-outline-primary">
-                عرض صفحة المنتج
+                ${window.i18n?.go_to_product_page || 'عرض صفحة المنتج'}
               </a>
             </div>
           </div>
@@ -231,6 +285,7 @@ function renderQuickView(product, productSlug) {
   `;
   
   modalBody.innerHTML = quickViewHTML;
+  console.log('Modal HTML rendered successfully');
   
   // تهيئة الصور المصغرة
   if (product.images && product.images.length > 1) {

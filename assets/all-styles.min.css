@@ -11373,7 +11373,7 @@ body:has(.tp-slider-banners + .tp-slider-banners) .tp-slider-banners {
 }
 
 .product-box .footer-btns .product-card-add-to-cart,
-.product-box .footer-btns a {
+.product-box .footer-btns .btn-product-card-select-variant {
   padding: 6px 12px;
   width: 95%;
   display: flex;
@@ -11392,7 +11392,7 @@ body:has(.tp-slider-banners + .tp-slider-banners) .tp-slider-banners {
 }
 
 .product-box .footer-btns .product-card-add-to-cart svg,
-.product-box .footer-btns a svg {
+.product-box .footer-btns .btn-product-card-select-variant svg {
   color: currentColor;
   width: 20px;
   height: 20px;
@@ -11401,7 +11401,7 @@ body:has(.tp-slider-banners + .tp-slider-banners) .tp-slider-banners {
 }
 
 .product-box .footer-btns .product-card-add-to-cart:hover,
-.product-box .footer-btns a:hover {
+.product-box .footer-btns .btn-product-card-select-variant:hover {
   filter: brightness(.8);
   -webkit-filter: brightness(.8);
 }
