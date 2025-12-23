@@ -1629,14 +1629,16 @@
   }
 
   .product-box .footer-btns .product-card-add-to-cart,
-  .product-box .footer-btns .btn-product-card-select-variant {
+  .product-box .footer-btns .btn-product-card-select-variant,
+  .product-box .footer-btns .btn-product-card-out-of-stock {
     padding: 5px 12px;
     font-size: 15px;
     width: 98%;
   }
 
   .product-box .footer-btns .product-card-add-to-cart svg,
-  .product-box .footer-btns .btn-product-card-select-variant svg {
+  .product-box .footer-btns .btn-product-card-select-variant svg,
+  .product-box .footer-btns .btn-product-card-out-of-stock svg {
     width: 18px;
     height: 18px
   }
@@ -2137,7 +2139,8 @@
   }
 
   .product-box .footer-btns .product-card-add-to-cart,
-  .product-box .footer-btns .btn-product-card-select-variant {
+  .product-box .footer-btns .btn-product-card-select-variant,
+  .product-box .footer-btns .btn-product-card-out-of-stock {
     font-size: 14px
   }
 
@@ -2844,6 +2847,7 @@
 
   .product-box .footer-btns .product-card-add-to-cart svg,
   .product-box .footer-btns .btn-product-card-select-variant svg,
+  .product-box .footer-btns .btn-product-card-out-of-stock svg,
   .tp-shop-top-left .tp-shop-top-select .btn-sort svg {
     width: 16px;
     height: 16px
