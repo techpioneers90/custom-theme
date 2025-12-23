@@ -78,7 +78,7 @@ msgstr "متوفر بعدة خيارات"
 msgid "Tax free"
 msgstr "مُعفى من الضريبة"
 
-msgid "This product is out of stock"
+msgid "out of stock"
 msgstr "غير متوفر"
 
 msgid "Notify me when available"

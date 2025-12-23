@@ -42,8 +42,7 @@
           {% include 'vitrin:products/badge.jinja' %}
           {% endif %}
         </div>
-        {% if product.is_infinite == false and product.quantity <= 0 %} <small class="out-of-stock">{{ _("This product
-          is out of stock") }}</small>
+        {% if product.is_infinite == false and product.quantity <= 0 %} <small class="out-of-stock">{{ _("out of stock") }}</small>
           {% endif %}
           {% if store.settings.products.reviews_enabled and product.rating.total_count > 0 %}
           <div class="product-card-rating-wrapper">
@@ -93,7 +92,7 @@
       <a href="/products/{{ product.slug }}" class="tp-content-product">
         <h2>{{ product.name | safe }}</h2>
       </a>
-      {% if not (product.has_options or product.has_fields or product.product_class == 'dynamic_bundle') %}
+      {% if not (product.has_options or product.has_fields or product.product_class == 'dynamic_bundle') and (product.is_infinite or product.quantity > 0) %}
       <div class="product-card-quantity-wrapper">
         <div class="product-card-quantity-counter">
           <button type="button" class="product-card-qty-btn product-card-qty-minus" data-product-id="{{ product.id }}"
@@ -225,8 +224,7 @@
           {% include 'vitrin:products/badge.jinja' %}
           {% endif %}
         </div>
-        {% if product.is_infinite == false and product.quantity <= 0 %} <small class="out-of-stock">{{ _("This product
-          is out of stock") }}</small>
+        {% if product.is_infinite == false and product.quantity <= 0 %} <small class="out-of-stock">{{ _("out of stock") }}</small>
           {% endif %}
 
           {% if store.settings.products.reviews_enabled and product.rating.total_count > 0 %}
@@ -339,7 +337,7 @@
         {% endif %}
         {% endif %}
       </a>
-      {% if not (product.has_options or product.has_fields or product.product_class == 'dynamic_bundle') %}
+      {% if not (product.has_options or product.has_fields or product.product_class == 'dynamic_bundle') and (product.is_infinite or product.quantity > 0) %}
       <div class="product-card-quantity-wrapper">
         <div class="product-card-quantity-counter">
           <button type="button" class="product-card-qty-btn product-card-qty-minus" data-product-id="{{ product.id }}"
