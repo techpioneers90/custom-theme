@@ -1,0 +1,45 @@
+{% if not settings.hide_element %}
+<section class="tp-feature-area s-block" section-id="{{ sectionId }}">
+  <div class="container">
+    <div class="tp-title-section">
+      {% if settings.small_subtitle %}
+        <span>{{ settings.small_subtitle }}</span>
+      {% endif %}
+      {% if settings.title %}
+        <h3 >{{ settings.title }}</h3>
+      {% endif %}
+      {% if settings.small_text %}
+        <p >{{ settings.small_text }}</p>
+      {% endif %}
+    </div>
+    <div class="tp-feature-items">
+  {% if 'store_features' in settings %}
+    {% set features = settings.store_features %}
+    {% if features is callable %}
+      {% set features = features() %}
+    {% endif %}
+  {% else %}
+    {% set features = [] %}
+  {% endif %}
+  {% if features is not iterable %}
+      {% set features = [] %}
+  {% endif %}
+
+      {% for feature in features %}
+        <div class="feature-box" >
+          <div class="icon">
+            <img loading="lazy" width="60" height="60" class="lazy-img" src="{{ image_url(feature.image) }}"  alt="">
+          </div>
+          <div class="content">
+            <h3 class="title">{{ feature.title }}</h3>
+            <p>{{ feature.sub_title|default(feature.desc)}}</p>
+          </div>
+        </div>
+        {% endfor %}
+    </div>
+  </div>
+</section> 
+{% endif %}
+
+
+

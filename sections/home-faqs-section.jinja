@@ -1,0 +1,36 @@
+{% if not settings.hide_element %}
+<section class="tp-faqs s-block" section-id="{{ sectionId }}">
+  <div class="container">
+    <div class="tp-title-section">
+          {% if settings.small_subtitle %}
+            <span>{{ settings.small_subtitle }}</span>
+          {% endif %}
+          {% if settings.details_title %}
+            <h3 >{{ settings.details_title }}</h3>
+          {% endif %}
+          {% if settings.details_desc %}
+            <p >{{ settings.details_desc }}</p>
+          {% endif %}
+        </div>
+    <div class="faqs-box" id="faqs-box">
+      {% if settings.faqs_store_features %}
+        {% for faq in settings.faqs_store_features %}
+          <div class="accordion-item" >
+            <h2 class="accordion-header">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ sectionId }}-{{ loop.index }}" aria-expanded="false" aria-controls="collapse-{{ sectionId }}-{{ loop.index }}">
+                {{ faq.title }}
+              </button>
+            </h2>
+            <div id="collapse-{{ sectionId }}-{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#faqs-box">
+              <div class="accordion-body">
+                {{ faq.answer }}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endif %}
+

@@ -1,0 +1,41 @@
+<form method="get" action="{{ session.url.path }}">
+
+	{% for input in session.url.query_params %}
+        <input type="hidden" name="{{ loop.index0 }}" value="{{ input }}">
+    {% endfor %}
+
+	<div class="form-products-filter">
+		<div class="flex-div">
+			<div class="col">
+				<label>{{ _("From") }}</label>
+        <input name="price_min" type="number" class="form-control" placeholder="{{ session.currency.code }}">
+			</div>
+			<div class="col">
+				<label>{{ _("To") }}</label>
+        <input name="price_max" type="number" class="form-control" placeholder="{{ session.currency.code }}">
+			</div>
+		</div>
+
+		<div class="checkbox-wrapper">
+			<input type="checkbox" id="on-sale" class="inp-cbx" name="on_sale"/>
+			<label for="on-sale" class="cbx">
+				<span>
+					<svg viewbox="0 0 12 10" height="10px" width="12px">
+						<polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+					</svg>
+				</span>
+				<p>{{ _("Show discounted only") }}</p>
+			</label>
+		</div>
+
+		<div class="footer-modal">
+			<button id="products-list-filter-form-save" type="submit" class="tp-btn tp-btn-primary">
+				<span>{{ _("Save") }}</span>
+			</button>
+			<button id="products-list-filter-form-clear" type="button" class="tp-btn tp-btn-primary-outline" onclick="clearFilters()">
+				<span>{{ _("Clear") }}</span>
+			</button>
+		</div>
+
+	</div>
+</form>

@@ -1,0 +1,48 @@
+{% if not settings.hide_element %}
+<section class="tp-product-category s-block" section-id="{{ sectionId }}">
+      <div class="container">
+        <div class="tp-title-section">
+          {% if settings.small_subtitle %}
+            <span>{{ settings.small_subtitle }}</span>
+          {% endif %}
+          {% if settings.title %}
+            <h3 >{{ settings.title }}</h3>
+          {% endif %}
+          {% if settings.small_text %}
+            <p >{{ settings.small_text }}</p>
+          {% endif %}
+        </div>
+        <div class="tp-category-list">
+              {% if 'categories' in settings %}
+              {% set categories = settings.categories %}
+              {% if categories is callable %}
+              {% set categories = categories() %}
+              {% endif %}
+              {% else %}
+              {% set categories = [] %}
+              {% endif %}
+              {% if categories is not iterable %}
+                  {% set categories = [] %}
+              {% endif %}
+
+              {% for item in categories %}
+              <a class="tp-category-item" href="{% if item.url %}{{ item.url }}{% else %}javascript:;{% endif %}" >
+                  <div class="category-thumb">
+                    <img loading="lazy" width="96" height="96" class="lazy-img" src="{{ image_url(item.image) }}"  alt="">
+                  </div>
+                <div class="tp-category-content">
+                  <h3 style="color: {{ item.color_title }};">
+                    {{ item.category_title }}
+                  </h3>
+                  {% if item.sub_title %}
+                    <p style="color: {{ item.color_sub_title }};">{{ item.sub_title }}</p>
+                  {% endif %}
+                </div>
+              </a>
+            {% endfor %}
+        </div>
+      </div>
+</section>
+{% endif %}
+
+

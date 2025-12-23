@@ -1,0 +1,72 @@
+{% if reviews %}
+	{% for review in reviews %}
+		<div class="tp-product-details-review-avater">
+			<div class="tp-product-details-review-avater-thumb">
+				<div class="account_circle">
+					<span class="d-none">{{ review.customer.name }}</span>
+				</div>
+			</div>
+			<div class="tp-product-details-review-avater-content">
+				<div class="tp-product-details-review-avater-rating">
+          {% set rating=review.rating %}{% include 'components/rating-stars.jinja' %}
+				</div>
+				<h3 class="tp-product-details-review-avater-title">{{ review.customer.name }}</h3>
+				<span class="tp-product-details-review-avater-meta" data-time-ago-date="{{ review.created_at }}"></span>
+				<div class="tp-product-details-review-avater-comment">
+					{{ review.comment | safe }}
+				</div>
+				{% if review.images %}
+					<div class="review-images-box">
+						{% for ikey, image in review.images %}
+							<img loading="lazy" src="{{ image.path }}" attr-index={{ ikey }} />
+						{% endfor %}
+					</div>
+				{% endif %}
+				{% if review.reply %}
+					<div class="review-reply-box tp-product-details-review-avater">
+						<div class="tp-product-details-review-avater-thumb">
+							<div class="account_circle">
+								<img loading="lazy" src="{{ store.logo }}" />
+							</div>
+						</div>
+						<div class="tp-product-details-review-avater-content">
+							<h3 class="tp-product-details-review-avater-title">{{ store.name }}</h3>
+							<div class="tp-product-details-review-avater-comment">
+								{{ review.reply.text | safe }}
+							</div>
+							{% if review.reply.images %}
+								<div class="review-images-box">
+									{% for ikey, image in review.reply.images %}
+										<img loading="lazy" src="{{ image.path }}" attr-index={{ ikey }} />
+									{% endfor %}
+								</div>
+							{% endif %}
+						</div>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	{% endfor %}
+
+	<script>
+		$('.tp-product-details-review-avater-thumb .account_circle').each(function () {
+      var name = $('span', this).text();
+        if (name) {
+        $('span', this).text(name.substring(0, 1));
+        $('span', this).removeClass('d-none');
+        }
+      });
+
+    $('.tp-product-details-review-avater .review-images-box img').on("click", function () {
+      var parent = $(this).closest('.review-images-box');
+      var index = $(this).attr('attr-index');
+      var images = [];
+      $('img', parent).each(function (idx, itm) {
+        images.push($(itm).attr('src'));
+      });
+      openPhotoSwiper(images, index);
+    });
+	</script>
+{% endif %}
+
+

@@ -1,0 +1,584 @@
+{% set another_logo = settings.general_another_logo %}
+{% set footer_logo = settings.general_footer_logo %}
+{% set back_top = settings.general_back_top %}
+{% set protect_content = settings.general_protect_content %}
+{% set remove_top_padding_home_large = settings.general_remove_top_padding_home_large %}
+{% set remove_top_padding_home_small = settings.general_remove_top_padding_home_small %}
+{% set whatsapp_enable = settings.whatsapp_enable %}
+{% set whatsapp_number = settings.whatsapp_number %}
+{% set whatsapp_message = settings.whatsapp_message %}
+{% set font_size = settings.general_font_size %}
+{% set head_scripts = settings.general_head_scripts %}
+{% set body_top_scripts = settings.general_body_top_scripts %}
+{% set body_bottom_scripts = settings.general_body_bottom_scripts %}
+{% set hide_2s = settings.loading_page_hide_2s %}
+{% set hide_loader = settings.loading_page_hide_loader %}
+{% set hide_payment = settings.menu_settings_hide_payment %}
+{% set side_bar_style = settings.menu_settings_side_bar_style %}
+{% set transparent_header = settings.header_setting_transparent_header %}
+{% set header_style_2 = settings.header_setting_header_style_2 %}
+{% set navigation_bar = settings.header_setting_navigation_bar %}
+{% set show_all_categories = settings.header_setting_show_all_categories %}
+{% set mega_menu = settings.header_setting_mega_menu %}
+{% set language_icon = settings.header_setting_language_icon %}
+{% set hide_search_bar = settings.header_setting_hide_search_bar %}
+{% set hide_language = settings.header_setting_hide_language %}
+{% set hide_country = settings.header_setting_hide_country %}
+{% set search_placeholder = settings.header_setting_search_placeholder %}
+{% set promotional_img = settings.header_setting_promotional_box_promotional_img %}
+{% set promotional_word = settings.header_setting_promotional_box_promotional_word %}
+{% set center_content = settings.footer_setting_center_content %}
+{% set shipping_icons = settings.footer_setting_shipping_icons %}
+{% set contact_us = settings.footer_setting_contact_us %}
+{% set display_mode = settings.categories_page_display_mode %}
+{% set auto_load_more = settings.categories_page_auto_load_more %}
+{% set Sort_mode = settings.categories_page_Sort_mode %}
+{% set fixed_on_mobile = settings.categories_page_fixed_on_mobile %}
+{% set img_fit = settings.product_card_img_fit %}
+{% set img_height_large_screen = settings.product_card_img_height_large_screen %}
+{% set img_height_small_screen = settings.product_card_img_height_small_screen %}
+{% set another_img = settings.product_card_another_img %}
+{% set add_cart_small = settings.product_card_add_cart_small %}
+{% set promotional_image = settings.product_card_promotional_image %}
+{% set convert_text_to_color = settings.product_single_convert_text_to_color %}
+{% set hide_short_description = settings.product_single_hide_short_description %}
+{% set hide_share = settings.product_single_hide_share %}
+{% set sticky_cart = settings.product_single_sticky_cart %}
+{% set promotional_title = settings.product_single_promotional_title %}
+{% set promotional_text = settings.product_single_promotional_text %}
+{% set alert_text = settings.product_single_alert_text %}
+{% set features = settings.product_single_features_product %}
+{% set payment_list_images = settings.product_single_payment_list_images %}
+{% set text_url_text = settings.product_single_text_url_text %}
+{% set text_url_url = settings.product_single_text_url_url %}
+{% set thumb_bottom = settings.product_single_thumb_bottom %}
+{% set no_tabs = settings.product_single_no_tabs %}
+{% set hide_people_viewing = settings.product_single_hide_people_viewing %}
+{% set hide_product_sku = settings.product_single_hide_product_sku %}
+{% set hide_product_weight = settings.product_single_hide_product_weight %}
+{% set features_cart = settings.cart_page_features_cart %}
+{% set hide_Popup_cart = settings.Popup_cart_hide_Popup_cart %}
+{% set Popup_cart = settings.Popup_cart_Popup_list %}
+{% set products_videos = settings.products_videos_products_list %}
+{% set brands_categories_title = settings.brands_categories_main_title %}
+{% set store_partners = settings.brands_categories_store_partners %}
+
+<!doctype html>
+<html class="no-js" lang="{{ session.lang }}" dir="{{ session.locale.language.direction }}">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta property="og:image" content="{{ store.logo }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:image" content="{{ store.logo }}">
+		{{ header_meta_tags | safe }}
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+    {% vitrin_head %}
+		<link rel="shortcut icon" type="image/jpg" href="{{ store.icon }}"/>
+    {% if Sort_mode %}
+      <script>
+          (function () {
+          const pathname = window.location.pathname;
+
+          const isAllProductsPage = pathname === '/products';
+          const isSingleCategoryPage = pathname.startsWith('/categories/') && pathname !== '/categories';
+
+          if (isAllProductsPage || isSingleCategoryPage) {
+            const urlParams = new URLSearchParams(window.location.search);
+
+            if (!urlParams.has('sort_by') || !urlParams.has('order')) {
+              urlParams.set('sort_by', 'created_at');
+              urlParams.set('order', 'desc');
+
+              const newUrl = `${pathname}?${urlParams.toString()}`;
+              window.location.replace(newUrl);
+            }
+          }
+        })();
+      </script>
+    {% endif %}
+    {% if head_scripts %}
+    {{ head_scripts | safe }}
+{% endif %}
+
+    <script>
+      window.enableAutoLoadMore = {{ 'true' if auto_load_more else 'false' }};
+      window.imgFit = "{{ img_fit }}";
+      window.imgHeightLargeScreen = {% if img_height_large_screen is defined and img_height_large_screen is not none %}{{ img_height_large_screen }}{% else %}13{% endif %};
+      window.imgHeightSmallScreen = {% if img_height_small_screen is defined and img_height_small_screen is not none %}{{ img_height_small_screen }}{% else %}11{% endif %};
+      
+      // حساب القيم العشرية وتحديث CSS variables
+      document.addEventListener('DOMContentLoaded', function() {
+        const root = document.documentElement;
+        if (window.imgHeightLargeScreen) {
+          root.style.setProperty('--img-height-large-screen', (window.imgHeightLargeScreen / 10).toString());
+        }
+        if (window.imgHeightSmallScreen) {
+          root.style.setProperty('--img-height-small-screen', (window.imgHeightSmallScreen / 10).toString());
+        }
+      });
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link media="print"
+      onload="this.onload=null;this.media='all'" href="https://fonts.googleapis.com/css2?family={% if settings.fonts_name %}{{ settings.fonts_name }}{% else %}Changa{% endif %}:wght@300;400;500;700&display=swap" rel="stylesheet">
+		<style>
+      :root {
+        --primary-color: {{store.settings.branding.colors.primary}};
+        --text-color-primary-bg: {{store.settings.branding.colors.on_primary}};
+        --primary-color-op-5: {{store.settings.branding.colors.primary}}0c;
+        --sub-primary-color: #521B25;
+        --white-color: #fff;
+        --warning-color: #FFCF57;
+        --danger-color: #EC5550;
+        --sucess-color: #5AA788;
+        --black-color: #0000;
+        --secondary-color: #DEDEDE;
+        --secondary-color-alt0: #6B6B6B;
+        --secondary-color-alt1: #5A5A5A;
+        --secondary-color-alt2: #EFEFEF;
+        --secondary-color-alt3: #494949;
+        --secondary-color-alt4: #D9D9D9;
+        --secondary-color-alt5: #E8E8E8;
+        --secondary-color-alt6: #8B8B8B;
+        --secondary-color-alt7: #ebebeb;
+        --secondary-color-alt8: #484848;
+        --secondary-color-alt9: #A8A8A8;
+        --secondary-color-alt10: #4A4A4A;
+        --secondary-color-alt11: #606060;
+        --secondary-color-alt12: #767676;
+        --secondary-color-alt13: #F8F8F8;
+        /* font-wieght */
+        --font-weight-sizeOne: 400;
+        --font-wieght-sizeTwo: 700;
+        --font-wieght-sizeThree: 600;
+        /* font-size */
+        --font-size-forteen: 1.167;
+        --font-size-sixteen: 1.333;
+        --font-size-eighteen: 1.5;
+
+        --main-slider-height: 471.43px;
+        --main-slider-sm-height: 115px;
+        --page-zoom: {% if font_size is defined and font_size is not none %}{{ font_size }}{% else %}100{% endif %}%;
+      }
+
+      @font-face {
+        font-family: 'icomoon';
+        src: url('{{ 'icomoon.eot?d668y32' | asset_url }}');
+        src: url('{{ 'icomoon.eot?d668y32#iefix' | asset_url }}') format('embedded-opentype'),
+            url('{{ 'icomoon.woff2?d668y32' | asset_url }}') format('woff2'),
+            url('{{ 'icomoon.ttf?d668y32' | asset_url }}') format('truetype'),
+            url('{{ 'icomoon.woff?d668y32' | asset_url }}') format('woff'),
+            url('{{ 'icomoon.svg?d668y32#icomoon' | asset_url }}') format('svg');
+        font-weight: normal;
+        font-style: normal;
+        font-display: block;
+      }
+
+      .header-box .middle-box a img,
+      .tp-footer-logo img {
+    display: none;
+}
+
+	</style>
+
+  <link rel="stylesheet" type="text/css" href="{{ 'icomoon.css' | asset_url }}"/>
+
+  {% if session.lang == 'ar' %}
+    <link rel="stylesheet" type="text/css" href="{{ 'bootstrap-rtl.css' | asset_url }}"/>
+  {% else %}
+    <link rel="stylesheet" type="text/css" href="{{ 'bootstrap.min.css' | asset_url }}"/>
+  {% endif %}
+
+  <link rel="stylesheet" type="text/css" href="{{ 'all-styles.min.css' | asset_url }}"/>
+
+  {% block top_links %}{% endblock %}
+
+  <link rel="stylesheet" type="text/css" href="{{ 'responsive.css' | asset_url }}"/>
+
+  {% if session.lang == 'en' %}
+    <link rel="stylesheet" type="text/css" href="{{ 'main-ltr.css' | asset_url }}"/>
+  {% endif %}
+
+	{% if user_custom_css %}
+		<link rel="stylesheet" href="{{ user_custom_css }}">
+	{% endif %}
+
+</head>
+
+<body class="{{ session.locale.language.direction }}" data-template="{{ session.template }}" {% if template == 'category' and category is not none %} data-category-id="{{ category.id }}" {% endif %} data-side-bar-style="{{ 'false' if side_bar_style else 'true' }}" style="zoom:var(--page-zoom)">
+  {% if body_top_scripts %}
+  {{ body_top_scripts | safe }}
+{% endif %}
+
+  {% if store.editing_mode %}
+		<link href="https://fonts.googleapis.com/css2?family={% if settings.fonts_name %}{{ settings.fonts_name }}{% else %}Baloo+Bhaijaan+2{% endif %}:wght@400..800&display=swap" rel="stylesheet">
+    <style>
+      .dot-banner-image-wrapper .image-indecator {
+        display:flex;
+      }
+    </style>
+  {% endif %}
+	<style>
+    body,
+			html {
+				font-family: {% if settings.fonts_name %}
+					"{{ settings.fonts_name|replace('+',' ') }}"{% else %}'"Baloo Bhaijaan 2"'{% endif %}, sans-serif;
+				font-display: swap;
+			}
+		:root {
+			{% if settings.colors_header_background_color %}
+				--header-primary-color: {{settings.colors_header_background_color}};
+        {% else %}
+        --header-primary-color: #ffffff;
+			{% endif %}
+      {% if settings.colors_header_text_color %}
+				--header-text-color-primary-bg: {{settings.colors_header_text_color}};
+        {% else %}
+        --header-primary-color: #010f1c;
+			{% endif %}
+			{% if settings.colors_header_menu_background_color %}
+				--menu-header-primary-color: {{settings.colors_header_menu_background_color}};
+				--header-primary-brightness: brightness(100%);
+			{% elif settings.colors_header_background_color %}
+				--menu-header-primary-color: {{settings.colors_header_background_color}};
+				--header-primary-brightness: brightness(80%);
+			{% endif %}
+			{% if settings.colors_header_menu_text_color %}
+				--menu-header-text-color-primary-bg: {{settings.colors_header_menu_text_color}};
+			{% elif settings.colors_header_text_color %}
+				--menu-header-text-color-primary-bg: {{settings.colors_header_text_color}};
+			{% endif %}
+			{% if settings.colors_footer_background_color %}
+				--footer-primary-color: {{settings.colors_footer_background_color}};
+        {% else %}
+        --footer-primary-color: #ffffff;
+			{% endif %}
+			{% if settings.colors_footer_text_color %}
+				--footer-text-color-primary-bg: {{settings.colors_footer_text_color}};
+        {% else %}
+        --footer-text-color-primary-bg: #000000;
+			{% endif %}
+      {% if settings.colors_bottom_menu_background_color %}
+          --bottom-menu-background-color: {{ settings.colors_bottom_menu_background_color }};
+      {% else %}
+          --bottom-menu-background-color: #ffffff;
+      {% endif %}
+      {% if settings.colors_bottom_menu_text_color %}
+          --bottom-menu-text-color: {{ settings.colors_bottom_menu_text_color }};
+      {% else %}
+          --bottom-menu-text-color: #000000;
+      {% endif %}
+      {% if settings.colors_background_background_color %}
+          --body_background_color: {{ settings.colors_background_background_color }};
+      {% else %}
+          --body_background_color: #fff;
+      {% endif %}
+      {% if settings.loading_page_background_color %}
+          --loader_background_color: {{ settings.loading_page_background_color }};
+      {% else %}
+          --loader_background_color: #fff;
+      {% endif %}
+      {% if settings.colors_header_background_color_catg_menu %}
+          --background_color_catg_menu: {{ settings.colors_header_background_color_catg_menu }};
+      {% else %}
+          --background_color_catg_menu: #fff;
+      {% endif %}
+      {% if settings.colors_header_text_color_catg_menu %}
+          --text_color_catg_menu: {{ settings.colors_header_text_color_catg_menu }};
+      {% else %}
+          --text_color_catg_menu: #010f1c;
+      {% endif %}
+		}
+	</style>
+{% if protect_content and not store.editing_mode %}
+  <style>
+    body {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    img:not(.play-icon):not(.allow-select),
+    video,
+    .product-images-carousel .image-link {
+      -webkit-user-drag: none;
+      user-drag: none;
+      pointer-events: none;
+    }
+  </style>
+
+<script>
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+    document.addEventListener('contextmenu', e => e.preventDefault());
+
+    document.addEventListener('keydown', e => {
+      const key = e.key.toLowerCase();
+      if (
+        (e.ctrlKey && ['u', 'c', 's', 'p'].includes(key)) ||
+        (e.metaKey && ['s', 'p'].includes(key)) ||
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && ['i', 'c'].includes(key))
+      ) {
+        e.preventDefault();
+      }
+    });
+
+    const detectDevTools = () => {
+      const threshold = 160;
+      return (
+        window.outerWidth - window.innerWidth > threshold ||
+        window.outerHeight - window.innerHeight > threshold
+      );
+    };
+
+    const destroyIfDevTools = () => {
+      if (detectDevTools()) {
+        document.body.innerHTML = '';
+        window.location.href = 'about:blank';
+      }
+    };
+
+    if (!isMobile) {
+      window.addEventListener('load', () => {
+        destroyIfDevTools();
+        setInterval(destroyIfDevTools, 1000);
+      });
+    }
+</script>
+
+
+{% endif %}
+{% block top_body %}
+  {% if not hide_loader %}
+		<div class="loader-container" id="loader-container">
+			<div class="loader-box">
+        {% set logoUrl = store.logo %}
+        <div class="logo-lodaer-box" style="background-image: url('{{ logoUrl }}')"></div>
+			</div>
+      <div class="load-row">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+		</div>
+  {% endif %}
+
+  {% if not hide_Popup_cart and Popup_cart %}
+    <div class="popup-sec popup-cart">
+      <div class="popup-box">
+        <button type="button" class="close-modal-custom" data-bs-dismiss="offcanvas" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M2.14735 15.8521C2.19379 15.8986 2.24893 15.9354 2.30963 15.9606C2.37033 15.9858 2.43539 15.9987 2.5011 15.9987C2.56681 15.9987 2.63187 15.9858 2.69257 15.9606C2.75327 15.9354 2.80841 15.8986 2.85485 15.8521L8.99985 9.70708L15.1473 15.8521C15.2412 15.9459 15.3684 15.9986 15.5011 15.9986C15.6338 15.9986 15.761 15.9459 15.8548 15.8521C15.9487 15.7583 16.0014 15.631 16.0014 15.4983C16.0014 15.3656 15.9487 15.2384 15.8548 15.1446L9.70735 8.99957L15.8523 2.85207C15.9462 2.75825 15.9989 2.63101 15.9989 2.49832C15.9989 2.36564 15.9462 2.2384 15.8523 2.14457C15.7585 2.05075 15.6313 1.99805 15.4986 1.99805C15.3659 1.99805 15.2387 2.05075 15.1448 2.14457L8.99985 8.29208L2.85235 2.14707C2.7567 2.06516 2.63366 2.02236 2.50782 2.02722C2.38198 2.03208 2.26262 2.08425 2.17357 2.17329C2.08452 2.26234 2.03235 2.38171 2.02749 2.50755C2.02263 2.63339 2.06544 2.75642 2.14735 2.85207L8.29235 8.99957L2.14735 15.1471C2.05422 15.2408 2.00195 15.3675 2.00195 15.4996C2.00195 15.6317 2.05422 15.7584 2.14735 15.8521Z"
+              fill="#2E2E2E"></path>
+          </svg>
+        </button>
+        <div class="popup-container">
+          {% for item in Popup_cart %}
+          <a href="{{ item.url|default('javascript:;') }}" class="img-popup">
+            {% if item.video and item.image %}
+              <video width="100%" loop autoplay muted playsinline>
+                <source src="{{ item.video }}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            {% elif item.image %}
+                <img src="{{ image_url(item.image) }}" alt="{{ item.title }}">
+            {% elif item.video %}
+              <video width="100%" loop autoplay muted playsinline >
+                <source src="{{ item.video }}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            {% endif %}
+          </a>
+
+          <div class="content-popup">
+            {% if item.title %}
+            <h3>{{ item.title }}</h3>
+            {% endif %}
+
+            {% if item.des %}
+            <p>{{ item.des }}</p>
+            {% endif %}
+
+            {% if item.btn_text %}
+            <a href="{{ item.url|default('#') }}"
+              style="background: {{ item.btn_background_color }}; color: {{ item.btn_text_color }};">
+              {{ item.btn_text }}
+            </a>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="overlay-popup overlay-cart"></div>
+  {% endif %}
+
+      <!-- Offer Modals -->
+    {% if settings.offer_modals_enabled and settings.offer_modals_offers %}
+      {% set enabled = settings.offer_modals_enabled %}
+      {% set offer_modals = settings.offer_modals_offers %}
+      {% include 'components/offer-modal.jinja' %}
+    {% endif %}
+
+    <!-- Quickview Modal -->
+    <div class="modal fade" id="quickview-modal" tabindex="-1" aria-labelledby="quickview-modal-label" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="quickview-modal-label">{{ _("Product Details") }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="quickview-modal-body">
+            <div class="quickview-loading text-center py-5">
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  {% if not back_top %}
+    <div class="progress_indicator" style="width:45px; height:45px;position: fixed;">
+      <svg class="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
+          <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" />
+      </svg>
+    </div>
+  {% endif %}
+  {% if whatsapp_enable and whatsapp_number %}
+    <a href="https://wa.me/{{whatsapp_number}}{% if whatsapp_message %}?text={{ whatsapp_message | urlencode }}{% endif %}" class="whatsapp-icon" target="_blank" aria-label="whatsapp">
+      <i class="icon-whatsapp"></i>
+    </a>
+  {% endif %}
+{% endblock %}
+
+	<div class="app d-flex flex-column visible">
+  <div class="overlay-filter"></div>
+		<div class="header">
+        {% block header %}{% endblock %}
+    </div>
+			<div class="main flex-grow-1 app-content"> {% block main_content %}{% endblock %}
+				</div>
+				<div class="footer">
+          {% block footer %}{% endblock %}
+				</div>
+					{% block footer_sticky %}{% endblock %}
+				</div>
+
+        {% if not hide_loader %}
+        {% if hide_2s %}
+            <script>
+              addEventListener("DOMContentLoaded", (event) => {
+              const loader = document.getElementById('loader-container');
+                if (loader) {
+                  loader.remove();
+                }
+              });
+              setTimeout(() => {
+                const loader = document.getElementById('loader-container');
+                if (loader) {
+                  loader.remove();
+                }
+              }, 2000);
+          </script>
+        {% else %}
+          <script>
+            addEventListener("DOMContentLoaded", (event) => {
+              const loader = document.getElementById('loader-container');
+              if (loader) {
+                loader.remove();
+              }
+            });
+          </script>
+        {% endif %}
+{% endif %}
+        <script>
+    window.appDirection = '{{ session.locale.language.direction }}';
+
+    window.loadToasterScriptIfNotLoaded = function (onCompleted) {
+        var list = document.getElementsByTagName('script');
+        var i = list.length, flag = false;
+        while (i--) {
+            if (list[i].src === "{{ 'toastr.min.js' | asset_url }}") {
+                flag = true;
+                break;
+            }
+        }
+
+        if (!flag) {
+            var script = document.createElement('script');
+            script.src = "{{ 'toastr.min.js' | asset_url }}";
+            document.getElementsByTagName('head')[0].appendChild(script);
+
+            var fileref = document.createElement("link");
+            fileref.rel = "stylesheet";
+            fileref.type = "text/css";
+            fileref.href = "{{ 'toastr.min.css' | asset_url }}";
+            document.getElementsByTagName("head")[0].appendChild(fileref)
+
+            script.onload = function () {
+                if(onCompleted)
+                    onCompleted();
+            }
+        }else{
+            if(onCompleted)
+                onCompleted();
+        }
+    }
+</script>
+
+<script>
+  window.i18n = {
+    success: "{{ _('Sent successfully') }}",
+    error: "{{ _('Sorry') }}",
+    remove: "{{ _('Remove') }}",
+    add_to_cart: "{{ _('Add to cart') }}",
+    product_has_options: "{{ _('Has options') }}",
+    btn_error_product_out_of_stock: "{{ _('Notify me') }}",
+    product_is_not_taxable: "{{ _('Product is not taxable') }}",
+    lbl_error_product_out_of_stock: "{{ _('Out of stock') }}",
+    discount: "{{ _('Discount') }}",
+    no_search_results: "{{ _('No search results') }}",
+    send_successfully: "{{ _('Send Successfully') }}",
+    requested_quantity_not_available: "{{ _('The requested quantity is not available') }}"
+  };
+  window.asset_url = "{{ '' | asset_url }}".replace(/\/[^\/]*$/, '/');
+</script>
+
+
+
+        <script src="{{ 'scripts.bundle.min.js' | asset_url }}"></script>
+        <script src="{{ 'main.js' | asset_url }}"></script>
+        <script src="{{ 'bundle-offers.js' | asset_url }}"></script>
+        <script src="{{ 'side-cart.js' | asset_url }}"></script>
+        <script src="{{ 'quickview.js' | asset_url }}"></script>
+
+      {% vitrin_body %}
+
+      {% if session.template not in ['product_details', 'cart_page', 'page_details'] and safeget(store, "settings.checkout.is_loyalty_enabled", False) %}
+
+          <script>
+              var loyalty_button_direction = "{{ session.language.direction }}";
+              var text_loyalty_rewards = '{{ _('Rewards') }}';
+              var text_loyalty_options = '{{ _('For {points} get a discount {percentage}') }}';
+              var store_currency_code = '{{ session.currency }}';
+          </script>
+          <script type='text/javascript' src="{{ 'layout_loyalty_points.js' | asset_url }}"></script>
+
+      {% endif %}
+
+				{% block footer_scripts %}{% endblock %}
+        
+          {% if body_bottom_scripts %}
+            {{ body_bottom_scripts | safe }}
+          {% endif %}
+			</body>
+
+	</html>

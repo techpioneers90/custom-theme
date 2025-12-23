@@ -1,0 +1,108 @@
+<div id="menu-logo" style="display:none;">
+	<a href="/" class="logo-menu">
+		{% set logoUrl = store.logo %}
+		<img loading="lazy" class="menu-logo lazy-img" width="180" height="60" src="{{ image_url(logoUrl,{ h: 175, q: 100 }) }}" alt="{{ store.name }}">
+	</a>
+</div>
+
+<div id="menu-secondary" class="secondary-menu-wrap" style="display:none;">
+	<div class="links-bottom">
+		<a href="/cart/view" role="button" aria-label="cart">
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" color="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+				<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+				<path d="M6.331 8h11.339a2 2 0 0 1 1.977 2.304l-1.255 8.152a3 3 0 0 1 -2.966 2.544h-6.852a3 3 0 0 1 -2.965 -2.544l-1.255 -8.152a2 2 0 0 1 1.977 -2.304z"></path>
+				<path d="M9 11v-5a3 3 0 0 1 6 0v5"></path>
+			</svg>
+			<span class="cart-badge">0</span>
+      {{ _("cart") }}
+		</a>
+	</div>
+	<div class="links-bottom">
+		<button zid-visible-customer="true" type="button" class="user-btn" onclick="window.location.href='/account-profile'" aria-label="profile">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="currentColor" fill="none">
+				<path d="M18.5 20V17.9704C18.5 16.7281 17.9407 15.5099 16.8103 14.9946C15.4315 14.3661 13.7779 14 12 14C10.2221 14 8.5685 14.3661 7.18968 14.9946C6.05927 15.5099 5.5 16.7281 5.5 17.9704V20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+				<circle cx="12" cy="7.5" r="3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></circle>
+			</svg>
+      {{ _("Account") }}
+		</button>
+		<button zid-visible-guest="true" type="button" class="user-btn" onclick="window.location.href='/auth/login'" aria-label="login btn">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="currentColor" fill="none">
+				<path d="M18.5 20V17.9704C18.5 16.7281 17.9407 15.5099 16.8103 14.9946C15.4315 14.3661 13.7779 14 12 14C10.2221 14 8.5685 14.3661 7.18968 14.9946C6.05927 15.5099 5.5 16.7281 5.5 17.9704V20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+				<circle cx="12" cy="7.5" r="3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></circle>
+			</svg>
+      {{ _("Login") }}
+		</button>
+	</div>
+	{% set multiple_countries = store.countries | length > 1 %}
+    {% set multiple_languages = store.languages | length > 1 %}
+    {% set show_country = not (hide_country if hide_country is defined else false) %}
+    {% set show_language = not (hide_language if hide_language is defined else false) %}
+      {% if (show_country and multiple_countries) or (show_language and multiple_languages) %}
+		<div class="links-bottom">
+			<div class="language-currency-btn" data-bs-toggle="modal" data-bs-target="#langCurrecyModal">
+				{% if session.lang == 'en' %}
+                {% set change_to_lang = 'ar' %}
+                {% set change_to_lang_name = 'العربية' %}
+                {% set country_name = session.country.names.en %}
+            {% else %}
+                {% set change_to_lang = 'en' %}
+                {% set change_to_lang_name = 'English' %}
+                {% set country_name = session.country.names.ar %}
+            {% endif %}
+				<div class="lang-currency-display">
+					<img src="{{ session.country.flag }}" alt="{{ country_name }}" width="20" height="14">
+					<span>{{ country_name }}</span>
+					<em>|</em>
+					<span>{{ change_to_lang_name }}</span>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+</div>
+
+<nav id="sliding-menu" style="
+		    position: fixed;
+		    opacity: 0;">
+	<ul class="list-menu">
+		{% for menu in store.settings.menus.main_menu.items %}
+			{% if menu.url %}
+				<li class="slide-menu-ul-li {% if menu.slug == 'all_categories' %} all-categories {% endif %}" onclick="scrollToSubMenu(this)">
+					<a href="{{ menu.url }}" title="{{ menu.label }}" class="menu-link" aria-label="{{ menu.label }}">
+						{% if menu.image_thumbnail %}
+							<img loading="lazy" src="{{ menu.image_thumbnail }}" alt="menu" width="42" height="42" class="menu-image lazy-img"/>
+						{% endif %}
+						<span class="clickable-span">{{ menu.label }}</span>
+					</a>
+					{% if menu.items | length > 0 %}
+						<ul>
+							{% for menu_sub in menu.items %}
+								<li class="slide-menu-ul-li">
+									<a href="{{ menu_sub.url }}" aria-label="{{ menu_sub.label }}">
+										{% if menu_sub.image_thumbnail %}
+											<img loading="lazy" src="{{ menu_sub.image_thumbnail }}" alt="menu-sub" width="42" height="42" class="menu-image lazy-img"/>
+										{% endif %}
+										<span class="clickable-span">{{ menu_sub.label }}</span>
+									</a>
+									{% if menu_sub.items | length > 0 %}
+										<ul>
+											{% for menu_sub_sub in menu_sub.items %}
+												<li class="slide-menu-ul-li">
+													<a href="{{ menu_sub_sub.url }}" aria-label="{{ menu_sub_sub.label }}">
+														{% if menu_sub_sub.image_thumbnail %}
+															<img loading="lazy" src="{{ menu_sub_sub.image_thumbnail }}" alt="menu-sub-sub" width="42" height="42" class="menu-image lazy-img"/>
+														{% endif %}
+														{{ menu_sub_sub.label }}
+													</a>
+												</li>
+											{% endfor %}
+										</ul>
+									{% endif %}
+								</li>
+							{% endfor %}
+						</ul>
+					{% endif %}
+				</li>
+			{% endif %}
+		{% endfor %}
+	</ul>
+</nav>

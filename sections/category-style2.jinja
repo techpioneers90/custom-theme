@@ -1,0 +1,128 @@
+{% if not settings.hide_element %}
+<section class="tp-category-style2 s-block" section-id="{{ sectionId }}">
+      <style>
+        /* قبل ما slick يتهيأ، خفي الشرائح غير المرئية */
+        [section-id="{{ sectionId }}"] .tp-category-style2-swiper:not(.slick-initialized) .swiper-slide:not(:first-child) {
+          display: none;
+        }
+      </style>
+      
+      <div class="container">
+          <div class="tp-title-section">
+          {% if settings.small_subtitle %}
+            <span>{{ settings.small_subtitle }}</span>
+          {% endif %}
+          {% if settings.title %}
+            <h3 >{{ settings.title }}</h3>
+          {% endif %}
+          {% if settings.small_text %}
+            <p >{{ settings.small_text }}</p>
+          {% endif %}
+        </div>
+    </div>
+    {% if 'category_style2' in settings %}
+    {% set category_style2 = settings.category_style2 %}
+    {% if category_style2 is callable %}
+    {% set category_style2 = category_style2() %}
+    {% endif %}
+    {% else %}
+    {% set category_style2 = [] %}
+    {% endif %}
+{% if category_style2 is not iterable %}
+    {% set category_style2 = [] %}
+{% endif %}
+	<div class="tp-category-style2-swiper">
+			{% for slide in category_style2 %}
+				<div class="swiper-slide" >
+					<a href="{% if slide.url %}{{ slide.url }}{% else %}javascript:;{% endif %}">
+						{% if slide.image %}
+							<img loading="lazy" width="500" height="500" class="lazy-img" src="{{ image_url(slide.image) }}"  alt="">
+						{% endif %}
+						{% if slide.title %}
+							<h3>{{ slide.title }}</h3>
+						{% endif %}
+					</a>
+				</div>
+			{% endfor %}
+	</div>
+
+
+     <script>
+  (function() {
+    function initSlider() {
+      var arrowNextClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_right' : 'icon-keyboard_arrow_left';
+      var arrowPrevClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_left' : 'icon-keyboard_arrow_right';
+
+      var $slider = $('[section-id="{{ sectionId }}"] .tp-category-style2-swiper');
+
+      if ($slider.length && !$slider.hasClass('slick-initialized')) {
+        $slider.slick({
+          slidesToScroll: 3,
+          slidesToShow: 3,
+          infinite: true,
+          autoplay: true,
+          autoplaySpeed: 4000,
+          arrows: true,
+          dots: false,
+          rtl: !(window.appDirection === 'ltr'),
+          nextArrow: '<button class="slick-next slick-arrow" aria-label="Next" type="button" style=""><span class="'+arrowNextClass+'"></span></button>',
+          prevArrow: '<button class="slick-prev slick-arrow" aria-label="Previous" type="button" style=""><span class="'+arrowPrevClass+'"></span></button>',
+          responsive: [
+            {
+              breakpoint: 768,
+              settings: {
+                slidesToShow: 2,
+                slidesToScroll: 2,
+              },
+            },
+            {
+              breakpoint: 350,
+              settings: {
+                slidesToShow: 1,
+                slidesToScroll: 1,
+              },
+            },
+          ]
+        });
+      }
+    }
+
+    if ('IntersectionObserver' in window) {
+      var section = document.querySelector('[section-id="{{ sectionId }}"]');
+      if (section) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+                initSlider();
+                observer.unobserve(entry.target);
+              } else {
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', initSlider);
+                } else {
+                  initSlider();
+                }
+                observer.unobserve(entry.target);
+              }
+            }
+          });
+        }, {
+          rootMargin: '300px'
+        });
+        
+        observer.observe(section);
+      }
+    } else {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSlider);
+      } else {
+        initSlider();
+      }
+    }
+  })();
+</script>
+
+</section>
+{% endif %}
+
+

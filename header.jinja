@@ -1,0 +1,158 @@
+<header id="{{ sectionId }}" section-id="{{ sectionId }}" class='header-nav {% if transparent_header %}bg-header-transparent{% endif %}'>
+	{# {% include 'template_for_store_messages' %} #}
+	{% set ab_settings=settings %}{% include 'components/header-announcement-bar.jinja' %}
+  {% set multiple_countries = store.countries | length > 1 %}
+  {% set multiple_languages = store.languages | length > 1 %}
+
+  {# {% set header_settings=settings %}{% include 'components/header-account-lang-currency.jinja' %} #}
+	<div class="bg-header">
+		<div class="container">
+      {% set header=settings %}{% include 'components/header-search-header.jinja' %}
+		</div>
+	</div>
+
+	{% if header_style_2 %}
+  {% set menu_settings=settings %}{% include 'components/header-menu-style2.jinja' %}
+	{% elif navigation_bar %}
+    {% set menu_settings=settings %}{% include 'components/header-mega-menu.jinja' %}
+	{% endif %}
+</header>
+
+{% set menu_settings=settings %}{% include 'components/header-sliding-menu.jinja' %}
+
+<div class="header-sm">
+	<div class="container">
+		<div class="flex-header-sm">
+			<a href="/">
+				<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+					<path d="M15.0002 17C14.2007 17.6224 13.1504 18 12.0002 18C10.8499 18 9.79971 17.6224 9.00018 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+					<path d="M2.35157 13.2135C1.99855 10.9162 1.82204 9.76763 2.25635 8.74938C2.69065 7.73112 3.65421 7.03443 5.58132 5.64106L7.02117 4.6C9.41847 2.86667 10.6171 2 12.0002 2C13.3832 2 14.5819 2.86667 16.9792 4.6L18.419 5.64106C20.3462 7.03443 21.3097 7.73112 21.744 8.74938C22.1783 9.76763 22.0018 10.9162 21.6488 13.2135L21.3478 15.1724C20.8473 18.4289 20.5971 20.0572 19.4292 21.0286C18.2613 22 16.5538 22 13.139 22H10.8614C7.44652 22 5.73909 22 4.57118 21.0286C3.40327 20.0572 3.15305 18.4289 2.65261 15.1724L2.35157 13.2135Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+				</svg>
+				{{ _("Home") }}
+			</a>
+			<a href="/categories">
+				<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+					<path d="M2 18C2 16.4596 2 15.6893 2.34673 15.1235C2.54074 14.8069 2.80693 14.5407 3.12353 14.3467C3.68934 14 4.45956 14 6 14C7.54044 14 8.31066 14 8.87647 14.3467C9.19307 14.5407 9.45926 14.8069 9.65327 15.1235C10 15.6893 10 16.4596 10 18C10 19.5404 10 20.3107 9.65327 20.8765C9.45926 21.1931 9.19307 21.4593 8.87647 21.6533C8.31066 22 7.54044 22 6 22C4.45956 22 3.68934 22 3.12353 21.6533C2.80693 21.4593 2.54074 21.1931 2.34673 20.8765C2 20.3107 2 19.5404 2 18Z" stroke="currentColor" stroke-width="1.5"/>
+					<path d="M14 18C14 16.4596 14 15.6893 14.3467 15.1235C14.5407 14.8069 14.8069 14.5407 15.1235 14.3467C15.6893 14 16.4596 14 18 14C19.5404 14 20.3107 14 20.8765 14.3467C21.1931 14.5407 21.4593 14.8069 21.6533 15.1235C22 15.6893 22 16.4596 22 18C22 19.5404 22 20.3107 21.6533 20.8765C21.4593 21.1931 21.1931 21.4593 20.8765 21.6533C20.3107 22 19.5404 22 18 22C16.4596 22 15.6893 22 15.1235 21.6533C14.8069 21.4593 14.5407 21.1931 14.3467 20.8765C14 20.3107 14 19.5404 14 18Z" stroke="currentColor" stroke-width="1.5"/>
+					<path d="M2 6C2 4.45956 2 3.68934 2.34673 3.12353C2.54074 2.80693 2.80693 2.54074 3.12353 2.34673C3.68934 2 4.45956 2 6 2C7.54044 2 8.31066 2 8.87647 2.34673C9.19307 2.54074 9.45926 2.80693 9.65327 3.12353C10 3.68934 10 4.45956 10 6C10 7.54044 10 8.31066 9.65327 8.87647C9.45926 9.19307 9.19307 9.45926 8.87647 9.65327C8.31066 10 7.54044 10 6 10C4.45956 10 3.68934 10 3.12353 9.65327C2.80693 9.45926 2.54074 9.19307 2.34673 8.87647C2 8.31066 2 7.54044 2 6Z" stroke="currentColor" stroke-width="1.5"/>
+					<path d="M14 6C14 4.45956 14 3.68934 14.3467 3.12353C14.5407 2.80693 14.8069 2.54074 15.1235 2.34673C15.6893 2 16.4596 2 18 2C19.5404 2 20.3107 2 20.8765 2.34673C21.1931 2.54074 21.4593 2.80693 21.6533 3.12353C22 3.68934 22 4.45956 22 6C22 7.54044 22 8.31066 21.6533 8.87647C21.4593 9.19307 21.1931 9.45926 20.8765 9.65327C20.3107 10 19.5404 10 18 10C16.4596 10 15.6893 10 15.1235 9.65327C14.8069 9.45926 14.5407 9.19307 14.3467 8.87647C14 8.31066 14 7.54044 14 6Z" stroke="currentColor" stroke-width="1.5"/>
+				</svg>
+				{{ _("Categories") }}
+			</a>
+				<a href="javascript:;" class="search-box" aria-label="search">
+					<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+						<path d="M17.5 17.5L22 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M20 11C20 6.02944 15.9706 2 11 2C6.02944 2 2 6.02944 2 11C2 15.9706 6.02944 20 11 20C15.9706 20 20 15.9706 20 11Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+					</svg>
+          {{ _("search") }}
+				</a>
+			<button zid-visible-customer="true" type="button" onclick="window.location.href='/account-profile'" aria-label="profile">
+				<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+					<path d="M6.57757 15.4816C5.1628 16.324 1.45336 18.0441 3.71266 20.1966C4.81631 21.248 6.04549 22 7.59087 22H16.4091C17.9545 22 19.1837 21.248 20.2873 20.1966C22.5466 18.0441 18.8372 16.324 17.4224 15.4816C14.1048 13.5061 9.89519 13.5061 6.57757 15.4816Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+					<path d="M16.5 6.5C16.5 8.98528 14.4853 11 12 11C9.51472 11 7.5 8.98528 7.5 6.5C7.5 4.01472 9.51472 2 12 2C14.4853 2 16.5 4.01472 16.5 6.5Z" stroke="currentColor" stroke-width="1.5"/>
+				</svg>
+				{{ _("Account") }}
+			</button>
+			<button zid-visible-guest="true" type="button" onclick="window.location.href='/auth/login'" aria-label="login btn">
+				<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+					<path d="M6.57757 15.4816C5.1628 16.324 1.45336 18.0441 3.71266 20.1966C4.81631 21.248 6.04549 22 7.59087 22H16.4091C17.9545 22 19.1837 21.248 20.2873 20.1966C22.5466 18.0441 18.8372 16.324 17.4224 15.4816C14.1048 13.5061 9.89519 13.5061 6.57757 15.4816Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+					<path d="M16.5 6.5C16.5 8.98528 14.4853 11 12 11C9.51472 11 7.5 8.98528 7.5 6.5C7.5 4.01472 9.51472 2 12 2C14.4853 2 16.5 4.01472 16.5 6.5Z" stroke="currentColor" stroke-width="1.5"/>
+				</svg>
+				{{ _("Account") }}
+			</button>
+			<div class="cart-sm">
+				<a class="cart-btn" data-bs-toggle="offcanvas" href="#side-cart" aria-controls="side-cart" role="button" aria-label="cart">
+					<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="#000000" fill="none">
+						<path d="M3.87289 17.0194L2.66933 9.83981C2.48735 8.75428 2.39637 8.21152 2.68773 7.85576C2.9791 7.5 3.51461 7.5 4.58564 7.5H19.4144C20.4854 7.5 21.0209 7.5 21.3123 7.85576C21.6036 8.21152 21.5126 8.75428 21.3307 9.83981L20.1271 17.0194C19.7282 19.3991 19.5287 20.5889 18.7143 21.2945C17.9 22 16.726 22 14.3782 22H9.62182C7.27396 22 6.10003 22 5.28565 21.2945C4.47127 20.5889 4.27181 19.3991 3.87289 17.0194Z" stroke="currentColor" stroke-width="1.5"/>
+						<path d="M17.5 7.5C17.5 4.46243 15.0376 2 12 2C8.96243 2 6.5 4.46243 6.5 7.5" stroke="currentColor" stroke-width="1.5"/>
+					</svg>
+					{{ _("Cart") }}
+					<span class="cart-badge">0</span>
+				</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+    {% set show_country = not (hide_country if hide_country is defined else false) %}
+    {% set show_language = not (hide_language if hide_language is defined else false) %}
+
+    {% if (show_country and multiple_countries) or (show_language and multiple_languages) %}
+      <div class="modal fade" id="langCurrecyModal" tabindex="-1" aria-labelledby="langCurrecyModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-body">
+              {% include 'vitrin:shared/locale_modal.jinja' %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+	<div class="search-modal">
+		<div class="search-content">
+			<h3>{{ _("What are you looking for") }}</h3>
+			<div class="search-input">
+				<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="#000000" fill="none">
+					<path d="M17.5 17.5L22 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+					<path d="M20 11C20 6.02944 15.9706 2 11 2C6.02944 2 2 6.02944 2 11C2 15.9706 6.02944 20 11 20C15.9706 20 20 15.9706 20 11Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+				</svg>
+				<input type="text"
+                   data-cat-id="{{ category.id if category is defined else '' }}"
+                   class="search-input-input"
+                   placeholder="{% if search_placeholder %}{{ search_placeholder }}{% else %}{{ _('Search') }}{% endif %}"
+            >
+			</div>
+			<ul class="autocomplete-items"></ul>
+		</div>
+		<button class="close-btn"></button>
+		<span class="overlay-search"></span>
+	</div>
+
+ <aside data-empty="{{ _('Empty cart') }}" class="offcanvas offcanvas-end block-side-cart" tabindex="-1" id="side-cart" aria-labelledby="offcanvasLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasLabel">{{ _("Cart") }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="cart-list">
+            <div class="empty-cart-box" id="additional-cart"></div>
+            <div class="min-cart-progress cart-rules"></div>
+            <ul class="item-inside-cart show side-cart-items d-none"></ul>
+            <button type="button" class="btn-close-offcanvas d-none" data-bs-dismiss="offcanvas" aria-label="Close">
+            {{ _("Return to shopping") }}
+            </button>
+        </div>
+        <div class="loading-cart">
+            <span class="loader-cart"></span>
+        </div>
+        <div class="mt-auto footer-side-cart d-none w-100">
+        <div class="coupon-form">
+                          <form>
+                              <div class="form-group">
+                                  <h4>{{ _("Discount coupon") }}</h4>
+                                  <div class="d-flex">
+                                      <input class="form-control send-coupon" type="text" placeholder="{{ _('Enter discount coupon') }}" />
+                                      <button type="button" class="tp-btn tp-btn-black-outline" onclick="sendCoupon(this)">
+                                          <img loading="lazy" class="send-coupon-progress d-none" src="{{ 'spinner.gif' | asset_url }}" width="15" height="15"/>
+                                          {{ _("Submit") }}
+                                      </button>
+                                  </div>
+                              </div>
+                          </form>
+                        </div>
+                <ul class="cart-side-totals" id="cart-side-totals"></ul>
+                <div class="btn-side-cart">
+                    <a class="tp-btn tp-btn-primary-outline" href="/cart/view">{{ _("cart") }}</a>
+                    <a zid-visible-customer="true" href="/checkout/choose-address-and-shipping"
+                      class="tp-btn tp-btn-primary">
+                          {{ _("Complete Order") }}
+                      </a>
+                      <a zid-visible-guest="true" href="/auth/login?redirect_to=/checkout/choose-address-and-shipping"
+                    class="tp-btn tp-btn-primary">
+                        {{ _("Complete Order") }}
+                    </a>
+                </div>
+        </div>
+    </div>
+</aside>

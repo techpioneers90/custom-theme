@@ -1,0 +1,32 @@
+    <section class="tp-banners s-block  {% if settings.show_in_app_only %}d-none{% endif %} {{ 'no-rounded' if settings.no_rounded else '' }} {{ 'no-padding' if settings.no_padding else '' }}" style="background: {{ settings.background_color }};" section-id="{{ sectionId }}">
+      <div class="container">
+      <div class="tp-title-section">
+        {% if settings.small_subtitle %}
+          <span style="color: {{ settings.text_color }};">{{ settings.small_subtitle }}</span>
+        {% endif %}
+        {% if settings.title %}
+          <h3 style="color: {{ settings.text_color }};" >{{ settings.title }}</h3>
+        {% endif %}
+        {% if settings.desc %}
+          <p style="color: {{ settings.text_color }};" >{{ settings.desc }}</p>
+        {% endif %}
+      </div>
+        {% if settings.image or settings.image_mobile %}
+        <div class="tp-items tp-items-1">
+          <a href="{% if settings.url %}{{ settings.url }}{% else %}javascript:;{% endif %}">
+            <picture>
+              {% if settings.image_mobile %}
+                <source media="(max-width: 767px)" srcset="{{ image_url(settings.image_mobile) }}">
+              {% endif %}
+              {% if settings.image %}
+                <source media="(min-width: 768px)" srcset="{{ image_url(settings.image) }}">
+              {% endif %}
+              <img loading="lazy" width="1800" height="450" class="lazy-img" src="{{ image_url(settings.image if settings.image else settings.image_mobile) }}" alt="banner">
+            </picture>
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+    
+

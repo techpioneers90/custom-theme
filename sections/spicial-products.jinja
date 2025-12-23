@@ -1,0 +1,176 @@
+{% if not settings.hide_element %}
+<section class="tp-discount-products s-block" style="background: {{ settings.background_color }};" section-id="{{ sectionId }}">
+	<div class="container">
+        <div class="tp-title-section">
+      {% if settings.small_subtitle %}
+        <span style="color: {{ settings.text_color }};">{{ settings.small_subtitle }}</span>
+      {% endif %}
+      {% if settings.title %}
+        <h3 style="color: {{ settings.text_color }};" >{{ settings.title }}</h3>
+      {% endif %}
+      {% if settings.small_text %}
+        <p style="color: {{ settings.text_color }};" >{{ settings.small_text }}</p>
+      {% endif %}
+    </div>
+		<div class="tp-discount-slider">
+        {% if settings.products and settings.products.results %}
+				{% for product in settings.products.results %}
+					<div class="swiper-slide">
+						<a href="/products/{{ product.slug }}" class="tp-products-container">
+							<div class="tp-product-image">
+								<img loading="lazy" width="200" height="200" class="lazy-img" id="product-card-img-{{ product.id }}" {% if product.images and product.images|length > 0 %} src="{{ product.images[0]['image']['large'] }}" {% else %} src="{{ image_url(asset_url ~ 'product-img.svg',{ w: 235, q: 100, f:'auto' }) }}" {% endif %} alt="{{ product.name }}" >
+								{% if product.formatted_sale_price is not none %}
+									<div class="tp-precent">
+										{# <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="none" viewbox="0 0 51 45">
+											<path fill="null" d="M50.3 22.4c0 4.2-4.6 7.2-6.5 10.6-2 3.5-2.4 9-5.9 11-3.4 2-8.3-.4-12.5-.4-4.2 0-9.1 2.3-12.5.4C9.4 42 9 36.5 7 33 5 29.6.5 26.6.5 22.4c0-4.2 4.6-7.2 6.5-10.6 2-3.5 2.4-8.9 5.9-11 3.4-2 8.3.4 12.5.4 4.2 0 9.1-2.3 12.5-.4 3.5 2 3.9 7.5 5.9 11 2 3.4 6.5 6.4 6.5 10.6Z"></path>
+										</svg> #}
+										<p> {{ _('Discount') }}
+											<span>{{ product.discount_percentage }}%</span>
+										</p>
+									</div>
+								{% endif %}
+                {% if store.settings.products.reviews_enabled and product.rating.total_count > 0 %}
+                  <div class="product-card-rating-wrapper">
+                    {{product.rating.average}}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                      <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"></path>
+                    </svg>
+                    {# <span class="rating-count">({{ product.rating.total_count }})</span> #}
+                  </div>
+                {% endif %}
+                {% if product.is_infinite == false and product.quantity <= 0 %}
+							<small class="out-of-stock">{{ _("This product is out of stock") }}</small>
+						{% endif %}
+							</div>
+							<div class="tp-product-content">
+                {% if product.categories and product.categories|length > 0 %}
+                    <span class="tp-category">{{ product.categories[0].name }}</span>
+                {% endif %}
+								<h3>{{ product.name | safe }}</h3>
+								{% if product.formatted_sale_price is not none %}
+									<div class="tp-product-price">
+                  	<div class="price-wafar">
+											<span class="price-old">{{ product.price }}{{product.currency_symbol}}</span>
+										</div>
+										<div class="new-price">
+                      <p>{{ product.sale_price }} <em>{{product.currency_symbol}}</em></p>
+											<span class="wafar">{{ _("discount") }}&nbsp;{{ product.price - product.sale_price }}{{product.currency_symbol}}</span>
+                    </div>
+									</div>
+								{% else %}
+									<div class="tp-product-price">
+										<div class="new-price">
+                    <p>{{ product.price }}</p>
+											<em>{{product.currency_symbol}}</em>
+										</div>
+									</div>
+								{% endif %}
+{% if (product.is_infinite == true or product.quantity > 0) 
+    and product.purchase_restrictions.sale_price_period_end %}
+									<div class="sale-end">
+                    <p class="tp-end-in">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+                          <circle cx="12" cy="13" r="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></circle>
+                          <path d="M5 19L3 21M19 19L21 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M19 3.5697L19.5955 3.27195C20.4408 2.84932 20.7583 2.89769 21.4303 3.5697C22.1023 4.2417 22.1507 4.55924 21.728 5.4045L21.4303 6M5 3.5697L4.4045 3.27195C3.55924 2.84932 3.2417 2.89769 2.5697 3.5697C1.89769 4.2417 1.84932 4.55924 2.27195 5.4045L2.5697 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                          <path d="M12 9.5V13.5L14 15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M12 3.5V2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M10 2H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                      </svg>
+                    {{ _("Offer ends in") }}
+                    </p>
+                    <div class="tp-countdown" {% if product.purchase_restrictions.sale_price_period_start %}
+           data-start="{{ product.purchase_restrictions.sale_price_period_start }}"
+         {% endif %}
+         data-end="{{ product.purchase_restrictions.sale_price_period_end }}">
+                      <ul>
+                        <li>
+                          <span class="seconds">0</span>
+                          {{ _("Second") }}
+                        </li>
+                        <li>
+                          <span class="minutes">0</span>
+                          {{ _("Minute") }}
+                        </li>
+                        <li>
+                          <span class="hours">0</span>
+                          {{ _("Hour") }}
+                        </li>
+                        <li>
+                          <span class="days">0</span>
+                          {{ _("Day") }}
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+								{% endif %}
+							</div>
+						</a>
+					</div>
+				{% endfor %}
+        {% endif %}
+		</div>
+    {% if settings.display_more and settings.more_text and settings.products and settings.products.url %}
+      <a style="color: {{ settings.text_color }};" class="href" href="{{ settings.products.url }}">{{ settings.more_text }}
+        <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+          <g fill="none" class="stroke-current" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10">
+            <circle class="arrow-icon--circle" cx="16" cy="16" r="15.12"></circle>
+            <path class="arrow-icon--arrow" d="M16.14 9.93L22.21 16l-6.07 6.07M8.23 16h13.98"></path>
+          </g>
+        </svg>
+      </a>
+    {% endif %}
+	</div>
+
+   <script>
+  document.addEventListener("DOMContentLoaded", function(){
+    var arrowNextClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_right' : 'icon-keyboard_arrow_left';
+    var arrowPrevClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_left' : 'icon-keyboard_arrow_right';
+
+    var $slider = $('[section-id="{{ sectionId }}"] .tp-discount-slider');
+
+    if ($slider.length && !$slider.hasClass('slick-initialized')) {
+      $slider.slick({
+        slidesToScroll: 2,
+        slidesToShow: 2,
+        infinite: false,
+        autoplay: true,
+        autoplaySpeed: 3000,
+        arrows: true,
+        dots: false,
+        rtl: !(window.appDirection === 'ltr'),
+        nextArrow: '<button class="slick-next slick-arrow" aria-label="Next" type="button"><span class="'+arrowNextClass+'"></span></button>',
+        prevArrow: '<button class="slick-prev slick-arrow" aria-label="Previous" type="button"><span class="'+arrowPrevClass+'"></span></button>',
+        responsive: [
+          {
+            breakpoint: 992,
+            settings: {
+              slidesToShow: 1,
+              slidesToScroll: 1,
+            }
+          },
+          {
+            breakpoint: 450,
+            settings: {
+              slidesToShow: 2,
+              slidesToScroll: 2,
+            }
+          },
+          {
+            breakpoint: 375,
+            settings: {
+              slidesToShow: 1,
+              slidesToScroll: 1,
+            }
+          }
+        ]
+      });
+    }
+  });
+</script>
+
+</section>
+{% endif %}
+
+
+

@@ -1,0 +1,84 @@
+{
+  "section_id": "uuid",
+  "template": "sections/spicial-products.jinja",
+  "icon": "fal fa-presentation",
+  "name": {
+    "ar": "منتجات مميزة",
+    "en": "Special products"
+  },
+  "display": true,
+  "settings": [
+    {
+      "id": "hide_element",
+      "type": "checkbox",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "id": "background_color",
+      "type": "color",
+      "label": {
+        "ar": "لون الخلفية",
+        "en": "Background color"
+      }
+    },
+    {
+      "id": "text_color",
+      "type": "color",
+      "label": {
+        "ar": "لون النص",
+        "en": "Text color"
+      }
+    },
+    {
+      "id": "small_subtitle",
+      "type": "text",
+      "label": {
+        "ar": "عنوان ترويجي",
+        "en": "Promotional title"
+      }
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "label": {
+        "ar": "العنوان الرئيسي",
+        "en": "Title"
+      }
+    },
+    {
+      "id": "small_text",
+      "type": "text",
+      "label": {
+        "ar": "نص إضافي",
+        "en": "Additional text"
+      }
+    },
+    {
+      "id": "products",
+      "type": "products",
+      "label": {
+        "ar": "اختر قائمة المنتجات",
+        "en": "Select category products"
+      }
+    },
+    {
+      "id": "display_more",
+      "type": "checkbox",
+      "label": {
+        "ar": "عرض زر جميع المنتجات",
+        "en": "Display button more products"
+      }
+    },
+    {
+      "id": "more_text",
+      "type": "text",
+      "label": {
+        "ar": "نص زر المزيد",
+        "en": "More text"
+      }
+    }
+  ]
+}

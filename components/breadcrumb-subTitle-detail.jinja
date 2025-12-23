@@ -1,0 +1,16 @@
+<section class="subTitle-detail">
+	<div class="container">
+		<div class="flex-subTitle">
+      {% if img %}
+				<img loading="lazy" src="{{ img }}" alt="{{ title }}" />
+			{% endif %}
+			<div class="bread-box">
+				<h1 class="bread-title">{{ title }}
+					&nbsp;</h1>
+				{% if description %}
+          <p class="bread-text">{{ description }}</p>
+        {% endif %}
+			</div>
+		</div>
+	</div>
+</section>

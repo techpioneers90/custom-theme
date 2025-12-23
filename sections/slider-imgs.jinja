@@ -1,0 +1,82 @@
+{% if not settings.hide_element %}
+<section class="tp-slider-banners s-block {% if settings.full_container %} full-container {% endif %}"
+  section-id="{{ sectionId }}">
+
+  <style>
+    /* قبل ما slick يتهيأ، اعرض أول بانر فقط وخفي الباقي لتجنب تراص البنرات */
+    [section-id="{{ sectionId }}"] .tp-banners-swiper:not(.slick-initialized) .swiper-slide:not(:first-child) {
+      display: none;
+    }
+  </style>
+
+  <div class="container">
+    <div class="tp-banners-swiper">
+      {% if 'slider' in settings %}
+      {% set slider = settings.slider %}
+      {% if slider is callable %}
+      {% set slider = slider() %}
+      {% endif %}
+      {% else %}
+      {% set slider = [] %}
+      {% endif %}
+      {% if slider is not iterable %}
+      {% set slider = [] %}
+      {% endif %}
+
+      {% for slide in slider %}
+      <div class="swiper-slide">
+        <a class="postion-text-{{ slide.text_place }}"
+          href="{% if slide.url %}{{ slide.url }}{% else %}javascript:;{% endif %}" aria-label="banner">
+          {% if slide.image or slide.image_mobile %}
+          <picture>
+            {% if slide.image_mobile %}
+            <source media="(max-width: 767px)" srcset="{{ image_url(slide.image_mobile) }}">
+            {% endif %}
+            {% if slide.image %}
+            <source media="(min-width: 768px)" srcset="{{ image_url(slide.image) }}">
+            {% endif %}
+            <img loading="lazy" width="1670" height="670" src="{{ image_url(slide.image) }}" alt="banner">
+          </picture>
+          {% endif %}
+          {% if slide.title %}
+          <div class="box-text-info" style="color:{{ slide.text_color }}">
+            <p data-swiper-parallax="-500">{{ slide.des }}</p>
+            <h3 data-swiper-parallax="-300">{{ slide.title }}</h3>
+            {% if slide.btn_text %}
+            <button class="tp-btn tp-btn-black" data-swiper-parallax="-100">{{slide.btn_text}}</button>
+            {% endif %}
+          </div>
+          {% endif %}
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var arrowNextClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_right' : 'icon-keyboard_arrow_left';
+      var arrowPrevClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_left' : 'icon-keyboard_arrow_right';
+
+      document.querySelectorAll('[section-id="{{ sectionId }}"] .tp-banners-swiper').forEach(function (slider) {
+        var $slider = $(slider);
+
+        if (!$slider.hasClass('slick-initialized')) {
+          $slider.slick({
+            slidesToScroll: 1,
+            slidesToShow: 1,
+            infinite: true,
+            autoplay: true,
+            autoplaySpeed: 5000,
+            arrows: true,
+            dots: true,
+            rtl: !(window.appDirection === 'ltr'),
+            nextArrow: '<button class="slick-next slick-arrow" aria-label="Next" type="button"><span class="' + arrowNextClass + '"></span></button>',
+            prevArrow: '<button class="slick-prev slick-arrow" aria-label="Previous" type="button"><span class="' + arrowPrevClass + '"></span></button>'
+          });
+        }
+      });
+    });
+  </script>
+</section>
+{% endif %}

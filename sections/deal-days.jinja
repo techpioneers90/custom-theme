@@ -1,0 +1,66 @@
+{% if not settings.hide_element %}
+  <section class="tp-deal-days s-block" section-id="{{ sectionId }}">
+    <div class="container">
+      <div class="deal-days-box" style="background-image: url({{ settings.image }});">
+        {% if settings.sub_title %}
+          <span class="sub--title" style="color: {{settings.sub_title_color}}">{{settings.sub_title}}</span>
+        {% endif %}
+        {% if settings.title %}
+        <h3 style="color: {{settings.title_color}}">{{settings.title}}</h3>
+        {% endif %}
+        {% if settings.date %}
+          <div class="tp-countdown-deal-days" date="{{settings.date}}">
+                <ul>
+                  <li>
+                    <span class="seconds">0</span>
+                    {{ _("Second") }}
+                  </li>
+                  <li>
+                    <span class="minutes">0</span>
+                    {{ _("Minute") }}
+                  </li>
+                  <li>
+                    <span class="hours">0</span>
+                    {{ _("Hour") }}
+                  </li>
+                  <li>
+                    <span class="days">0</span>
+                    {{ _("Day") }}
+                  </li>
+                </ul>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const countdowns = document.querySelectorAll('.tp-countdown-deal-days');
+      countdowns.forEach(function(countdown) {
+          const targetDate = countdown.getAttribute('date');
+          const endDate = new Date(targetDate.split('/').reverse().join('/')).getTime();
+          const interval = setInterval(function() {
+              const now = new Date().getTime();
+              const distance = endDate - now;
+
+              const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+              const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+              const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+              const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+              countdown.querySelector('.days').textContent = days;
+              countdown.querySelector('.hours').textContent = hours;
+              countdown.querySelector('.minutes').textContent = minutes;
+              countdown.querySelector('.seconds').textContent = seconds;
+
+              if (distance < 0) {
+                  clearInterval(interval);
+                  countdown.innerHTML = "<p>انتهى الوقت!</p>";
+              }
+          }, 1000);
+      });
+    });
+  </script>
+  </section>
+{% endif %}
+  
+

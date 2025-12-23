@@ -1,0 +1,51 @@
+{% if not settings.hide_element %}
+<section class="tp-product-card s-block" style="background: {{ settings.background_color }};" section-id="{{ sectionId }}">
+	<div class="container">
+    <div class="tp-title-section">
+      {% if settings.small_subtitle %}
+        <span style="color: {{ settings.text_color }};">{{ settings.small_subtitle }}</span>
+      {% endif %}
+      {% if settings.title %}
+        <h3 style="color: {{ settings.text_color }};" >{{ settings.title }}</h3>
+      {% endif %}
+      {% if settings.small_text %}
+        <p style="color: {{ settings.text_color }};" >{{ settings.small_text }}</p>
+      {% endif %}
+    </div>
+
+{% set items_xl = (settings.items_xl|default(6))|int %}
+{% set items_lg = (settings.items_lg|default(5))|int %}
+{% set items_md = (settings.items_md|default(4))|int %}
+{% set items_sm = (settings.items_sm|default(2))|int %}
+{% set items_xs = (settings.items_xs|default(1))|int %}
+{% if items_xl < 1 %}{% set items_xl = 1 %}{% endif %}
+{% if items_lg < 1 %}{% set items_lg = 1 %}{% endif %}
+{% if items_md < 1 %}{% set items_md = 1 %}{% endif %}
+{% if items_sm < 1 %}{% set items_sm = 1 %}{% endif %}
+{% if items_xs < 1 %}{% set items_xs = 1 %}{% endif %}
+
+{% set limit = (settings.product_limit|default(6)|int) %}
+{% if limit < 1 %}{% set limit = 6 %}{% endif %}
+
+        <div class="products-grid grid-xl-{{ items_xl }} grid-lg-{{ items_lg }} grid-md-{{ items_md }} grid-sm-{{ items_sm }} grid-xs-{{ items_xs }}">
+            {% if settings.products and settings.products.results %}
+              {% for product in settings.products.results[:limit] %}
+                  {% set index = loop.index0 %}
+                  {% include 'components/product-card.jinja' %}
+              {% endfor %}
+            {% endif %}
+        </div>
+		
+		{% if settings.display_more and settings.more_text %}
+			<a style="color: {{ settings.text_color }};" class="href" href="{% if settings.products and settings.products.url %}{{ settings.products.url }}{% else %}{{ url_for('list_products') }}{% endif %}">{{ settings.more_text }} 
+				<svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+					<g fill="none" class="stroke-current" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10">
+						<circle class="arrow-icon--circle" cx="16" cy="16" r="15.12"></circle>
+						<path class="arrow-icon--arrow" d="M16.14 9.93L22.21 16l-6.07 6.07M8.23 16h13.98"></path>
+					</g>
+				</svg>
+			</a>
+		{% endif %}
+	</div>
+</section>
+{% endif %}

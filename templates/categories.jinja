@@ -1,0 +1,75 @@
+{% extends "layout.jinja" %}
+
+{% block header %}
+	{% include 'header.jinja' %}
+{% endblock %}
+
+{% block main_content %}
+	<div class="breadcrumb-subtitle">
+      {% set title = _("Header all categories") %}
+    {% include 'components/breadcrumb-subTitle-detail.jinja' %}
+		<section class="breadcrumb-section">
+			<nav aria-label="breadcrumb">
+				<div class="container">
+					<ol class="breadcrumb">
+						<li class="breadcrumb-item" aria-current="page">
+							<a href="/">{{ _("Home") }}</a>
+						</li>
+						<li class="breadcrumb-item active " aria-current="page">{{ _("Header all categories") }}</li>
+					</ol>
+				</div>
+			</nav>
+		</section>
+	</div>
+	<div class="container">
+		<div class="categories-grid">
+			{% for category in categories %}
+				<div class="categories-box">
+        {# {% if category.cover_image %}
+          <span class="cover-img" style="background-image:url('{{category.cover_image}}')"></span>
+          {% endif %} #}
+						{% if category.image %}
+              <a href="{{ url_for('category_details', category_id=category.id or 'a', slug=category.slug or category.id)  }}" class="content-img">
+                  <img loading="lazy" class="categories-image" src="{{category.image}}" alt="{{category.img_alt_text}}">
+              </a>
+						{% endif %}
+					<div id="accordion" class="category-content">
+						<div class="header-category" id="heading{{ loop.index0 }}">
+							<a href="{{ url_for('category_details', category_id=category.id or 'a', slug=category.slug or category.id)  }}" class="btn btn-link-categories d-flex align-items-center d-flex justify-content-between">
+								<span>{{category.name}}</span>
+							</a>
+						</div>
+						{% if category.sub_categories | length > 0 %}
+							<div class="body-category">
+								{% for sub_category in category.sub_categories %}
+									<div class="categories-info">
+                    <p class="categories-title">
+										<a href="{{ url_for('category_details', category_id=sub_category.id, slug=sub_category.slug or sub_category.id) }}">{{sub_category.name}}</a>
+									</p>
+									{% if sub_category.sub_categories | length > 0 %}
+										<ul class="categories-subTitle">
+											{% for subTwo_category in sub_category.sub_categories %}
+												<li>
+													<a href="{{ url_for('category_details', category_id=subTwo_category.id, slug=subTwo_category.slug or subTwo_category.id) }}">
+														{{subTwo_category.name}}
+													</a>
+												</li>
+											{% endfor %}
+										</ul>
+									{% endif %}
+                  </div>
+								{% endfor %}
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block footer %}
+	{% include 'footer.jinja' %}
+{% endblock %}
+

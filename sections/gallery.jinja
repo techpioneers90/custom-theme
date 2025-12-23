@@ -1,0 +1,154 @@
+{% if not settings.hide_element %}
+<section class="tp-posters s-block {% if settings.merge_prev %} merge-with-prev {% endif %}"
+  style="background: {{ settings.background_color }};" section-id="{{ sectionId }}">
+  <style>
+    /* قبل ما slick يتهيأ، خفي الشرائح غير المرئية */
+    [section-id="{{ sectionId }}"] .tp-poster-items:not(.slick-initialized) .swiper-slide:not(:first-child) {
+      display: none;
+    }
+  </style>
+  
+  <div class="container">
+    <div class="tp-title-section">
+      {% if settings.small_subtitle %}
+      <span style="color: {{ settings.text_color }};">{{ settings.small_subtitle }}</span>
+      {% endif %}
+      {% if settings.title %}
+      <h3 style="color: {{ settings.text_color }};">{{ settings.title }}</h3>
+      {% endif %}
+      {% if settings.small_text %}
+      <p style="color: {{ settings.text_color }};">{{ settings.small_text }}</p>
+      {% endif %}
+    </div>
+    <div class="tp-poster-items">
+      {% if 'gallery' in settings %}
+      {% set gallery_items = settings.gallery %}
+      {% if gallery_items is callable %}
+      {% set gallery_items = gallery_items() %}
+      {% endif %}
+      {% else %}
+      {% set gallery_items = [] %}
+      {% endif %}
+      {% if gallery_items is not iterable %}
+      {% set gallery_items = [] %}
+      {% endif %}
+
+      {% for galler in gallery_items %}
+      <div class="swiper-slide">
+        <a href="{% if galler.url %}{{ galler.url }}{% else %}javascript:;{% endif %}">
+          <img 
+            loading="{% if loop.index0 < 5 %}eager{% else %}lazy{% endif %}" 
+            {% if loop.index0 == 0 %}fetchpriority="high"{% endif %}
+            width="250" 
+            height="350" 
+            class="lazy-img" 
+            src="{{ image_url(galler.image) }}" 
+            alt="">
+          {% if galler.title or galler.sub_title %}
+          <div class="img-info">
+            {% if galler.title %}
+            <h3>{{ galler.title }}</h3>
+            {% endif %}
+            {% if galler.sub_title %}
+            <p>{{ galler.sub_title }}</p>
+            {% endif %}
+          </div>
+          {% endif %}
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+
+  <script>
+    (function() {
+      function initSlider() {
+        var arrowNextClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_right' : 'icon-keyboard_arrow_left';
+        var arrowPrevClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_left' : 'icon-keyboard_arrow_right';
+
+        var $slider = $('[section-id="{{ sectionId }}"] .tp-poster-items');
+
+        if ($slider.length && !$slider.hasClass('slick-initialized')) {
+          $slider.slick({
+            slidesToScroll: 5,
+            slidesToShow: 5,
+            infinite: true,
+            autoplay: true,
+            autoplaySpeed: 5000,
+            arrows: true,
+            dots: true,
+            rtl: !(window.appDirection === 'ltr'),
+            nextArrow: '<button class="slick-next slick-arrow" aria-label="Next" type="button" style=""><span class="' + arrowNextClass + '"></span></button>',
+            prevArrow: '<button class="slick-prev slick-arrow" aria-label="Previous" type="button" style=""><span class="' + arrowPrevClass + '"></span></button>',
+            responsive: [
+              {
+                breakpoint: 1200,
+                settings: {
+                  slidesToShow: 4,
+                  slidesToScroll: 4,
+                },
+              },
+              {
+                breakpoint: 992,
+                settings: {
+                  slidesToShow: 3,
+                  slidesToScroll: 3,
+                },
+              },
+              {
+                breakpoint: 450,
+                settings: {
+                  slidesToShow: 2,
+                  slidesToScroll: 2,
+                },
+              },
+              {
+                breakpoint: 350,
+                settings: {
+                  slidesToShow: 1,
+                  slidesToScroll: 1,
+                },
+              },
+            ]
+          });
+        }
+      }
+
+      if ('IntersectionObserver' in window) {
+        var section = document.querySelector('[section-id="{{ sectionId }}"]');
+        if (section) {
+          var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+              if (entry.isIntersecting) {
+                if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+                  initSlider();
+                  observer.unobserve(entry.target);
+                } else {
+                  if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initSlider);
+                  } else {
+                    initSlider();
+                  }
+                  observer.unobserve(entry.target);
+                }
+              }
+            });
+          }, {
+            rootMargin: '300px'
+          });
+          
+          observer.observe(section);
+        }
+      } else {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initSlider);
+        } else {
+          initSlider();
+        }
+      }
+    })();
+  </script>
+
+</section>
+{% endif %}

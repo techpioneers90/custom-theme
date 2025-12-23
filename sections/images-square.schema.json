@@ -1,0 +1,85 @@
+{
+  "section_id": "uuid",
+  "template": "sections/images-square.jinja",
+  "icon": "fal fa-sparkles",
+  "name": {
+    "ar": "صور مربعة",
+    "en": "Images Square"
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "hide_element",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "type": "text",
+      "id": "small_subtitle",
+      "label": {
+        "ar": "عنوان ترويجي",
+        "en": "Promotional title"
+      }
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": {
+        "ar": "العنوان الرئيسي",
+        "en": "title"
+      }
+    },
+    {
+      "type": "text",
+      "id": "small_text",
+      "label": {
+        "ar": "نص إضافي",
+        "en": "additional text"
+      }
+    },
+    {
+      "type": "list",
+      "id": "images_square",
+      "label": {
+        "ar": "الصورة",
+        "en": "Picture"
+      },
+      "settings": [
+        {
+          "type": "image",
+          "id": "image",
+          "label": {
+            "ar": "الصورة",
+            "en": "Image"
+          }
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "ar": "العنوان",
+            "en": "Title"
+          }
+        },
+        {
+          "type": "text",
+          "id": "sub_title",
+          "label": {
+            "ar": "العنوان الفرعي",
+            "en": "Sub title"
+          }
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": {
+            "ar": "الرابط",
+            "en": "Link"
+          }
+        }
+      ]
+    }
+  ]
+}

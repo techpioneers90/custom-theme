@@ -1,0 +1,463 @@
+{% if not settings.hide_element %}
+<section class="tp-videos-story s-block" section-id="{{ sectionId }}" style="background: {{ settings.background_color }};">
+	<style>
+		/* قبل ما slick يتهيأ، خفي الشرائح غير المرئية */
+		[section-id="{{ sectionId }}"] .tp-videos-items:not(.slick-initialized) .swiper-slide:not(:first-child) {
+			display: none;
+		}
+	</style>
+	
+	{% if 'videos' in settings %}
+    {% set videos = settings.videos %}
+    {% if videos is callable %}
+      {% set videos = videos() %}
+    {% endif %}
+  {% else %}
+    {% set videos = [] %}
+  {% endif %}
+{% if videos is not iterable %}
+    {% set videos = [] %}
+{% endif %}
+  <div class="container">
+		  <div class="tp-title-section">
+      {% if settings.small_subtitle %}
+        <span style="color: {{ settings.text_color }};">{{ settings.small_subtitle }}</span>
+      {% endif %}
+      {% if settings.title %}
+        <h3 style="color: {{ settings.text_color }};" >{{ settings.title }}</h3>
+      {% endif %}
+      {% if settings.small_text %}
+        <p style="color: {{ settings.text_color }};" >{{ settings.small_text }}</p>
+      {% endif %}
+    </div>
+		<div class="tp-videos-items">
+			{% for item in videos %}
+				<div class="swiper-slide">
+					<div class="video-story">
+
+          {% if item.url %}
+            {% set video_id = '' %}
+            {% if item.url.startswith('https://www.youtube.com/watch') or item.url.startswith('http://www.youtube.com/watch') %}
+              {% set v_pos = item.url.find('v=') %}
+              {% if v_pos != -1 %}
+                {% set after_v = item.url[v_pos+2:] %}
+                {% set amp_pos = after_v.find('&') %}
+                {% if amp_pos != -1 %}
+                  {% set video_id = after_v[:amp_pos] %}
+                {% else %}
+                  {% set video_id = after_v %}
+                {% endif %}
+              {% endif %}
+            {% elif item.url.startswith('https://www.youtube.com/v') or item.url.startswith('http://www.youtube.com/v') %}
+              {% set last_slash = item.url.rfind('/') %}
+              {% if last_slash != -1 %}
+                {% set video_id = item.url[last_slash+1:] %}
+                {% set q_pos = video_id.find('?') %}
+                {% if q_pos != -1 %}
+                  {% set video_id = video_id[:q_pos] %}
+                {% endif %}
+              {% endif %}
+            {% elif item.url.startswith('https://youtu.be') or item.url.startswith('http://youtu.be') %}
+              {% set last_slash = item.url.rfind('/') %}
+              {% if last_slash != -1 %}
+                {% set video_id = item.url[last_slash+1:] %}
+                {% set q_pos = video_id.find('?') %}
+                {% if q_pos != -1 %}
+                  {% set video_id = video_id[:q_pos] %}
+                {% endif %}
+              {% endif %}
+            {% elif '/shorts/' in item.url %}
+              {# دعم YouTube Shorts #}
+              {% set shorts_pos = item.url.find('/shorts/') %}
+              {% if shorts_pos != -1 %}
+                {% set after_shorts = item.url[shorts_pos+8:] %}
+                {% set q_pos = after_shorts.find('?') %}
+                {% if q_pos != -1 %}
+                  {% set video_id = after_shorts[:q_pos] %}
+                {% else %}
+                  {% set video_id = after_shorts %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+
+            {% if video_id %}
+              <iframe class="yt-video" data-yt-id="{{ video_id }}" data-src="https://www.youtube.com/embed/{{ video_id }}?enablejsapi=1&rel=0&mute=0&controls=1&showinfo=0&modestbranding=1" allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
+            {% else %}
+              <video width="100%" loop muted playsinline preload="none" {% if item.poster %}poster="{{ item.poster }}"{% endif %}>
+                <source data-src="{{ item.url }}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            {% endif %}
+          {% elif item.video %}
+            <video width="100%" loop muted playsinline preload="none" {% if item.poster %}poster="{{ item.poster }}"{% endif %}>
+              <source data-src="{{ item.video }}" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          {% endif %}
+
+            <div class="play-video" title="play-video">
+              <svg width="17" height="23" viewBox="0 0 17 23" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.4324 9.7218C16.4657 10.5225 16.4657 12.083 15.4324 12.8837L3.93296 21.7942C2.61872 22.8125 0.707951 21.8758 0.707951 20.2132L0.707952 2.39223C0.707952 0.729617 2.61872 -0.207059 3.93296 0.8113L15.4324 9.7218Z" fill="#1E1E1E" fill-opacity="0.5"></path></svg>
+            </div>
+            <div class="volume-toggle" title="Toggle Sound">
+              <svg class="mute-video" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#000000" fill="none">
+                  <path d="M14 14.8135V9.18646C14 6.04126 14 4.46866 13.0747 4.0773C12.1494 3.68593 11.0603 4.79793 8.88232 7.02192C7.75439 8.17365 7.11085 8.42869 5.50604 8.42869C4.10257 8.42869 3.40084 8.42869 2.89675 8.77262C1.85035 9.48655 2.00852 10.882 2.00852 12C2.00852 13.118 1.85035 14.5134 2.89675 15.2274C3.40084 15.5713 4.10257 15.5713 5.50604 15.5713C7.11085 15.5713 7.75439 15.8264 8.88232 16.9781C11.0603 19.2021 12.1494 20.3141 13.0747 19.9227C14 19.5313 14 17.9587 14 14.8135Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M18 10L22 14M18 14L22 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+              <svg class="unmute-video" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#000000" fill="none" style="display: none;">
+                  <path d="M14 14.8135V9.18646C14 6.04126 14 4.46866 13.0747 4.0773C12.1494 3.68593 11.0603 4.79793 8.88232 7.02192C7.75439 8.17365 7.11085 8.42869 5.50604 8.42869C4.10257 8.42869 3.40084 8.42869 2.89675 8.77262C1.85035 9.48655 2.00852 10.882 2.00852 12C2.00852 13.118 1.85035 14.5134 2.89675 15.2274C3.40084 15.5713 4.10257 15.5713 5.50604 15.5713C7.11085 15.5713 7.75439 15.8264 8.88232 16.9781C11.0603 19.2021 12.1494 20.3141 13.0747 19.9227C14 19.5313 14 17.9587 14 14.8135Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M17 9C17.6254 9.81968 18 10.8634 18 12C18 13.1366 17.6254 14.1803 17 15" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M20 7C21.2508 8.36613 22 10.1057 22 12C22 13.8943 21.2508 15.6339 20 17" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </div>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var ytPlayers = {}; // لتخزين كل الـ YouTube players
+  var loadedVideos = new Set(); // لتتبع الفيديوهات التي تم تحميلها
+
+  // دالة لتحميل YouTube iframe
+  function loadYouTubeVideo(iframe) {
+    if (iframe.dataset.loaded === 'true') return; // تم التحميل بالفعل
+    
+    const dataSrc = iframe.getAttribute('data-src');
+    if (dataSrc) {
+      iframe.src = dataSrc;
+      iframe.dataset.loaded = 'true';
+      
+      // تهيئة YouTube Player بعد تحميل iframe
+      const videoId = iframe.getAttribute('data-yt-id');
+      if (videoId && typeof YT !== 'undefined' && typeof YT.Player !== 'undefined') {
+        const id = 'yt-player-' + Date.now() + '-' + Math.random();
+        iframe.id = id;
+        ytPlayers[id] = new YT.Player(id, {
+          events: {
+            'onStateChange': function (event) {
+              if (event.data === YT.PlayerState.ENDED) {
+                event.target.seekTo(0);
+                event.target.playVideo();
+              }
+            }
+          }
+        });
+      }
+    }
+  }
+
+  // دالة لتحميل HTML video
+  function loadHTMLVideo(video) {
+    if (video.dataset.loaded === 'true') return; // تم التحميل بالفعل
+    
+    const source = video.querySelector('source[data-src]');
+    if (source) {
+      source.src = source.getAttribute('data-src');
+      source.removeAttribute('data-src');
+      video.load(); // إعادة تحميل الفيديو بالـ src الجديد
+      video.dataset.loaded = 'true';
+    }
+  }
+
+  function onYouTubeIframeAPIReady() {
+    // تهيئة الـ YouTube players للفيديوهات التي تم تحميلها بالفعل
+    document.querySelectorAll('.yt-video[data-loaded="true"]').forEach((iframe, index) => {
+      if (!iframe.id) {
+        const id = 'yt-player-' + Date.now() + '-' + index;
+        iframe.id = id;
+        ytPlayers[id] = new YT.Player(id, {
+          events: {
+            'onStateChange': function (event) {
+              if (event.data === YT.PlayerState.ENDED) {
+                event.target.seekTo(0);
+                event.target.playVideo();
+              }
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // تحميل مكتبة YouTube API إذا لم تكن موجودة
+  if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+  } else {
+    onYouTubeIframeAPIReady();
+  }
+
+  function pauseAllVideos() {
+    // YouTube
+    Object.values(ytPlayers).forEach(player => {
+      if (player && player.pauseVideo) {
+        player.pauseVideo();
+      }
+    });
+
+    // HTML video
+    document.querySelectorAll('.video-story video').forEach(video => {
+      if (video.dataset.loaded === 'true') {
+        video.pause();
+      }
+    });
+
+    // إظهار أزرار التشغيل وإخفاء الصوت
+    document.querySelectorAll('.play-video').forEach(btn => btn.classList.remove('hidden'));
+    document.querySelectorAll('.volume-toggle').forEach(toggle => toggle.style.display = 'none');
+  }
+
+  // تشغيل الفيديو عند الضغط على زر التشغيل
+  document.querySelectorAll('.play-video').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const parent = btn.closest('.video-story');
+      const iframe = parent.querySelector('.yt-video');
+      const video = parent.querySelector('video');
+
+      pauseAllVideos();
+
+      if (iframe) {
+        // تحميل YouTube iframe إذا لم يكن محملاً
+        loadYouTubeVideo(iframe);
+        
+        // انتظار تحميل YouTube API ثم تشغيل الفيديو
+        const tryPlayYouTube = () => {
+          if (iframe.id && ytPlayers[iframe.id]) {
+            ytPlayers[iframe.id].playVideo();
+            btn.classList.add('hidden');
+            parent.querySelector('.volume-toggle').style.display = 'flex';
+          } else if (iframe.dataset.loaded === 'true') {
+            // إعادة المحاولة بعد قليل
+            setTimeout(tryPlayYouTube, 100);
+          } else {
+            // إذا لم يتم تحميل YouTube API بعد، انتظر
+            setTimeout(tryPlayYouTube, 200);
+          }
+        };
+        
+        if (typeof YT !== 'undefined' && typeof YT.Player !== 'undefined') {
+          tryPlayYouTube();
+        } else {
+          // انتظر تحميل YouTube API
+          const checkYT = setInterval(() => {
+            if (typeof YT !== 'undefined' && typeof YT.Player !== 'undefined') {
+              clearInterval(checkYT);
+              tryPlayYouTube();
+            }
+          }, 100);
+        }
+      } else if (video) {
+        // تحميل HTML video إذا لم يكن محملاً
+        loadHTMLVideo(video);
+        
+        // انتظار تحميل الفيديو ثم تشغيله
+        video.addEventListener('loadeddata', function playVideo() {
+          video.play();
+          btn.classList.add('hidden');
+          parent.querySelector('.volume-toggle').style.display = 'flex';
+          video.removeEventListener('loadeddata', playVideo);
+        }, { once: true });
+        
+        // إذا كان الفيديو محملاً بالفعل، شغله مباشرة
+        if (video.readyState >= 2) {
+          video.play();
+          btn.classList.add('hidden');
+          parent.querySelector('.volume-toggle').style.display = 'flex';
+        }
+      }
+    });
+  });
+
+  // عند الضغط على الفيديو نفسه: تشغيل/إيقاف
+  document.querySelectorAll('.video-story').forEach((container) => {
+    const iframe = container.querySelector('.yt-video');
+    const video = container.querySelector('video');
+    const playBtn = container.querySelector('.play-video');
+    const volumeToggle = container.querySelector('.volume-toggle');
+
+    if (video) {
+      video.addEventListener('click', () => {
+        // تحميل الفيديو إذا لم يكن محملاً
+        if (video.dataset.loaded !== 'true') {
+          loadHTMLVideo(video);
+        }
+        
+        if (video.paused) {
+          pauseAllVideos();
+          video.addEventListener('loadeddata', function playVideo() {
+            video.play();
+            playBtn.classList.add('hidden');
+            volumeToggle.style.display = 'flex';
+            video.removeEventListener('loadeddata', playVideo);
+          }, { once: true });
+          
+          if (video.readyState >= 2) {
+            video.play();
+            playBtn.classList.add('hidden');
+            volumeToggle.style.display = 'flex';
+          }
+        } else {
+          video.pause();
+          playBtn.classList.remove('hidden');
+          volumeToggle.style.display = 'none';
+        }
+      });
+    }
+
+    if (iframe) {
+      iframe.addEventListener('click', () => {
+        // تحميل YouTube iframe إذا لم يكن محملاً
+        if (iframe.dataset.loaded !== 'true') {
+          loadYouTubeVideo(iframe);
+        }
+        
+        const tryToggleYouTube = () => {
+          const player = ytPlayers[iframe.id];
+          if (player && player.getPlayerState) {
+            const state = player.getPlayerState();
+            if (state === YT.PlayerState.PLAYING) {
+              player.pauseVideo();
+              playBtn.classList.remove('hidden');
+              volumeToggle.style.display = 'none';
+            } else {
+              pauseAllVideos();
+              player.playVideo();
+              playBtn.classList.add('hidden');
+              volumeToggle.style.display = 'flex';
+            }
+          } else if (iframe.dataset.loaded === 'true') {
+            // إعادة المحاولة بعد قليل
+            setTimeout(tryToggleYouTube, 100);
+          }
+        };
+        
+        if (iframe.id && ytPlayers[iframe.id]) {
+          tryToggleYouTube();
+        } else if (iframe.dataset.loaded === 'true') {
+          setTimeout(tryToggleYouTube, 200);
+        }
+      });
+    }
+  });
+
+  // زر الصوت (فقط للفيديوهات HTML)
+  document.querySelectorAll('.volume-toggle').forEach((toggle) => {
+    const video = toggle.closest('.video-story').querySelector('video');
+    const muteIcon = toggle.querySelector('.mute-video');
+    const unmuteIcon = toggle.querySelector('.unmute-video');
+
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (video) {
+        video.muted = !video.muted;
+        muteIcon.style.display = video.muted ? 'block' : 'none';
+        unmuteIcon.style.display = video.muted ? 'none' : 'block';
+      }
+    });
+
+    toggle.style.display = 'none';
+  });
+
+});
+</script>
+
+    <script>
+      (function() {
+        function initSlider() {
+          var arrowNextClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_right' : 'icon-keyboard_arrow_left';
+          var arrowPrevClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_left' : 'icon-keyboard_arrow_right';
+
+          var $slider = $('[section-id="{{ sectionId }}"] .tp-videos-items');
+
+          if ($slider.length && !$slider.hasClass('slick-initialized')) {
+            $slider.slick({
+              slidesToScroll: 1,
+              slidesToShow: 5,
+              infinite: false,
+              autoplay: true,
+              autoplaySpeed: 5000,
+              arrows: true,
+              dots: true,
+              rtl: !(window.appDirection === 'ltr'),
+              nextArrow: '<button class="slick-next slick-arrow" aria-label="Next" type="button"><span class="'+arrowNextClass+'"></span></button>',
+              prevArrow: '<button class="slick-prev slick-arrow" aria-label="Previous" type="button"><span class="'+arrowPrevClass+'"></span></button>',
+              responsive: [
+                {
+                  breakpoint: 1200,
+                  settings: {
+                    slidesToShow: 4,
+                    slidesToScroll: 4,
+                  }
+                },
+                {
+                  breakpoint: 992,
+                  settings: {
+                    slidesToShow: 3,
+                    slidesToScroll: 3,
+                  }
+                },
+                {
+                  breakpoint: 450,
+                  settings: {
+                    slidesToShow: 2,
+                    slidesToScroll: 2,
+                  }
+                },
+                {
+                  breakpoint: 350,
+                  settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                  }
+                }
+              ]
+            });
+          }
+        }
+
+        if ('IntersectionObserver' in window) {
+          var section = document.querySelector('[section-id="{{ sectionId }}"]');
+          if (section) {
+            var observer = new IntersectionObserver(function(entries) {
+              entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                  if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+                    initSlider();
+                    observer.unobserve(entry.target);
+                  } else {
+                    if (document.readyState === 'loading') {
+                      document.addEventListener('DOMContentLoaded', initSlider);
+                    } else {
+                      initSlider();
+                    }
+                    observer.unobserve(entry.target);
+                  }
+                }
+              });
+            }, {
+              rootMargin: '300px'
+            });
+            
+            observer.observe(section);
+          }
+        } else {
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initSlider);
+          } else {
+            initSlider();
+          }
+        }
+      })();
+    </script>
+
+
+</section>
+{% endif %}
+
+

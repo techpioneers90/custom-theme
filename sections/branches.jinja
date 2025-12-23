@@ -1,0 +1,52 @@
+{% if not settings.hide_element %}
+<section class="tp-branches s-block" section-id="{{ sectionId }}">
+	<div class="container">
+		<div class="tp-title-section">
+			{% if settings.small_subtitle %}
+				<span>{{ settings.small_subtitle }}</span>
+			{% endif %}
+			{% if settings.title %}
+				<h3>{{ settings.title }}</h3>
+			{% endif %}
+			{% if settings.small_text %}
+				<p>{{ settings.small_text }}</p>
+			{% endif %}
+		</div>
+
+    {% if 'branches' in settings %}
+    {% set branches = settings.branches %}
+    {% if branches is callable %}
+        {% set branches = branches() %}
+    {% endif %}
+    {% else %}
+        {% set branches = [] %}
+    {% endif %}
+    {% if branches is not iterable %}
+        {% set branches = [] %}
+    {% endif %}
+
+		<div class="tp-branches-tabs">
+			<ul class="nav nav-tabs" id="branchesTab" role="tablist">
+				{% for branch in branches %}
+					<li class="nav-item" role="presentation">
+						<button class="nav-link {% if loop.first %}active{% endif %}" id="tab-{{ sectionId }}-{{ loop.index }}" data-bs-toggle="tab" data-bs-target="#branch-{{ sectionId }}-{{ loop.index }}" type="button" role="tab">
+							{{ branch.title }}
+						</button>
+					</li>
+				{% endfor %}
+			</ul>
+			<div class="tab-content" id="branchesTabContent">
+				{% for branch in branches %}
+					<div class="tab-pane fade {% if loop.first %}show active{% endif %}" id="branch-{{ sectionId }}-{{ loop.index }}" role="tabpanel">
+						{{ branch.map| safe }}
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+
+	</div>
+</section>
+{% endif %}
+
+
+

@@ -1,0 +1,145 @@
+     {% if not settings.hide_element %}
+     <section class="tp-slider-area s-block" section-id="{{ sectionId }}">
+     <style>
+       /* قبل ما slick يتهيأ، اعرض أول بانر فقط وخفي الباقي لتجنب تراص البنرات */
+       [section-id="{{ sectionId }}"] .tp-slider-active:not(.slick-initialized) > div:not(:first-child) {
+         display: none;
+       }
+     </style>
+     
+     <div class="tp-slider-active tp-slider-variation">
+          {% if 'main_slider' in settings %}
+          {% set main_slider = settings.main_slider %}
+          {% if main_slider is callable %}
+              {% set main_slider = main_slider() %}
+          {% endif %}
+          {% else %}
+              {% set main_slider = [] %}
+          {% endif %}
+          {% if main_slider is not iterable %}
+              {% set main_slider = [] %}
+          {% endif %}
+
+          {% for slide in main_slider %}
+          <div>
+            <div class="tp-slider-item tp-slider-height d-flex align-items-center swiper-slide"
+            style="background: {{ slide.background_color }};">
+            <div class="tp-slider-shape">
+              <img loading="lazy" width="200" height="400" class="tp-slider-shape-1 lazy-img" src="{{ 'slider-shape-1.png' | asset_url }}" alt="slider-shape" >
+            </div>
+            <div class="container">
+              <div class="row align-items-center">
+                <div class="col-xl-5 col-lg-6 col-md-6">
+                  <div class="tp-slider-content p-relative z-index-1" style="color: {{ slide.text_color }};">
+                  {% if slide.sub_title %}
+                    <span>{{ slide.sub_title }}</span>
+                    {% endif %}
+                    {% if slide.title %}
+                    <h3 class="tp-slider-title">{{ slide.title }}</h3>
+                    {% endif %}
+                    {% if slide.des %}
+                    <p>{{ slide.des }}</p>
+                    {% endif %}
+                    {% if slide.btn_text %}
+                    <div class="tp-slider-btn">
+                      <a href="{% if slide.url %}{{ slide.url }}{% else %}javascript:;{% endif %}" class="tp-btn tp-btn-white">
+                        {{ slide.btn_text }}
+                        {# <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
+                          <path d="M3.99982 11.9998L19.9998 11.9998" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                          <path
+                            d="M8.99963 17C8.99963 17 3.99968 13.3176 3.99966 12C3.99965 10.6824 8.99966 7 8.99966 7"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg> #}
+                      </a>
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-xl-7 col-lg-6 col-md-6">
+                  <div class="tp-slider-thumb text-center">
+                    <img 
+                      loading="{% if loop.index0 == 0 %}eager{% else %}lazy{% endif %}" 
+                      {% if loop.index0 == 0 %}fetchpriority="high"{% endif %}
+                      width="500" 
+                      height="372" 
+                      class="lazy-img" 
+                      src="{{ slide.image }}" 
+                      alt="{{ slide.title }}">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        {% endfor %}
+      </div>
+
+
+   <script>
+  (function() {
+    // تهيئة السلايدر فقط عندما يكون مرئياً
+    function initSlider() {
+      var arrowNextClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_right' : 'icon-keyboard_arrow_left';
+      var arrowPrevClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_left' : 'icon-keyboard_arrow_right';
+
+      var $slider = $('[section-id="{{ sectionId }}"] .tp-slider-active');
+
+      if ($slider.length && !$slider.hasClass('slick-initialized')) {
+        $slider.slick({
+          slidesToScroll: 1,
+          slidesToShow: 1,
+          infinite: true,
+          autoplay: true,
+          autoplaySpeed: 5000,
+          arrows: true,
+          dots: true,
+          rtl: !(window.appDirection === 'ltr'),
+          nextArrow: '<button class="slick-next slick-arrow" aria-label="Next" type="button"><span class="'+arrowNextClass+'"></span></button>',
+          prevArrow: '<button class="slick-prev slick-arrow" aria-label="Previous" type="button"><span class="'+arrowPrevClass+'"></span></button>'
+        });
+      }
+    }
+
+    // استخدام IntersectionObserver لتهيئة السلايدر فقط عند ظهوره
+    if ('IntersectionObserver' in window) {
+      var section = document.querySelector('[section-id="{{ sectionId }}"]');
+      if (section) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+                initSlider();
+                observer.unobserve(entry.target);
+              } else {
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', initSlider);
+                } else {
+                  initSlider();
+                }
+                observer.unobserve(entry.target);
+              }
+            }
+          });
+        }, {
+          rootMargin: '300px'
+        });
+        
+        observer.observe(section);
+      }
+    } else {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSlider);
+      } else {
+        initSlider();
+      }
+    }
+  })();
+</script>
+
+
+    </section> 
+{% endif %}
+
+
+

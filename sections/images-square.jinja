@@ -1,0 +1,47 @@
+    {% if not settings.hide_element %}
+    <section class="tp-category-square s-block" section-id="{{ sectionId }}">
+      <div class="container">
+        <div class="tp-title-section">
+          {% if settings.small_subtitle %}
+            <span>{{ settings.small_subtitle }}</span>
+          {% endif %}
+          {% if settings.title %}
+            <h3 >{{ settings.title }}</h3>
+          {% endif %}
+          {% if settings.small_text %}
+            <p >{{ settings.small_text }}</p>
+          {% endif %}
+        </div>
+        {% if 'images_square' in settings %}
+        {% set images_square = settings.images_square %}
+        {% if images_square is callable %}
+            {% set images_square = images_square() %}
+        {% endif %}
+        {% else %}
+            {% set images_square = [] %}
+        {% endif %}
+        {% if images_square is not iterable %}
+            {% set images_square = [] %}
+        {% endif %}
+        <ul class="tp-category-img-box tp-category-count-{{ images_square|length }}">
+          {% for item in images_square %}
+          <li >
+            <a href="{% if item.url %}{{ item.url }}{% else %}javascript:;{% endif %}">
+              <img loading="lazy" width="200" height="200" class="lazy-img" src="{{ image_url(item.image) }}"  alt="image">
+            {% if item.title %}
+              <div class="category-img-info">
+                <h4>{{ item.title }}</h4>
+                {% if item.sub_title %}
+                <span>{{ item.sub_title }}</span>
+                {% endif %}
+              </div>
+              {% endif %}
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+{% endif %}
+    
+

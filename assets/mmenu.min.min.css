@@ -1,0 +1,10 @@
+@charset "UTF-8";/*!
+ * mmenu.js
+ * mmenujs.com
+ *
+ * Copyright (c) Fred Heusschen
+ * frebsite.nl
+ *
+ * License: CC-BY-NC-4.0
+ * http://creativecommons.org/licenses/by-nc/4.0/
+ */:root{--mm-lineheight:22px}:root{--mm-blocker-visibility-delay:0.4s;--mm-blocker-opacity-delay:0s}:root{--mm-listitem-size:50px}:root{--mm-navbar-size:50px}:root{--mm-toggle-size:34px}:root{--mm-size:80%;--mm-min-size:240px;--mm-max-size:440px}:root{--mm-iconbar-size:50px}:root{--mm-iconpanel-size:50px}:root{--mm-sectionindexer-size:20px}:root{--mm-sidebar-collapsed-size:50px;--mm-sidebar-expanded-size:var(--mm-max-size)}

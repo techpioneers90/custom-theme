@@ -1,0 +1,232 @@
+{% extends "layout.jinja" %}
+
+{% block header %} {% include 'header.jinja' %} {% endblock %}
+{% block top_links %}
+	<link rel="stylesheet" type="text/css" href="{{ 'toastr.min.css' | asset_url }}" />
+{% endblock %}
+
+{% block main_content %}
+
+  <div class="breadcrumb-subtitle">
+    {% set title = _("All products") %}
+    {% include 'components/breadcrumb-subTitle-detail.jinja' %}
+		<section class="breadcrumb-section">
+			<nav aria-label="breadcrumb">
+				<div class="container">
+					<ol class="breadcrumb">
+						<li class="breadcrumb-item" aria-current="page">
+							<a href="/">{{ _("Home") }}</a>
+						</li>
+						<li class="breadcrumb-item active " aria-current="page">{{ _("All products") }}</li>
+					</ol>
+				</div>
+			</nav>
+		</section>
+	</div>
+  
+     <div class="container">
+    <div class="products-filters-box">
+        {% if  products.filters|length > 0 %}
+            {% set async=true %} {% include 'vitrin:products/filters.jinja' %}
+        {% endif %}
+        <div class="products-container">
+            <div>
+                {% set count=products.count %}{% set has_products_filtration=(products.filters|length > 0) %}{% include 'components/products-filter.jinja' %}
+            </div>
+            <div id="products-list" class="products-grid">
+                {% for product in products.results %}
+                    {% set product=product %}{% set index=key %}{% include 'components/product-card.jinja' %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+        </div>
+
+{% if display_mode %}
+    {% set totalPages=products.pages_count %}{% set currentPage=products.page %}{% include 'components/pagination.jinja' %}
+    {% else %}
+    {% if auto_load_more %}
+      <button id="load-more-button" class="load-more-button" data-pages="{{ products.pages_count }}">
+        <span class="btn-loader">
+            <span class="loader-more"></span>
+        </span>
+      </button>
+    {% else %}
+      <button id="load-more-button" class="load-more-button tp-btn" data-pages="{{ products.pages_count }}">
+        <span class="btn-loader d-none">
+            <span class="loader-more"></span>
+        </span>
+        <span class="btn-label">{{ _("Load more") }}</span>
+      </button>
+    {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block footer %} {% include 'footer.jinja' %} {% endblock %}
+
+{% block footer_scripts %}
+<script type="text/javascript" src="{{ 'toastr.min.js' | asset_url }}"></script>
+    <script>
+        window.onProductAttributesTriggered = function(){
+            $('#products-list').css('opacity', '0.4');
+            $('#product-pagination').css('opacity', '0');
+        }
+
+        window.onProductAttributesChanged = function(htmlStr){
+            var html = $.parseHTML( htmlStr );
+            $('#products-list').html($('#products-list', html).html());
+            $('#products-list').css('opacity', '1');
+            $('#product-filter-count').html($('#product-filter-count', html).html());
+            $('#product-filter-count').css('opacity', '1');
+            if($('#product-pagination', html).length>0){
+                $('#product-pagination').html($('#product-pagination', html).html());
+                $('#product-pagination').css('opacity', '1');
+            }
+
+        }
+
+        {% if  products.data|length > 0 %}
+        document.addEventListener("DOMContentLoaded", function(){
+            var productsObj = {{ products.data | tojson }}
+                window.sendGaProductsViewItemsListEvent('all_products', productsObj);
+        });
+        {% endif %}
+    </script>
+
+{% if not display_mode %}
+  <script type="text/javascript" src="{{ 'load-more.js' | asset_url }}"></script>
+{% endif %}
+<script>
+window.addEventListener('DOMContentLoaded', (event) => {
+    var fromPriceInput = document.querySelector("input[name='from_price'][type='hidden']");
+    var toPriceInput = document.querySelector("input[name='to_price'][type='hidden']");
+
+    if (fromPriceInput && toPriceInput) {
+        var fromPrice = fromPriceInput.value;
+        var toPrice = toPriceInput.value;
+
+        var fromPriceField = document.querySelector(".attribute-price-body input[name='from_price']");
+        var toPriceField = document.querySelector(".attribute-price-body input[name='to_price']");
+
+        if (fromPriceField && toPriceField) {
+            fromPriceField.value = fromPrice;
+            toPriceField.value = toPrice;
+        }
+    }
+});
+
+
+function loadNoUiSlider(callback) {
+    let link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.css";
+    document.head.appendChild(link);
+
+    let script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.js";
+    script.onload = callback;
+    document.body.appendChild(script);
+}
+
+loadNoUiSlider(() => {
+    const priceContainer = document.querySelector(".attribute-price-body .form-row");
+
+    if (!priceContainer) {
+        return;
+    }
+
+    const sliderContainer = document.createElement("div");
+    sliderContainer.id = "price-slider";
+
+    priceContainer.insertAdjacentElement("afterend", sliderContainer);
+
+    noUiSlider.create(sliderContainer, {
+        start: [0, 15000],
+        connect: true,
+        direction: "{{ session.locale.language.direction }}",
+        range: {
+            min: 0,
+            max: 15000,
+        },
+        step: 10,
+    });
+
+    const fromPriceInput = document.querySelector('.attribute-price-body input[name="from_price"]');
+    const toPriceInput = document.querySelector('.attribute-price-body input[name="to_price"]');
+
+    if (!fromPriceInput || !toPriceInput) {
+        return;
+    }
+
+    sliderContainer.noUiSlider.on("update", (values) => {
+        fromPriceInput.value = Math.round(values[0]);
+        toPriceInput.value = Math.round(values[1]);
+    });
+
+    fromPriceInput.addEventListener("change", () => {
+        const fromValue = parseFloat(fromPriceInput.value) || 0;
+        const toValue = parseFloat(toPriceInput.value) || 5000;
+
+        sliderContainer.noUiSlider.set([fromValue, toValue]);
+    });
+
+    toPriceInput.addEventListener("change", () => {
+        const fromValue = parseFloat(fromPriceInput.value) || 0;
+        const toValue = parseFloat(toPriceInput.value) || 5000;
+
+        sliderContainer.noUiSlider.set([fromValue, toValue]);
+    });
+});
+
+ 
+
+
+const attributeFooter = document.querySelector('.attribute-footer');
+
+if (attributeFooter) {
+    const clearText = '{{ _("Clear") }}';
+
+    attributeFooter.insertAdjacentHTML(
+        'beforeend',
+        `<button id="products-list-filter-form-clear" type="button" class="tp-btn tp-btn-primary-outline" onclick="clearFilters()">
+            <span>${clearText}</span>
+        </button>`
+    );
+}
+
+
+const filterButton = document.querySelector('.open-close-filter');
+const productAttributes = document.querySelector('.product-attributes');
+const overlayFilter = document.querySelector('.overlay-filter');
+const filtrationHeader = document.querySelector('.filtration-header');
+
+filterButton.addEventListener('click', () => {
+    productAttributes.classList.toggle('hide-filter');
+
+    if (window.innerWidth <= 1200) {
+        overlayFilter.classList.toggle('active');
+
+        if (filtrationHeader) {
+            if (!filtrationHeader.querySelector('em')) {
+                const emElement = document.createElement('em');
+                filtrationHeader.appendChild(emElement);
+                 emElement.addEventListener('click', () => {
+                    productAttributes.classList.remove('hide-filter');
+                    overlayFilter.classList.remove('active');
+                });
+            }
+        }
+    }
+});
+
+overlayFilter.addEventListener('click', () => {
+    productAttributes.classList.remove('hide-filter');
+    overlayFilter.classList.remove('active');
+});
+
+</script>
+
+
+{% endblock %}
+
+

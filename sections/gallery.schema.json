@@ -1,0 +1,114 @@
+{
+  "section_id": "uuid",
+  "template": "sections/gallery.jinja",
+  "icon": "fal fa-images",
+  "name": {
+    "ar": "مجموعة صور",
+    "en": "Photo Collection"
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "hide_element",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "type": "checkbox",
+      "id": "merge_prev",
+      "label": {
+        "ar": "دمج مع العنصر السابق",
+        "en": "Merge with prev section"
+      }
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": {
+        "ar": "لون الخلفية",
+        "en": "Background color"
+      }
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": {
+        "ar": "لون النص",
+        "en": "Text color"
+      }
+    },
+    {
+      "type": "text",
+      "id": "small_subtitle",
+      "label": {
+        "ar": "عنوان ترويجي",
+        "en": "Promotional title"
+      }
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": {
+        "ar": "العنوان الرئيسي",
+        "en": "Title"
+      }
+    },
+    {
+      "type": "text",
+      "id": "small_text",
+      "label": {
+        "ar": "نص إضافي",
+        "en": "Additional text"
+      }
+    },
+    {
+      "type": "list",
+      "id": "gallery",
+      "max_items": 100,
+      "label": {
+        "ar": "الصورة",
+        "en": "Picture"
+      },
+      "settings": [
+        {
+          "type": "image",
+          "id": "image",
+          "label": {
+            "ar": "الصورة",
+            "en": "Image"
+          },
+          "info": {
+            "ar": "مقاس الصورة 400 عرض × 533 طول",
+            "en": "Image size: 400 width × 533 height"
+          }
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "ar": "العنوان",
+            "en": "Text"
+          }
+        },
+        {
+          "type": "text",
+          "id": "sub_title",
+          "label": {
+            "ar": "العنوان الفرعي",
+            "en": "Sub title"
+          }
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": {
+            "ar": "الرابط",
+            "en": "Link"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "section_id": "uuid",
+  "template": "sections/contact-us.jinja",
+  "icon": "fal fa-cabinet-filing",
+  "name": {
+    "ar": "تواصل معنا",
+    "en": "contact us"
+  },
+  "settings": [
+    {
+      "id": "hide_element",
+      "type": "checkbox",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "id": "small_subtitle",
+      "type": "text",
+      "label": {
+        "ar": "عنوان ترويجي",
+        "en": "Promotional title"
+      }
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "label": {
+        "ar": "العنوان الرئيسي",
+        "en": "Title"
+      }
+    },
+    {
+      "id": "small_text",
+      "type": "text",
+      "label": {
+        "ar": "نص إضافي",
+        "en": "Additional text"
+      }
+    },
+    {
+      "id": "contact_us",
+      "type": "fieldset",
+      "label": {
+        "ar": "تواصل معنا",
+        "en": "Contact us"
+      },
+      "settings": [
+        {
+          "id": "text",
+          "type": "text",
+          "label": {
+            "ar": "نص التواصل",
+            "en": "Contact text"
+          }
+        },
+        {
+          "id": "email",
+          "type": "text",
+          "label": {
+            "ar": "البريد الإلكتروني",
+            "en": "Email"
+          }
+        },
+        {
+          "id": "phone",
+          "type": "text",
+          "label": {
+            "ar": "رقم الجوال",
+            "en": "Phone"
+          }
+        },
+        {
+          "id": "address",
+          "type": "text",
+          "label": {
+            "ar": "العنوان",
+            "en": "Address"
+          }
+        },
+        {
+          "id": "map",
+          "type": "textarea",
+          "label": {
+            "ar": "المكان على الخريطة",
+            "en": "Location on map"
+          }
+        }
+      ]
+    }
+  ]
+}

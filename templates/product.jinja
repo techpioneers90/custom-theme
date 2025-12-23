@@ -1,0 +1,2557 @@
+{% extends "layout.jinja" %}
+
+{% block header %} {% include 'header.jinja' %} {% endblock %}
+
+{% block top_links %}
+    <link rel="stylesheet" type="text/css" href="{{ 'toastr.min.css' | asset_url }}" />
+    {# ekko-lightbox.css سيتم تحميله بشكل lazy عند الحاجة #}
+    <link rel="stylesheet" type="text/css" href="{{ 'product-details.css' | asset_url }}" />
+{% endblock %}
+
+<style>
+  /* قبل ما Swiper يتهيأ، اعرض أول صورة فقط وخفي الباقي */
+  .product-images-carousel-init #product-images-slick:not(.swiper-initialized) .swiper-slide:not(:first-child) {
+    display: none;
+  }
+  .product-images-carousel-thumbs:not(.swiper-initialized) .swiper-slide:not(:first-child) {
+    display: none;
+  }
+</style>
+
+
+{% block main_content %}
+<div class="breadcrumb-subtitle">
+  <section class="breadcrumb-section">
+  <nav aria-label="breadcrumb">
+    <div class="container">
+      <ol class="breadcrumb" id="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="/">{{ _("Home") }}</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          {{ product.selected_product.name }}
+        </li>
+      </ol>
+    </div>
+  </nav>
+</section>
+</div>
+
+    <section class="product products-details-page {% if thumb_bottom %}thumb-bottom{% endif %} {% if no_tabs %}no-tabs{% endif %}">
+        <div class="container pd-0">
+            <section class="products-details">
+                      <!--GALLERY-->
+                        <div id="wrap" class="col-product-image-wrapper">
+                            <!-- Carousel -->
+                            {% set media_count = product.selected_product.media | length %}
+                            {% set videos_count = 0 %}
+                            {% for product_item in products_videos %}
+                              {% if product_item.product.id == (product.selected_product.parent_id|default(product.selected_product.id)) %}
+                                {% set videos_count = videos_count + 1 %}
+                              {% endif %}
+                            {% endfor %}
+                            {% set total_media = media_count + videos_count %}
+                            {% if total_media > 1 %}
+                            <div class="product-images-carousel-thumbs swiper-container">
+                                <div class="swiper-wrapper">
+                                {% for image in product.selected_product.media %}
+                                    <div class="swiper-slide">
+                                        <a class="thumb-image-a" data-index="{{ key }}" href="javascript:;">
+                                            <img 
+                                              loading="{% if loop.index0 < 5 %}eager{% else %}lazy{% endif %}" 
+                                              {% if loop.index0 == 0 %}fetchpriority="high"{% endif %}
+                                              src="{{ image.image.medium }}" 
+                                              data-index="{{ key }}" 
+                                              alt="image">
+                                            {% if image.provider and image.link %}
+                                                                   <img loading="lazy" id="video-play-icon" class="play-icon"
+                                                                     src="{{ 'video-play.svg' | asset_url }}" alt="play"
+                                                                     data-index="{{ key }}"
+                                                                   />
+                                                                 {% endif %}
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                                {% set show_controls = false %}
+                                {% set autoplay = false %}
+                                {% set show_play_icon = false %}
+                                {% include 'components/product-video.jinja' %}
+                                </div>
+                                {% set total_media = media_count + videos_count %}
+                                {% if total_media > 5 %}
+                                <div class="swiper-button-prev thumbs-nav-prev"></div>
+                                <div class="swiper-button-next thumbs-nav-next"></div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            <div class="product-images-carousel product-images-carousel-init {% if product.selected_product.media | length <= 0 %}d-none{% endif %}">
+                                {% if product.badge %}
+                                   {% include 'vitrin:products/badge.jinja' %}
+                                {% endif %}
+                                <div class="product-actions-icons">
+                                  {% if store.settings.products.wishlist_enabled == true %}
+                                      <span class="add-to-wishlist" data-wishlist-id="{{ product.id }}">
+                                        {% if not session.is_guest %}
+                                        <a class="icon-heart-mask" onclick="addToWishlist(this, '{{ product.id }}')"></a>
+                                        {% else %}
+                                        <a class="icon-heart-mask" href="{{ url_for('login_page', query_params={"redirect_to": session.path} ) }}"></a>
+                                        {% endif %}
+                                        <img class="loader d-none" src="{{ 'spinner.gif' | asset_url }}" width="20" height="20"/>
+                                    </span>
+                                  {% endif %}
+                                  {% if not hide_share %}
+                                  <a class="product-share-icon"
+                                     onclick="toggleSharePopup(event, '{{ product.name }}', '{{ product.html_url }}')"
+                                     href="javascript:;"
+                                     aria-label="share">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"
+                                         color="currentColor" fill="none" stroke="currentColor" stroke-width="1.5">
+                                      <path d="M21 6.5C21 8.15685 19.6569 9.5 18 9.5C16.3431 9.5 15 8.15685 15 6.5C15 4.84315 16.3431 3.5 18 3.5C19.6569 3.5 21 4.84315 21 6.5Z" />
+                                      <path d="M9 12C9 13.6569 7.65685 15 6 15C4.34315 15 3 13.6569 3 12C3 10.3431 4.34315 9 6 9C7.65685 9 9 10.3431 9 12Z" />
+                                      <path d="M21 17.5C21 19.1569 19.6569 20.5 18 20.5C16.3431 20.5 15 19.1569 15 17.5C15 15.8431 16.3431 14.5 18 14.5C19.6569 14.5 21 15.8431 21 17.5Z" />
+                                      <path d="M8.72852 10.7495L15.2285 7.75M8.72852 13.25L15.2285 16.2495" />
+                                    </svg>
+                                  </a>
+                                  {% endif %}
+                                </div>
+                                <div id="product-images" class="product-images slide gallery">
+                                    <div id="product-images-slick" class="swiper-container">
+                                      <div class="swiper-wrapper">
+                                        {% for image in product.selected_product.media %}
+                                          <div class="swiper-slide">
+                                                <a class="image-link" href="javascript:;">
+                                                    <img 
+                                                      loading="{% if loop.index0 == 0 %}eager{% else %}lazy{% endif %}" 
+                                                      {% if loop.index0 == 0 %}fetchpriority="high"{% endif %}
+                                                      src="{{ image.image.full_size }}" 
+                                                      class="carousel-img" 
+                                                      alt="{{ image.alt_text }}">
+                                                    {% if image.provider and image.link %}
+                                                                                <img id="main-video-icon"
+                                                                                  class="play-icon"
+                                                                                  src="{{ 'video-play.svg' | asset_url }}"
+                                                                                  alt="play"
+                                                                                  width="25"
+                                                                                  onClick="showIframe(this, '{{ image.link }}')"
+                                                                                />
+                                                                            {% endif %}
+                                                </a>
+                                                {% if image.provider and image.link %}
+                                                                             <div class="iframe-video pt-1 d-none">
+                                                                                 <a
+                                                                                   id="iframe-close-btn"
+                                                                                   type="button"
+                                                                                   class="text-white btn btn-none grow"
+                                                                                   onClick="hideIframe(this)"
+                                                                                 >
+                                                                                   X
+                                                                                 </a>
+                                                                                 <iframe
+                                                                                   width="100%"
+                                                                                   height="100%"
+                                                                                   src=""
+                                                                                   frameborder="0"
+                                                                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                                                   allowfullscreen
+                                                                                   style="max-width: 100%"
+                                                                                 >
+                                                                                 </iframe>
+                                                                             </div>
+                                                                         {% endif %}
+                                          </div>
+                                        {% endfor %}
+                                        {% set show_controls = true %}
+                                        {% set autoplay = true %}
+                                        {% set show_play_icon = true %}
+                                        {% include 'components/product-video.jinja' %}
+                                      </div>
+                                      <div class="swiper-pagination"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- No image -->
+                            <div class="product-images-empty {% if product.selected_product.media | length > 0 %}d-none{% endif %}">
+                                <div class="content">
+                                    <img loading="lazy" src="{{ 'product-img.svg' | asset_url }}" width="100%" height="auto" />
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-product-info {% if product.selected_product.media | length <= 1 %}col-product-info-single-image{% endif %}">
+                            <section>
+                                {% if promotional_title and promotional_text %}
+                                <div class="badge-cart">
+                                  {% if promotional_title %}
+                                    <span>{{promotional_title}}</span>
+                                  {% endif %}
+                                  {% if promotional_text %}
+                                  <p>
+                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+                                      <path d="M6.19351 11.3965L12.192 3.31186C12.6611 2.67957 13.5405 3.07311 13.5405 3.91536V10.1729C13.5405 10.6775 13.8853 11.0865 14.3107 11.0865H17.2283C17.891 11.0865 18.2443 12.0134 17.8065 12.6035L11.808 20.6881C11.3389 21.3204 10.4595 20.9269 10.4595 20.0846V13.8271C10.4595 13.3225 10.1147 12.9135 9.68931 12.9135H6.77173C6.10895 12.9135 5.75566 11.9866 6.19351 11.3965Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                  </svg>
+                                    {{promotional_text}}
+                                  </p>
+                                  {% endif %}
+                                </div>
+                                {% endif %}
+                                <h1 class="title-product">{{ product.name | safe }}</h1>
+
+                                <div class="price-product">
+                                  <p class="product-formatted-price">
+                                    {% if product.selected_product.formatted_sale_price %}
+                                      {{ product.selected_product.formatted_sale_price }}
+                                    {% else %}
+                                      {{ product.selected_product.formatted_price }}
+                                    {% endif %}
+                                  </p>
+                                  
+                                  <p class="price-tawfer {% if not product.selected_product.formatted_sale_price %}d-none{% endif %}">
+                                    <span class="product-formatted-price-old">
+                                      {% if product.selected_product.formatted_sale_price %}
+                                        {{ product.selected_product.formatted_price }}
+                                      {% endif %}
+                                    </span>
+                                    <span class="product-formatted-price-discount">
+                                      {% if product.selected_product.formatted_sale_price %}
+                                      - {{ product.discount_percentage }}%
+                                      {% endif %}
+                                    </span>
+                                  </p>
+                                </div>
+                                {% if product.sold_products_count or (store.settings.products.reviews_enabled and product.rating.total_count > 0) %}
+                                <div class="rate-sold-count">
+                                    {% if product.rating.total_count > 0 %}
+                                    <div class="rate-sku">
+                                          <div>
+                                              {% set rating=product.rating.average %}{% include 'components/rating-stars.jinja' %}
+                                              <span class="product-card-rating-count">
+                                              {% if product.rating.total_count > 0 %}
+                                                  ({{ product.rating.total_count }})
+                                              {% endif %}
+                                              </span>
+                                          </div>
+                                    </div>
+                                    {% endif %}
+                                  
+                                  {% if product.sold_products_count %}
+                                      <div class="product-count d-flex sold-count">
+                                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+                                              <path d="M13.8561 22C26.0783 19 19.2338 7 10.9227 2C9.9453 5.5 8.47838 6.5 5.54497 10C1.66121 14.6339 3.5895 20 8.96719 22C8.1524 21 6.04958 18.9008 7.5 16C8 15 9 14 8.5 12C9.47778 12.5 11.5 13 12 15.5C12.8148 14.5 13.6604 12.4 12.8783 10C19 14.5 16.5 19 13.8561 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                          </svg>
+                                          <span class="lang">{{ _("Sold more than %s times") | format(product.sold_products_count) }}</span>
+                                      </div>
+                                  {% endif %}
+                                </div>
+                                {% endif %}
+
+                                {% if not hide_people_viewing %}
+                                {% set txt = _('%s people viewing now') %}
+                                {% include 'components/show-now.jinja' %}
+                                {% endif %}
+
+                              {% if not hide_product_weight %}
+                              <div class="div-product-weight {% if not product.selected_product.weight.value %}d-none{% endif %}">
+                                <h4>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+                                    <path d="M19 15V18.8889C19 21.1138 18.2644 22 15.8889 22H8.11111C5.88617 22 5 21.2644 5 18.8889V15C5 11.134 8.13401 8 12 8C15.866 8 19 11.134 19 15Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                    <path d="M16 15C16 12.7909 14.2091 11 12 11C9.79086 11 8 12.7909 8 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                    <path d="M12 17L13 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                    <path d="M16.3124 5H7.68756C6.80396 5 6.36216 5 5.97341 4.84796C5.84428 4.79746 5.72076 4.73499 5.60466 4.66148C5.25513 4.44018 5.01007 4.09284 4.51994 3.39815C4.13795 2.85675 3.94696 2.58604 4.0128 2.3647C4.03364 2.29467 4.07039 2.22977 4.1205 2.17455C4.27889 2 4.6232 2 5.31184 2H18.6882C19.3768 2 19.7211 2 19.8795 2.17455C19.9296 2.22977 19.9664 2.29467 19.9872 2.3647C20.053 2.58604 19.862 2.85675 19.4801 3.39815C18.9899 4.09283 18.7449 4.44019 18.3953 4.66148C18.2792 4.73499 18.1557 4.79746 18.0266 4.84796C17.6378 5 17.196 5 16.3124 5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                    <path d="M14 8V5M10 8V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                </svg>
+                                {{ _("Product weight") }} :
+                                </h4>
+                                <span class="product-weight">
+                                    {{ product.selected_product.weight.value }}&nbsp;{{ product.selected_product.weight.unit }}
+                                </span>
+                            </div>
+                            {% endif %}
+                              {% if alert_text %}
+                                <div class="tf-product-info-liveview">
+                                  <p>{{alert_text}}</p>
+                                </div>
+                              {% endif %}
+
+                            {% if (product.is_infinite == true or product.quantity > 0) 
+                                and product.purchase_restrictions.sale_price_period_end %}
+                                <div class="end-in-box">
+                                  <p class="end-in">
+                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+                                      <circle cx="12" cy="13" r="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                      <path d="M5 19L3 21M19 19L21 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                      <path d="M19 3.5697L19.5955 3.27195C20.4408 2.84932 20.7583 2.89769 21.4303 3.5697C22.1023 4.2417 22.1507 4.55924 21.728 5.4045L21.4303 6M5 3.5697L4.4045 3.27195C3.55924 2.84932 3.2417 2.89769 2.5697 3.5697C1.89769 4.2417 1.84932 4.55924 2.27195 5.4045L2.5697 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                      <path d="M12 9.5V13.5L14 15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                      <path d="M12 3.5V2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                      <path d="M10 2H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                  </svg>
+                                  {{ _("Offer ends in") }}</p>
+                                  <div class="tp-countdown" {% if product.purchase_restrictions.sale_price_period_start %}
+                                      data-start="{{ product.purchase_restrictions.sale_price_period_start }}"
+                                    {% endif %}
+                                    data-end="{{ product.purchase_restrictions.sale_price_period_end }}">
+                      <ul>
+                        <li>
+                          <span class="seconds">0</span>
+                          {{ _("S") }}
+                        </li>
+                        <li>
+                          <span class="minutes">0</span>
+                          {{ _("M") }}
+                        </li>
+                        <li>
+                          <span class="hours">0</span>
+                          {{ _("H") }}
+                        </li>
+                        <li>
+                          <span class="days">0</span>
+                          {{ _("D") }}
+                        </li>
+                      </ul>
+                                  </div>
+                                </div>
+                              {% endif %}
+
+                                {% if product.low_stock_quantity %}
+                                    <div class="low-quantity-section d-inline-block">
+                                        <span class="icon-flag_black" style="color: #EC5550; font-size: 16px"></span>&nbsp;
+                                        <span class="low-quantity">{{ _("Remaining %s only") | format(product.low_stock_quantity) }}</span>
+                                    </div>
+                                {% endif %}
+
+                                {% if product.bundle_offer %}
+                                <div class="bundle-offer-section">
+                                    <span class="icon-gift" style="color: red; font-size: 14px"></span>&nbsp;
+                                    <span class="bundle-offer-title">{{ product.bundle_offer.name }}</span>
+                                </div>
+                                {% endif %}
+                                {% if not hide_short_description and product.short_description %}
+                                  <div class="product-description">
+                                      {{ product.short_description | safe }}
+                                      &nbsp;<a id="product-description-a" href="#navPresentationTab" class="text-color-primary read-more-btn">{{ _("Read More") }}</a>
+                                  </div>
+                                {% endif %}
+                                <div class="loyalty-points">
+                                    {% include 'vitrin:products/loyalty_points_widget.jinja' %}
+                                </div>
+                                <form id="product-form">
+                                  <input id="product-id" type="hidden" value="{{ product.selected_product.id }}">
+
+                                  <div class="size-box">
+                                      {% include 'vitrin:products/variants_list.jinja' %}
+                                      <!-- new custom fields update -->
+                                      {% if product.custom_input_fields  %}
+                                          <div class="border-product" style="margin-top: 25px"></div>
+                                          {% include 'vitrin:products/custom_input_fields.jinja' %}
+                                      {% endif %}
+                                  </div>
+
+                                  {% if product.selected_product.is_infinite or product.selected_product.quantity > 0 %}
+                                    <div class="select-quantity-div" style="display:none;">
+                                      {% include 'components/select-quantity.jinja' %}
+                                    </div>
+                                  {% endif %}
+
+                                  {% if product.selected_product.is_infinite or product.selected_product.quantity > 0 %}
+                                    <div class="quantity-add-cart column--quantity">
+                                        <label>{{ _("Quantity") }}</label>
+                                        <div class="select-quantity-div">
+                                                    <div class="quantity-input">
+                                                    <button type="button" id="increase-quantity" class="btn-quantity increase-quantity" aria-label="increase-quantity">
+                                                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+                                                          <path d="M12 4V20M20 12H4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                      </svg>
+                                                    </button>
+                                                      <input type="number" id="product-quantity-input" class="product-quantity-input" aria-label="quantity" name="quantity" min="1" value="1" readonly>
+                                                      <button type="button" id="decrease-quantity" class="btn-quantity decrease-quantity" aria-label="decrease-quantity">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+                                                            <path d="M20 12L4 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </svg>
+                                                        </button>
+                                                    </div>
+                                        </div>
+                                    </div>
+                                  {% endif %}
+                                <div class="section-out-of-stock-notify-me {% if not product.selected_product.in_stock %}d-block{% else %}d-none{% endif %}">
+                                    <h3 class="product-title">{{ _("This product is out of stock") }}</h3>
+                                    <form>
+                                        <input type="hidden" class="send-notify-product-id" value="{{ product.selected_product.id }}">
+                                        <h4>{{ _("Notify me") }}</h4>
+                                        <div class="form-notify-me">
+                                            <div class="form-group">
+                                              <input class="form-control send-notify-name" value="" type="text" placeholder="{{ _("Enter your name") }}" />
+                                            </div>
+                                            <div class="form-group">
+                                              <input class="form-control send-notify-email" type="email" value="" placeholder="{{ _("Enter your email") }}" />
+                                            </div>
+                                            <div class="form-group">
+                                              <div class="form-notify-me-phone-row">
+                                                <input class="form-control send-notify-phone" type="number"  value="" placeholder="{{ _("Enter your phone (Optional)") }}" maxlength="10" />
+                                                <input class="form-control send-notify-country-key" type="number" placeholder="966" maxlength="4" />
+                                            </div>
+                                            </div>
+                                            <div class="form-notify-me-submit-button-row">
+                                                <button type="button" class="btn btn-primary btn-send-notify" onclick="sendProductNotifyMe()">
+                                                <img loading="lazy" class="send-notify-progress d-none" src="{{ 'spinner.gif' | asset_url }}" width="15" height="15"/>
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+                                                    <path d="M21.0477 3.05293C18.8697 0.707363 2.48648 6.4532 2.50001 8.551C2.51535 10.9299 8.89809 11.6617 10.6672 12.1581C11.7311 12.4565 12.016 12.7625 12.2613 13.8781C13.3723 18.9305 13.9301 21.4435 15.2014 21.4996C17.2278 21.5892 23.1733 5.342 21.0477 3.05293Z" stroke="currentColor" stroke-width="1.5" />
+                                                    <path d="M11.5 12.5L15 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg>
+                                                {{ _("Send") }}
+                                                </button>
+                                            </div>
+                                        
+                                        </div>
+                                    </form>
+                                </div>
+                                </form>
+                            </section>
+
+                              <div class="product-buttons {% if not product.selected_product.in_stock %}d-none{% else %}d-block{% endif %}">
+                                    <div class="product-buttons-flex add-cart-page">
+                                      <button class="btn-add-to-cart" type="button" onclick="productAddToCart()">
+                                        <img loading="lazy" class="add-to-cart-progress d-none" src="{{ 'spinner.gif' | asset_url }}" width="25" height="25"/>
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#000000" fill="none">
+                                          <path d="M3.87289 17.0194L2.66933 9.83981C2.48735 8.75428 2.39637 8.21152 2.68773 7.85576C2.9791 7.5 3.51461 7.5 4.58564 7.5H19.4144C20.4854 7.5 21.0209 7.5 21.3123 7.85576C21.6036 8.21152 21.5126 8.75428 21.3307 9.83981L20.1271 17.0194C19.7282 19.3991 19.5287 20.5889 18.7143 21.2945C17.9 22 16.726 22 14.3782 22H9.62182C7.27396 22 6.10003 22 5.28565 21.2945C4.47127 20.5889 4.27181 19.3991 3.87289 17.0194Z" stroke="currentColor" stroke-width="1.5"></path>
+                                          <path d="M17.5 7.5C17.5 4.46243 15.0376 2 12 2C8.96243 2 6.5 4.46243 6.5 7.5" stroke="currentColor" stroke-width="1.5"></path>
+                                        </svg>
+                                        <span>{{ _("Add to cart") }}</span>
+                                      </button>
+                                      <div class="checkout-btns">
+                                        <a zid-visible-customer="true"
+                                          href="/checkout/choose-address-and-shipping"
+                                          onclick="clearCartBeforeCheckout(event, this)"
+                                          class="btn-add-to-cart checkout-btn">
+                                          <img loading="lazy" class="checkout-progress d-none" src="{{ 'spinner.gif' | asset_url }}" width="25" height="25"/>
+                                          <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                                            <title>full-wallet</title>
+                                            <path d="M29 12h-26c-0.668-0.008-1.284-0.226-1.787-0.59l0.009 0.006c-0.744-0.552-1.222-1.428-1.222-2.416 0-1.657 1.343-3 2.999-3h6c0.552 0 1 0.448 1 1s-0.448 1-1 1v0h-6c-0.552 0-1 0.448-1 1 0 0.326 0.156 0.616 0.397 0.798l0.002 0.002c0.167 0.12 0.374 0.194 0.599 0.2l0.001 0h26c0.552 0 1 0.448 1 1s-0.448 1-1 1v0zM27 12c-0.552 0-1-0.448-1-1v0-3h-3c-0.552 0-1-0.448-1-1s0.448-1 1-1v0h4c0.552 0 1 0.448 1 1v0 4c0 0.552-0.448 1-1 1v0zM29 30h-26c-1.657 0-3-1.343-3-3v0-18c0-0.552 0.448-1 1-1s1 0.448 1 1v0 18c0 0.552 0.448 1 1 1v0h25v-5c0-0.552 0.448-1 1-1s1 0.448 1 1v0 6c0 0.552-0.448 1-1 1v0zM29 18c-0.552 0-1-0.448-1-1v0-6c0-0.552 0.448-1 1-1s1 0.448 1 1v0 6c0 0.552-0.448 1-1 1v0zM31 24h-7c-2.209 0-4-1.791-4-4s1.791-4 4-4v0h7c0.552 0 1 0.448 1 1v0 6c0 0.552-0.448 1-1 1v0zM24 18c-1.105 0-2 0.895-2 2s0.895 2 2 2v0h6v-4zM25 12c-0.001 0-0.001 0-0.002 0-0.389 0-0.726-0.222-0.891-0.546l-0.003-0.006-3.552-7.106-2.306 1.152c-0.13 0.066-0.284 0.105-0.447 0.105-0.552 0-1-0.448-1-1 0-0.39 0.223-0.727 0.548-0.892l0.006-0.003 3.2-1.6c0.13-0.067 0.284-0.106 0.447-0.106 0.39 0 0.727 0.223 0.892 0.548l0.003 0.006 4 8c0.067 0.13 0.106 0.285 0.106 0.448 0 0.552-0.448 1-1 1v0zM21 12c-0.001 0-0.001 0-0.002 0-0.389 0-0.726-0.222-0.891-0.546l-0.003-0.006-3.552-7.106-15.104 7.552c-0.13 0.066-0.284 0.105-0.447 0.105-0.552 0-1-0.448-1-1 0-0.39 0.223-0.727 0.548-0.892l0.006-0.003 16-8c0.13-0.067 0.284-0.106 0.447-0.106 0.39 0 0.727 0.223 0.892 0.548l0.003 0.006 4 8c0.067 0.13 0.106 0.285 0.106 0.448 0 0.552-0.448 1-1 1-0.001 0-0.001 0-0.002 0h0z"></path>
+                                          </svg>
+                                          {{ _("Checkout") }}
+                                        </a>
+
+                                        <a zid-visible-guest="true"
+                                          href="/auth/login?return_to=/checkout/choose-address-and-shipping"
+                                          onclick="clearCartForGuestAndRedirect(event)"
+                                          class="btn-add-to-cart checkout-btn">
+                                          <img loading="lazy" class="checkout-progress d-none" src="{{ 'spinner.gif' | asset_url }}" width="25" height="25"/>
+                                          <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                                            <title>full-wallet</title>
+                                            <path d="M29 12h-26c-0.668-0.008-1.284-0.226-1.787-0.59l0.009 0.006c-0.744-0.552-1.222-1.428-1.222-2.416 0-1.657 1.343-3 2.999-3h6c0.552 0 1 0.448 1 1s-0.448 1-1 1v0h-6c-0.552 0-1 0.448-1 1 0 0.326 0.156 0.616 0.397 0.798l0.002 0.002c0.167 0.12 0.374 0.194 0.599 0.2l0.001 0h26c0.552 0 1 0.448 1 1s-0.448 1-1 1v0zM27 12c-0.552 0-1-0.448-1-1v0-3h-3c-0.552 0-1-0.448-1-1s0.448-1 1-1v0h4c0.552 0 1 0.448 1 1v0 4c0 0.552-0.448 1-1 1v0zM29 30h-26c-1.657 0-3-1.343-3-3v0-18c0-0.552 0.448-1 1-1s1 0.448 1 1v0 18c0 0.552 0.448 1 1 1v0h25v-5c0-0.552 0.448-1 1-1s1 0.448 1 1v0 6c0 0.552-0.448 1-1 1v0zM29 18c-0.552 0-1-0.448-1-1v0-6c0-0.552 0.448-1 1-1s1 0.448 1 1v0 6c0 0.552-0.448 1-1 1v0zM31 24h-7c-2.209 0-4-1.791-4-4s1.791-4 4-4v0h7c0.552 0 1 0.448 1 1v0 6c0 0.552-0.448 1-1 1v0zM24 18c-1.105 0-2 0.895-2 2s0.895 2 2 2v0h6v-4zM25 12c-0.001 0-0.001 0-0.002 0-0.389 0-0.726-0.222-0.891-0.546l-0.003-0.006-3.552-7.106-2.306 1.152c-0.13 0.066-0.284 0.105-0.447 0.105-0.552 0-1-0.448-1-1 0-0.39 0.223-0.727 0.548-0.892l0.006-0.003 3.2-1.6c0.13-0.067 0.284-0.106 0.447-0.106 0.39 0 0.727 0.223 0.892 0.548l0.003 0.006 4 8c0.067 0.13 0.106 0.285 0.106 0.448 0 0.552-0.448 1-1 1v0zM21 12c-0.001 0-0.001 0-0.002 0-0.389 0-0.726-0.222-0.891-0.546l-0.003-0.006-3.552-7.106-15.104 7.552c-0.13 0.066-0.284 0.105-0.447 0.105-0.552 0-1-0.448-1-1 0-0.39 0.223-0.727 0.548-0.892l0.006-0.003 16-8c0.13-0.067 0.284-0.106 0.447-0.106 0.39 0 0.727 0.223 0.892 0.548l0.003 0.006 4 8c0.067 0.13 0.106 0.285 0.106 0.448 0 0.552-0.448 1-1 1-0.001 0-0.001 0-0.002 0h0z"></path>
+                                          </svg>
+                                          {{ _("Checkout") }}
+                                        </a>
+                                      </div>
+                                    </div>  
+                                    <div class="apple-pay-button">
+                                    {% include 'vitrin:checkout/apple-pay-quick-checkout.jinja' %}
+                                    </div>
+                                    {% if text_url_text %}
+                                      <a href="{{text_url_url}}" class="text-url" target="_blank" aria-label="link">
+                                          {{text_url_text}}
+                                      </a>
+                                    {% endif %}
+                              </div>
+                                      
+                              <div id="product-view-add-to-cart"></div>
+
+                                  <div class="product-payments">
+                                    {% include 'vitrin:products/payment_widgets.jinja' %}
+                                </div>
+
+                          <div class="sku-weight">
+                            {% if not hide_product_sku %}
+                            <div class="product-flex-box div-product-sku {% if not product.selected_product.sku %}d-none{% endif %}">
+                                <h3 class="product-title">
+                                {{ _("Product sku") }} : </h3>
+                                <span class="product-sku">
+                                    {{ product.selected_product.sku }}
+                                </span>
+                            </div>
+                            {% endif %}
+                          {# {% if show_share %}
+                            <div class="product-flex-box share-social">
+                                <h3 class="product-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+                                  <path d="M21 6.5C21 8.15685 19.6569 9.5 18 9.5C16.3431 9.5 15 8.15685 15 6.5C15 4.84315 16.3431 3.5 18 3.5C19.6569 3.5 21 4.84315 21 6.5Z" stroke="currentColor" stroke-width="1.5" />
+                                  <path d="M9 12C9 13.6569 7.65685 15 6 15C4.34315 15 3 13.6569 3 12C3 10.3431 4.34315 9 6 9C7.65685 9 9 10.3431 9 12Z" stroke="currentColor" stroke-width="1.5" />
+                                  <path d="M21 17.5C21 19.1569 19.6569 20.5 18 20.5C16.3431 20.5 15 19.1569 15 17.5C15 15.8431 16.3431 14.5 18 14.5C19.6569 14.5 21 15.8431 21 17.5Z" stroke="currentColor" stroke-width="1.5" />
+                                  <path d="M8.72852 10.7495L15.2285 7.75M8.72852 13.25L15.2285 16.2495" stroke="currentColor" stroke-width="1.5" />
+                              </svg>
+                                {{ _("Product share") }}</h3>
+                                <div class="product-icon">
+                                    <div class="product-social">
+                                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ product.html_url }}" target="_blank" aria-label="facebook">
+                                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M6.18182 10.3333C5.20406 10.3333 5 10.5252 5 11.4444V13.1111C5 14.0304 5.20406 14.2222 6.18182 14.2222H8.54545V20.8889C8.54545 21.8081 8.74951 22 9.72727 22H12.0909C13.0687 22 13.2727 21.8081 13.2727 20.8889V14.2222H15.9267C16.6683 14.2222 16.8594 14.0867 17.0631 13.4164L17.5696 11.7497C17.9185 10.6014 17.7035 10.3333 16.4332 10.3333H13.2727V7.55556C13.2727 6.94191 13.8018 6.44444 14.4545 6.44444H17.8182C18.7959 6.44444 19 6.25259 19 5.33333V3.11111C19 2.19185 18.7959 2 17.8182 2H14.4545C11.191 2 8.54545 4.48731 8.54545 7.55556V10.3333H6.18182Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                                          </svg>
+                                        </a>
+                                        <a href="https://www.pinterest.com/pin/create/button/?url={{ product.html_url }}" target="_blank" aria-label="pinterest">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+                                            <path d="M12 11L8 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                            <path d="M9.97368 16.5724C10.5931 16.8473 11.2787 17 12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 12.9108 7.24367 13.7646 7.66921 14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" />
+                                        </svg>
+                                        </a>
+                                        <a href="https://twitter.com/intent/tweet?text={{ product.name }}: {{ product.html_url }}" target="_blank" aria-label="twitter">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+                                            <path d="M3 21L10.5484 13.4516M21 3L13.4516 10.5484M13.4516 10.5484L8 3H3L10.5484 13.4516M13.4516 10.5484L21 21H16L10.5484 13.4516" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        </a>
+                                        <a href="https://api.whatsapp.com/send?text={{ _("Check Out this Product") }}: {{ product.name }} {{ product.html_url }}" target="_blank" aria-label="whatsapp">
+                                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+                                              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 13.3789 2.27907 14.6926 2.78382 15.8877C3.06278 16.5481 3.20226 16.8784 3.21953 17.128C3.2368 17.3776 3.16334 17.6521 3.01642 18.2012L2 22L5.79877 20.9836C6.34788 20.8367 6.62244 20.7632 6.87202 20.7805C7.12161 20.7977 7.45185 20.9372 8.11235 21.2162C9.30745 21.7209 10.6211 22 12 22Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                                              <path d="M8.58815 12.3773L9.45909 11.2956C9.82616 10.8397 10.2799 10.4153 10.3155 9.80826C10.3244 9.65494 10.2166 8.96657 10.0008 7.58986C9.91601 7.04881 9.41086 7 8.97332 7C8.40314 7 8.11805 7 7.83495 7.12931C7.47714 7.29275 7.10979 7.75231 7.02917 8.13733C6.96539 8.44196 7.01279 8.65187 7.10759 9.07169C7.51023 10.8548 8.45481 12.6158 9.91948 14.0805C11.3842 15.5452 13.1452 16.4898 14.9283 16.8924C15.3481 16.9872 15.558 17.0346 15.8627 16.9708C16.2477 16.8902 16.7072 16.5229 16.8707 16.165C17 15.8819 17 15.5969 17 15.0267C17 14.5891 16.9512 14.084 16.4101 13.9992C15.0334 13.7834 14.3451 13.6756 14.1917 13.6845C13.5847 13.7201 13.1603 14.1738 12.7044 14.5409L11.6227 15.4118" stroke="currentColor" stroke-width="1.5" />
+                                          </svg>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %} #}
+                            </div>
+                            {% if features %}
+                            <ul class="features-product">
+                              {% for item in features %}
+                                <li>
+                                  {% if item.image_feature %}
+                                    <img loading="lazy" src="{{ image_url(item.image_feature) }}" loading="lazy" alt="{{ item.title_feature }}">
+                                  {% endif %}
+                                  <div class="content-features-product">
+                                    {% if item.title_feature %}
+                                      <h3>{{ item.title_feature }}</h3>
+                                    {% endif %}
+                                    {% if item.subtitle_feature %}
+                                      <p>{{ item.subtitle_feature }}</p>
+                                    {% endif %}
+                                  </div>
+                                </li>
+                              {% endfor %}
+                            </ul>
+                            {% endif %}
+                              <div class="tp-mask payment-methods">
+                                <div class="tp-marquee">
+                                  {% include 'components/payment-methods.jinja' %}
+                                </div>
+                                <div class="tp-marquee" aria-hidden="true">
+                                  {% include 'components/payment-methods.jinja' %}
+                                </div>
+                              </div>
+                      </div>
+            </section>
+        </div>
+          <div class="tp-product-bottom">
+            <div class="container">
+            {% if product.bundle_offer %}
+              <section class="bundle-offer-details-section s-block">
+                  <div class="flex-bundle">
+                      <div class="description-icon">
+                          <span class="icon-gift"></span>
+                      </div>
+                      <div class="description-title">
+                          <div class="bundle-offer-title">{{ product.bundle_offer.name }}</div>
+                          <div class="bundle-offer-title-description">{{ product.bundle_offer.description }}</div>
+                      </div>
+                  </div>
+                  <div class="description-paragrah">
+                      <div class="bundle-offer-products">
+                          <div class="bundle-offer-details-products products-grid">
+                              {% set bundle_products = safeget(product.bundle_offer, "products.results", []) %}
+                              {% for product in bundle_products[:5] %}
+                                      {% set product=product %}{% set index=loop.index0 %}{% include 'components/product-card.jinja' %}
+                              {% endfor %}
+                          </div>
+                      </div>
+                      {% if product.bundle_offer and (bundle_products | length) > 5 %}
+                    <div class="bundle-offer-more">
+                        <a class="tp-btn" href="javascript:;" data-bs-toggle="modal" data-bs-target=".bd-example-modal-lg">{{ _("Display all products") }}</a>
+                    </div>
+                    {% endif %}
+                  </div>
+              </section>
+              {# <script>
+                      document.addEventListener("DOMContentLoaded", function(){
+                          bundleOfferProducts();
+                      });
+                  </script> #}
+              {% endif %}
+            </div>
+          </div>
+          <div class="container pd-0">
+            <div class="tp-product-details-tab-nav tp-tab">
+              <nav>
+                  <div class="nav nav-tabs tp-product-tab" id="navPresentationTab" role="tablist">
+                      <button class="nav-link active" id="nav-description-tab" data-bs-toggle="tab"
+                          data-bs-target="#nav-description" type="button" role="tab" aria-controls="nav-description"
+                          aria-selected="true">{{ _("Product description") }}</button>
+
+                      {% if store.settings.products.reviews_enabled %}
+                        <button class="nav-link" id="nav-reviews-tab" data-bs-toggle="tab" data-bs-target="#nav-reviews"
+                          type="button" role="tab" aria-controls="nav-reviews" aria-selected="false">{{ _("Product reviews") }}
+                          </button>
+                      {% endif %}
+
+                      {% if product.has_variants %}
+                      <button class="nav-link" id="nav-variants-tab" data-bs-toggle="tab" data-bs-target="#nav-variants"
+                          type="button" role="tab" aria-controls="nav-variants" aria-selected="false">{{ _("Product options") }}</button>
+                      {% endif %}
+
+                      {% if store.settings.products.questions_enabled %}
+                      <button class="nav-link" id="nav-question-tab" data-bs-toggle="tab" data-bs-target="#nav-question"
+                          type="button" role="tab" aria-controls="nav-question" aria-selected="false">
+                          {{ _("Questions") }}</button>
+                      {% endif %}
+
+                      {% if product.metafields %}
+                      <button class="nav-link" id="nav-metafields-tab" data-bs-toggle="tab" data-bs-target="#nav-metafields"
+                          type="button" role="tab" aria-controls="nav-metafields" aria-selected="false">
+                          {{ _("Product properties") }}
+                          </button>
+                      {% endif %}
+
+                  </div>
+              </nav>
+
+              <div class="tab-content" id="navPresentationTabContent">
+                  <div class="tab-pane fade show active" id="nav-description" role="tabpanel"
+                      aria-labelledby="nav-description-tab">
+                      <div class="tp-title-section">
+                        <h3>{{ _("Product description") }}</h3>
+                      </div>
+                      <div class="description-box">
+                      {{ product.description | safe }}
+                      </div>
+                  </div>
+                  {% if store.settings.products.reviews_enabled %}
+                  <div class="tab-pane fade" id="nav-reviews" role="tabpanel" aria-labelledby="nav-reviews-tab">
+                    <div class="tp-product-details-review-wrapper">
+                      <div class="tp-product-details-review-number">
+                        <h3 class="tp-product-details-review-number-title">{{ _("Total ratings") }}</h3>
+                        <div class="tp-product-details-review-summery">
+                          <div class="tp-product-details-review-summery-value">
+                            <span>{{ product.rating.average if product.rating.average else 0 }}</span>
+                          </div>
+                          <div class="tp-product-details-review-summery-rating">
+                            {% set rating=product.rating.average %}{% include 'components/rating-stars.jinja' %}
+                            <p>({{ product.rating.total_count if product.rating.total_count else 0 }} {{ _("Product reviews x count") }})</p>
+                          </div>
+                        </div>
+                        {% include 'components/rating-progress.jinja' %}
+                      </div>
+                      <div class="tp-product-details-review-list">
+                        <h3 class="tp-product-details-review-title">{{ _("Reviews and ratings") }}
+                        <a href="/products/{{ product.slug}}/reviews/add" class="add-review-btn"
+                          id="add-review-btn"><span class="icon-add_circle"></span>{{ _("Add Comment") }} </a>
+                        </h3>
+                        {% if product.rating %}
+                        {% set reviews = product.reviews.data %}
+                        {% include 'components/customer-reviews.jinja' %}
+                          {% if product.reviews.pages_count > 1 %}
+                            <div class="all-reviews-box">
+                                <a href="{{ url_for('product_reviews', slug=product.id) }}" type="button" class="all-reviews-btn">
+                                    {{ _("All reviews") }}
+                                </a>
+                            </div>
+                          {% endif %}
+                          {% else %}
+                            <div class="reviews-empty">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+                                  <path d="M2 12C2 7.52166 2 5.28249 3.39124 3.89124C4.78249 2.5 7.02166 2.5 11.5 2.5C15.9783 2.5 18.2175 2.5 19.6088 3.89124C21 5.28249 21 7.52166 21 12C21 16.4783 21 18.7175 19.6088 20.1088C18.2175 21.5 15.9783 21.5 11.5 21.5C7.02166 21.5 4.78249 21.5 3.39124 20.1088C2 18.7175 2 16.4783 2 12Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                                  <path d="M12.3638 7.72209L13.2437 9.49644C13.3637 9.74344 13.6837 9.98035 13.9536 10.0257L15.5485 10.2929C16.5684 10.4643 16.8083 11.2103 16.0734 11.9462L14.8335 13.1964C14.6236 13.4081 14.5086 13.8164 14.5736 14.1087L14.9285 15.6562C15.2085 16.8812 14.5636 17.355 13.4887 16.7148L11.9939 15.8226C11.7239 15.6613 11.2789 15.6613 11.004 15.8226L9.50913 16.7148C8.43925 17.355 7.78932 16.8761 8.06929 15.6562L8.42425 14.1087C8.48925 13.8164 8.37426 13.4081 8.16428 13.1964L6.92442 11.9462C6.1945 11.2103 6.42947 10.4643 7.44936 10.2929L9.04419 10.0257C9.30916 9.98035 9.62912 9.74344 9.74911 9.49644L10.629 7.72209C11.109 6.7593 11.8889 6.7593 12.3638 7.72209Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                              </svg>
+                                <span>{{ _("No reviews, add yours") }}</span>
+                            </div>
+                          {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                  {% endif %}
+                  {% if store.settings.products.questions_enabled %}
+                  <div class="tab-pane fade" id="nav-question" role="tabpanel" aria-labelledby="nav-question-tab">
+                      {# <div class="tp-title-section">
+                        <h3>{{ _("Questions") }}</h3>
+                      </div> #}
+                      <h3 class="tp-product-details-review-title">
+                      {{ _("Questions") }}
+                      <a href="javascript:;" class="add-review-btn" id="addQuestionButton">
+                      <span class="icon-add_circle"></span>{{ _("Add your question") }}</a>
+                      </h3>
+                      {% set questions = product.questions %}
+                      {% include 'components/product-questions.jinja' %}
+                  </div>
+                  {% endif %}
+                  {% if product.metafields %}
+                  <div class="tab-pane fade" id="nav-metafields" role="tabpanel" aria-labelledby="nav-metafields-tab">
+                      <div class="tp-title-section">
+                        <h3>{{ _("Product properties") }}</h3>
+                      </div>
+                      <div class="description-paragrah">
+                          {% set entity = product %}
+                          {% include 'vitrin:shared/metafields.jinja' %}
+                      </div>
+                  </div>
+                  {% endif %}
+                {% if product.has_variants %}
+                  <div class="tab-pane fade" id="nav-variants" role="tabpanel" aria-labelledby="nav-variants-tab">
+                    {# <div class="tp-title-section">
+                        <h3>{{ _("Product options") }}</h3>
+                    </div> #}
+                      <div class="card-table d-none d-lg-block">
+                          <div class="card">
+                              <div class="card-body card-table-header">
+                                  <div class="row">
+                                      {% for option in product.options %}
+                                      <div class="col">{{option.name}}</div>
+                                      {% endfor %}
+                                      <div class="col col-price">{{ _("Product images") }}</div>
+                                      <div class="col col-price">{{ _("Product price") }}</div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      {% for variant in product.variants %}
+                      {% if not variant.unavailable %}
+                      <div class="card-table options-table">
+                          <div class="card">
+                              <div class="card-body">
+                                  <div class="row flex-column flex-lg-row align-items-start align-items-lg-center">
+                                      {% for attribute in variant.attributes %}
+                                      <div class="col m-col">
+                                          <span class="variant-name-sm d-inline-block d-lg-none">
+                                          {{ product.options[loop.index0].name }}
+                                          </span>
+                                          <span>{{ attribute.value }}</span>
+                                      </div>
+                                      {% endfor %}
+
+                                      <div class="col">
+                                          {% if variant.images | length > 0 %}
+                                          <div class="d-flex m-col">
+                                              {% for image in variant.images %}
+                                              <div class="variant-image-wrapper" data-var-id="{{ variant.id }}">
+                                                  <div class="box-1-1">
+                                                      <div class="content">
+                                                          <a data-index="{{ key }}" data-link-var-id="{{ variant.id }}"
+                                                              class="d-flex align-items-center justify-content-center"
+                                                              style="width: 100%; height: 100%;" href="javascript:;">
+                                                              <img 
+                                                                loading="{% if loop.index0 < 3 %}eager{% else %}lazy{% endif %}" 
+                                                                {% if loop.index0 == 0 %}fetchpriority="auto"{% endif %}
+                                                                src="{{ image.image.medium }}"
+                                                                data-image-url="{{ image.image.full_size }}">
+                                                          </a>
+                                                      </div>
+                                                  </div>
+
+                                              </div>
+                                              {% endfor %}
+                                          </div>
+                                          {% else %}
+                                          <span class="d-none d-lg-inline">{{ _("Variants no image") }}</span>
+                                          {% endif %}
+                                      </div>
+                                      <div class="col m-col">
+                                          <span class="variant-name-sm d-inline-block d-lg-none">{{ _("Product price") }}</span>
+                                          {% if variant.sale_price %}
+                                          <h4 style="font-size: 1.2rem" class="price-detail d-inline-block">{{
+                                              variant.sale_price }}
+                                              <del>{{ variant.price }}</del>
+                                          </h4>
+                                          {% else %}
+                                          <h4 class="d-inline-block" style="font-size: 1.2rem">{{ variant.price }}</h4>
+                                          {% endif %}
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      {% endif %}
+                      {% endfor %}
+                  </div>
+                  {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="tp-product-bottom">
+            <div class="container">
+              {% include 'vitrin:products/grouped-product.jinja' %}
+
+              {% if (product.related_products | length) >  0 %}
+              <section class="tp-product-card s-block">
+                  <div class="tp-title-section">
+                    <h3>{{ _("Similar products title") }}</h3>
+                  </div>
+
+                  <div class="tp-products-swiper" id="related-products">
+                      {% for rProduct in product.related_products %}
+                      <div class="prod-col">
+                           {% set product=rProduct %}{% set index=loop.index0 %}{% include 'components/product-card.jinja' %}
+                      </div>
+                      {% endfor %}
+                  </div>
+              </section>
+
+                  <script>
+                    var showRelatedProducts = function () {
+                      var arrowNextClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_right' : 'icon-keyboard_arrow_left';
+                      var arrowPrevClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_left' : 'icon-keyboard_arrow_right';
+                      
+                      $('#related-products').slick({
+                        slidesToShow: 6,
+                        slidesToScroll: 6,
+                        infinite: false,
+                        autoplay: false,
+                        arrows: true,
+                        dots: false,
+                        rtl: !(window.appDirection === 'ltr'),
+                        nextArrow: '<button class="slick-next slick-arrow" aria-label="Next" type="button" style=""><span class="' + arrowNextClass + '"></span></button>',
+                        prevArrow: '<button class="slick-prev slick-arrow" aria-label="Previous" type="button" style=""><span class="' + arrowPrevClass + '"></span></button>',
+                        responsive: [
+                          {
+                            breakpoint: 1200,
+                            settings: {
+                              slidesToShow: 5,
+                              slidesToScroll: 5,
+                            }
+                          },
+                          {
+                            breakpoint: 1024,
+                            settings: {
+                              slidesToShow: 4,
+                              slidesToScroll: 4,
+                            }
+                          },
+                          {
+                            breakpoint: 768,
+                            settings: {
+                              slidesToShow: 3,
+                              slidesToScroll: 3,
+                            }
+                          },
+                          {
+                            breakpoint: 450,
+                            settings: {
+                              slidesToShow: 2,
+                              slidesToScroll: 2,
+                            }
+                          },
+                          {
+                            breakpoint: 350,
+                            settings: {
+                              slidesToShow: 1,
+                              slidesToScroll: 1,
+                            }
+                          }
+                        ]
+                      });
+                    };
+                      document.addEventListener("DOMContentLoaded", function(){
+                          showRelatedProducts();
+                      });
+                  </script>
+              {% endif %}
+            </div>
+          </div>
+    </section>
+
+      {% set bundle_products = safeget(product.bundle_offer, "products.results", []) %}
+      {% if product.bundle_offer and (bundle_products | length) > 5 %}
+      <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+          aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-fullscreen modal-dialog-scrollable bundle-offer-products-dialog">
+              <div class="modal-content">
+                  <div class="modal-body">
+                      <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 40px;">
+                          <span aria-hidden="true">&times;</span>
+                      </button>
+                          <div class="bundle-offer-products">
+                              <div class="bundle-offer-details-products-all products-grid">
+                              {% for product in bundle_products %}
+                                {% set product=product %}{% set index=loop.index0 %}{% include 'components/product-card.jinja' %}
+                              {% endfor %}
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+      {% endif %}
+
+
+    {% if store.settings.products.questions_enabled %}
+        {% set product=product %}{% include 'components/product-question-add.jinja' %}
+    {% endif %}
+
+        {% if sticky_cart %}
+            <div class="sticky-cart {% if not product.selected_product.in_stock %}d-none{% else %}d-flex{% endif %}">
+                {% if product.selected_product.images and product.selected_product.images|length > 0 %}
+                <img loading="lazy" class="product-img" src="{{ product.selected_product.images[0].image.small }}">
+                {% endif %}
+                <div class="product-name-price">
+                  <h3 class="title-product">{{ product.name | safe }}</h3>
+                  <div class="price-product">
+                    <p class="product-formatted-price">
+                      {% if product.selected_product.formatted_sale_price %}
+                        {{ product.selected_product.formatted_sale_price }}
+                      {% else %}
+                        {{ product.selected_product.formatted_price }}
+                      {% endif %}
+                    </p>
+                    
+                    <p class="price-tawfer {% if not product.selected_product.formatted_sale_price %}d-none{% endif %}">
+                      <span class="product-formatted-price-old">
+                        {% if product.selected_product.formatted_sale_price %}
+                          {{ product.selected_product.formatted_price }}
+                        {% endif %}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                {% if product.selected_product.is_infinite or product.selected_product.quantity > 0 %}
+                  <div class="select-quantity-div">
+                    <div class="quantity-input">
+                      <button type="button" id="increase-quantity" class="btn-quantity increase-quantity">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+                            <path d="M12 4V20M20 12H4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      </button>
+                      <input type="number" id="product-quantity-input" class="product-quantity-input" aria-label="quantity" name="quantity" min="1" value="1" readonly>
+                      <button type="button" id="decrease-quantity" class="btn-quantity decrease-quantity">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#ffffff" fill="none">
+                            <path d="M20 12L4 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        </button>
+                    </div>
+                  </div>
+                {% endif %}
+                  <div class="product-buttons {% if not product.selected_product.in_stock %}d-none{% else %}d-block{% endif %}">
+                    <div class="product-buttons-flex">
+                      <button class="btn-add-to-cart" type="button" onclick="productAddToCart()">
+                          <img loading="lazy" class="add-to-cart-progress d-none" src="{{ 'spinner.gif' | asset_url }}" width="25" height="25"/>
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#000000" fill="none">
+                            <path d="M8 16H15.2632C19.7508 16 20.4333 13.1808 21.261 9.06908C21.4998 7.88311 21.6192 7.29013 21.3321 6.89507C21.045 6.5 20.4947 6.5 19.3941 6.5H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                            <path d="M8 16L5.37873 3.51493C5.15615 2.62459 4.35618 2 3.43845 2H2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                            <path d="M8.88 16H8.46857C7.10522 16 6 17.1513 6 18.5714C6 18.8081 6.1842 19 6.41143 19H17.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <circle cx="10.5" cy="20.5" r="1.5" stroke="currentColor" stroke-width="1.5"></circle>
+                            <circle cx="17.5" cy="20.5" r="1.5" stroke="currentColor" stroke-width="1.5"></circle>
+                          </svg>
+                          <span>{{ _("Add to cart") }}</span>
+                      </button>
+                    </div>
+                </div>
+            </div>
+          
+        {% endif %}
+
+{% endblock %}
+
+{% block footer %}
+    {% include 'footer.jinja' %}
+{% endblock %}
+
+
+{% block footer_scripts %}
+
+<script type="text/javascript" src="{{ 'product-details.js' | asset_url }}" defer></script>
+<script type="text/javascript" src="{{ 'toastr.min.js' | asset_url }}" defer></script>
+{# ekko-lightbox.min.js سيتم تحميله بشكل lazy عند الحاجة #}
+
+{{ product_view_scripts| safe }}
+{# <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    (function customizeWidgets() {
+
+      //  Tamara
+      function styleTamaraWidget() {
+        const tamaraEl = document.querySelector("tamara-widget");
+        if (!tamaraEl || !tamaraEl.shadowRoot) return false;
+
+        const root = tamaraEl.shadowRoot;
+
+        if (!root.querySelector("style[data-custom-tamara]")) {
+          const tamaraStyle = document.createElement("style");
+          tamaraStyle.dataset.customTamara = "true";
+          tamaraStyle.textContent = `
+          .tamara-summary-widget__container .summary-widget-content .content-wrapper .tamara-badge {
+            order: 0;
+            margin: 0;
+            width: 100%;
+            object-fit: contain;
+            object-position: right;
+            max-height: 20px;
+          }
+          .tamara-summary-widget--inline-outlined {
+            border-radius: 8px;
+            border: 1px solid #DAE0EB;
+            padding: 10px;
+          }
+          .tamara-summary-widget__container {
+            font-size: 14px !important;
+          }
+        `;
+          root.appendChild(tamaraStyle);
+        }
+
+        const wrapper = root.querySelector(".tamara-summary-widget__container .summary-widget-content .content-wrapper");
+        const logo = root.querySelector(".tamara-summary-widget__container .summary-widget-content .content-wrapper .tamara-badge");
+        if (wrapper && logo && wrapper.firstChild !== logo) {
+          wrapper.insertBefore(logo, wrapper.firstChild);
+        }
+
+        return true;
+      }
+
+      // Tabby
+      function styleTabbyWidget() {
+        const tabbyEl = document.querySelector(".tabby-product-widget");
+        if (!tabbyEl) return false;
+
+        tabbyEl.style.marginTop = "0";
+        tabbyEl.style.height = "auto";
+
+        if (!document.querySelector("style[data-global-tabby]")) {
+          const globalStyle = document.createElement("style");
+          globalStyle.dataset.globalTabby = "true";
+          globalStyle.textContent = `
+          .tabby-product-widget > div:first-of-type,
+          [class^="styles__tabbySnippet--"],
+          [class^="styles__containerPortal--"] {
+            height: 100% !important;
+          }
+        `;
+          document.head.appendChild(globalStyle);
+        }
+
+        function injectTabbyStyles(shadowRoot) {
+          if (!shadowRoot) return;
+          if (shadowRoot.querySelector("style[data-custom-tabby]")) return;
+
+          const style = document.createElement("style");
+          style.dataset.customTabby = "true";
+          style.textContent = `
+          [class^="styles__snippetWrapperContainer"] [class^="styles__tabbyPromoSnippet--"] {
+            border-radius: 8px;
+            border: 1px solid #DAE0EB;
+            padding: 10px;
+            flex-direction: column-reverse;
+            align-items: start;
+            height: 100%;
+          }
+          [class^="styles__snippetWrapperContainer"] [class^="styles__tabbyPromoSnippetContent"] {
+            margin: 0;
+          }
+          [class^="styles__tabbyInfoLogo"] {
+            height: 20px;
+            width: auto;
+          }
+          [class^="styles__body--"][class*="fontFamilyDefault--"] {
+            font-family: inherit !important;
+            line-height: 21px !important;
+          }
+        `;
+          shadowRoot.appendChild(style);
+
+          const nestedPortal = shadowRoot.querySelector('[class^="styles__containerPortal--"]');
+          if (nestedPortal && nestedPortal.shadowRoot) {
+            injectTabbyStyles(nestedPortal.shadowRoot);
+          }
+        }
+
+        const tabbyPortal = document.querySelector('[class^="styles__containerPortal--"]');
+        if (tabbyPortal && tabbyPortal.shadowRoot) {
+          injectTabbyStyles(tabbyPortal.shadowRoot);
+        }
+
+        return true;
+      }
+
+      styleTamaraWidget();
+      styleTabbyWidget();
+
+      const observer = new MutationObserver(() => {
+        styleTamaraWidget();
+        styleTabbyWidget();
+      });
+
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+
+      setTimeout(() => observer.disconnect(), 20000);
+
+    })();
+  });
+</script> #}
+
+<script>
+  var store_currency = '{{ session.currency }}';
+  var store_lang = '{{ session.lang }}';
+</script>
+
+{# Popup المشاركة - خارج المحتوى الرئيسي لتفادي مشاكل HTML #}
+<div class="share-popup" id="share-popup" style="display: none;">
+  <h3 class="share-popup-title">{{ _("Share product") }}</h3>
+  <div class="share-popup-content">
+    <button type="button" class="share-option" onclick="shareOnFacebook()" aria-label="Share on Facebook">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="currentColor" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M6.18182 10.3333C5.20406 10.3333 5 10.5252 5 11.4444V13.1111C5 14.0304 5.20406 14.2222 6.18182 14.2222H8.54545V20.8889C8.54545 21.8081 8.74951 22 9.72727 22H12.0909C13.0687 22 13.2727 21.8081 13.2727 20.8889V14.2222H15.9267C16.6683 14.2222 16.8594 14.0867 17.0631 13.4164L17.5696 11.7497C17.9185 10.6014 17.7035 10.3333 16.4332 10.3333H13.2727V7.55556C13.2727 6.94191 13.8018 6.44444 14.4545 6.44444H17.8182C18.7959 6.44444 19 6.25259 19 5.33333V3.11111C19 2.19185 18.7959 2 17.8182 2H14.4545C11.191 2 8.54545 4.48731 8.54545 7.55556V10.3333H6.18182Z" />
+      </svg>
+    </button>
+    <button type="button" class="share-option" onclick="shareOnTwitter()" aria-label="Share on X (Twitter)">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="currentColor" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 21L10.5484 13.4516M21 3L13.4516 10.5484M13.4516 10.5484L8 3H3L10.5484 13.4516M13.4516 10.5484L21 21H16L10.5484 13.4516" />
+      </svg>
+    </button>
+    <button type="button" class="share-option" onclick="shareOnWhatsApp()" aria-label="Share on WhatsApp">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="currentColor" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+          <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 13.3789 2.27907 14.6926 2.78382 15.8877C3.06278 16.5481 3.20226 16.8784 3.21953 17.128C3.2368 17.3776 3.16334 17.6521 3.01642 18.2012L2 22L5.79877 20.9836C6.34788 20.8367 6.62244 20.7632 6.87202 20.7805C7.12161 20.7977 7.45185 20.9372 8.11235 21.2162C9.30745 21.7209 10.6211 22 12 22Z" />
+          <path d="M8.58815 12.3773L9.45909 11.2956C9.82616 10.8397 10.2799 10.4153 10.3155 9.80826C10.3244 9.65494 10.2166 8.96657 10.0008 7.58986C9.91601 7.04881 9.41086 7 8.97332 7C8.40314 7 8.11805 7 7.83495 7.12931C7.47714 7.29275 7.10979 7.75231 7.02917 8.13733C6.96539 8.44196 7.01279 8.65187 7.10759 9.07169C7.51023 10.8548 8.45481 12.6158 9.91948 14.0805C11.3842 15.5452 13.1452 16.4898 14.9283 16.8924C15.3481 16.9872 15.558 17.0346 15.8627 16.9708C16.2477 16.8902 16.7072 16.5229 16.8707 16.165C17 15.8819 17 15.5969 17 15.0267C17 14.5891 16.9512 14.084 16.4101 13.9992C15.0334 13.7834 14.3451 13.6756 14.1917 13.6845C13.5847 13.7201 13.1603 14.1738 12.7044 14.5409L11.6227 15.4118" />
+      </svg>
+    </button>
+    <button type="button" class="share-option" onclick="shareNative()" aria-label="{{ _('Share') }}">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="currentColor" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 7C8 7 10.1958 4.28386 11.4044 3.23889C11.5987 3.0709 11.8169 2.99152 12.0337 3.00072C12.2282 3.00897 12.4215 3.08844 12.5958 3.23912C13.8041 4.28428 16 7 16 7M12.0337 4L12.0337 15" />
+        <path d="M8 11C6.59987 11 5.8998 11 5.36502 11.2725C4.89462 11.5122 4.51217 11.8946 4.27248 12.365C4 12.8998 4 13.5999 4 15V16C4 18.357 4 19.5355 4.73223 20.2678C5.46447 21 6.64298 21 9 21H15C17.357 21 18.5355 21 19.2678 20.2678C20 19.5355 20 18.357 20 16V15C20 13.5999 20 12.8998 19.7275 12.365C19.4878 11.8946 19.1054 11.5122 18.635 11.2725C18.1002 11 17.4001 11 16 11" />
+      </svg>
+    </button>
+  </div>
+  <div class="share-link-row">
+    <label class="share-link-label">{{ _("Share link") }}</label>
+    <div class="share-link-input-wrapper">
+      <input type="text" readonly class="share-link-input" value="" id="share-link-input">
+      <button type="button" class="share-link-copy-btn" id="share-link-copy-btn" onclick="copyShareLink()">
+        {{ _("Copy") }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var productData = {{ product.selected_product | tojson }};
+
+  // نتحقق أولاً أن هناك تصنيفات للمنتج
+  if (!productData.categories || !productData.categories.length) return;
+
+  const breadcrumbOl = document.querySelector("#breadcrumb");
+  if (!breadcrumbOl) return;
+
+  const productLi = breadcrumbOl.querySelector("li.active");
+  if (!productLi) return;
+
+  // إزالة كل العناصر القديمة ماعدا الصفحة الرئيسية والمنتج
+  breadcrumbOl.querySelectorAll("li:not(:first-child):not(.active)").forEach(el => el.remove());
+
+  // اختيار التصنيف "الأكثر تحديدًا" حسب عدد parents (إن وجد)
+  let categoriesSorted = productData.categories.slice().sort(
+    (a, b) => (b.meta?.parents?.length || 0) - (a.meta?.parents?.length || 0)
+  );
+
+  const mainCategory = categoriesSorted[0]; // أكثر تصنيف تحديدًا
+
+  // بناء المسار من parents
+  const categoryPath = [];
+
+  if (mainCategory.meta?.parents?.length) {
+    mainCategory.meta.parents.slice().reverse().forEach(parentId => {
+      const parentCat = productData.categories.find(c => Number(c.id) === Number(parentId)) || { id: parentId, name: "تصنيف مفقود", slug: "" };
+      categoryPath.push(parentCat);
+    });
+  }
+
+  // إضافة التصنيف الرئيسي
+  categoryPath.push(mainCategory);
+
+  // إنشاء عناصر الـ breadcrumb
+  categoryPath.forEach(cat => {
+    const li = document.createElement("li");
+    li.classList.add("breadcrumb-item");
+
+    const a = document.createElement("a");
+    a.href = cat.id && cat.slug ? `/categories/${cat.id}/${cat.slug}` : "#";
+    a.textContent = cat.name;
+
+    li.appendChild(a);
+    breadcrumbOl.insertBefore(li, productLi);
+  });
+
+})();
+</script>
+
+
+<script>
+  var productImages = {{ product.selected_product.media | tojson }};
+  var customerWishlistIds = {{ customer.wishlist | tojson if customer else '[]' }};
+
+  (function () {
+    var pageSection = document.querySelector('section.product.products-details-page');
+    if (!pageSection) return;
+
+    var hadThumbBottomFromServer = pageSection.classList.contains('thumb-bottom');
+
+    function applyThumbBottomClass() {
+      var isSmall = window.innerWidth <= 992;
+      if (isSmall) {
+        pageSection.classList.add('thumb-bottom');
+      } else {
+        if (!hadThumbBottomFromServer) {
+          pageSection.classList.remove('thumb-bottom');
+        }
+      }
+    }
+
+    applyThumbBottomClass();
+    window.addEventListener('resize', applyThumbBottomClass);
+  })();
+
+  // Listen for bundle selection changes and update payload
+  window.addEventListener('vitrin:bundle-selections:updated', function(event) {
+    const cartData = event?.detail?.data;
+    const bundlePayload = cartData?.cartPayload;
+    const isValid = cartData?.isSelectionsValid;
+
+    window.bundleCartPayload = bundlePayload;
+
+    const addToCartBtn = document.querySelector('.btn-add-to-cart');
+    if (addToCartBtn) {
+      if (!isValid) {
+        addToCartBtn.classList.add('disabled');
+        addToCartBtn.disabled = true;
+      } else {
+        addToCartBtn.classList.remove('disabled');
+        addToCartBtn.disabled = false;
+      }
+    }
+  });
+
+  window.productAddToCart = function() {
+    const addToCartBtn = document.querySelector('.btn-add-to-cart');
+    if (addToCartBtn && addToCartBtn.disabled) return;
+
+    if (typeof $ === 'undefined' || !$('.add-to-cart-progress').hasClass('d-none')) {
+      return;
+    }
+
+    const form = document.getElementById('product-form');
+    if (form && !form.checkValidity()) {
+      form.querySelectorAll(':invalid').forEach(el => {
+        el.classList.add('is-invalid');
+      });
+      toastr.error('الرجاء تعبئة الحقول المطلوبة بشكل صحيح.');
+      const firstInvalid = form.querySelector(':invalid');
+      if (firstInvalid) firstInvalid.focus();
+      return;
+    }
+
+    $('.add-to-cart-progress').removeClass('d-none');
+
+    var quantity = parseInt($('#product-quantity').val()) || 1;
+    var productId = $('#product-id').val() || '{{ product.selected_product.id }}';
+
+    if (!window.zid || !window.zid.cart || !window.zid.cart.addProduct) {
+      $('.add-to-cart-progress').addClass('d-none');
+      if (typeof toastr !== 'undefined') {
+        toastr.error('{{ _("Cart service not available") }}', '{{ _("Sorry") }}');
+      }
+      return;
+    }
+
+    const bundlePayload = window.bundleCartPayload;
+    const addProductOptions = bundlePayload ?
+      { ...bundlePayload, form_id: 'product-form' } :
+      { form_id: 'product-form' };
+
+    zid.cart.addProduct(addProductOptions, { showErrorNotification: true }).then(function (response) {
+      if (response && response.item && response.cart_items_quantity) {
+        if (response.cart_items_quantity) {
+          $('.cart-badge').removeClass('d-none').text(response.cart_items_quantity);
+        }
+
+        if (response.data) {
+          showCartPopupAfterAdd();
+          setCartTotalAndBadge(response.data.cart);
+        }
+
+        if (typeof fetchCart === 'function') {
+          fetchCart();
+        }
+
+        toastr.success('تمت إضافة المنتج إلى السلة');
+        $('.added-notification').addClass("show");
+        setTimeout(function () {
+          $('.added-notification').removeClass("show");
+        }, 5000);
+
+        var image = $('#product-images-slick .swiper-slide.swiper-slide-active img.carousel-img');
+        var cart = $('.cart-btn, .a-shopping-cart');
+
+        if (image.length && cart.length && typeof addToCartAnimation === 'function') {
+          addToCartAnimation(cart, image);
+        }
+
+      } else {
+        if (typeof toastr !== 'undefined') {
+            var errorMessage = response && response.message ? response.message : '{{ _("Failed to add to cart") }}';
+            toastr.error(errorMessage, '{{ _("Sorry") }}');
+        }
+      }
+
+      $('.add-to-cart-progress').addClass('d-none');
+    }).catch(function (error) {
+      $('.add-to-cart-progress').addClass('d-none');
+    });
+  };
+
+  function clearCartBeforeCheckout(event, el) {
+    event.preventDefault();
+
+    const form = document.getElementById('product-form');
+    if (form && !form.checkValidity()) {
+      form.querySelectorAll(':invalid').forEach(el => {
+        el.classList.add('is-invalid');
+      });
+      toastr.error('الرجاء تعبئة الحقول المطلوبة بشكل صحيح');
+      const firstInvalid = form.querySelector(':invalid');
+      if (firstInvalid) firstInvalid.focus();
+      return;
+    }
+
+    const addToCartBtn = document.querySelector('.btn-add-to-cart');
+    if (addToCartBtn && addToCartBtn.disabled) {
+      toastr.error('الرجاء اختيار جميع الخيارات المطلوبة');
+      return;
+    }
+
+    $('.checkout-progress').removeClass('d-none');
+
+    zid.cart.get()
+      .then(function (cartResponse) {
+        
+        if (!cartResponse || !cartResponse.data) {
+          return { products: [] };
+        }
+
+        let products = [];
+        
+        if (cartResponse.data.cart && cartResponse.data.cart.products) {
+          products = cartResponse.data.cart.products;
+        } else if (cartResponse.data.products) {
+          products = cartResponse.data.products;
+        } else if (Array.isArray(cartResponse.data)) {
+          products = cartResponse.data;
+        }
+
+        return { products: products };
+      })
+      .then(function (cartData) {
+        const products = cartData.products || [];
+
+        if (products.length === 0) {
+          return Promise.resolve();
+        }
+        
+        return products.reduce((promise, product, index) => {
+          return promise.then(() => {
+            
+            return zid.cart.removeProduct(product.id, product.product_id)
+              .then(() => {
+              })
+              .catch(err => {
+                return Promise.resolve();
+              });
+          });
+        }, Promise.resolve());
+      })
+      .then(() => {
+        const bundlePayload = window.bundleCartPayload;
+        const addProductOptions = bundlePayload
+          ? { ...bundlePayload, form_id: 'product-form' }
+          : { form_id: 'product-form' };
+
+        return zid.cart.addProduct(addProductOptions, { showErrorNotification: true });
+      })
+      .then(function (response) {
+
+        if (response && (response.status === 'success' || response.item)) {
+          
+          $('.cart-badge').removeClass('d-none').text('1');
+                    
+          setTimeout(function () {
+            window.location.href = el.getAttribute('href');
+          }, 1000);
+
+        } else {
+          throw new Error(
+            (response && response.data && response.data.message) ||
+            (response && response.message) ||
+            'فشل في إضافة المنتج'
+          );
+        }
+      })
+      .catch(function (err) {        
+        $('.checkout-progress').addClass('d-none');
+        
+        let errorMessage = 'حدث خطأ، الرجاء المحاولة مرة أخرى';
+        if (err && err.message) {
+          errorMessage = err.message;
+        }
+        
+        toastr.error(errorMessage, 'عذراً');
+      });
+  }
+
+  function clearCartForGuestAndRedirect(event) {
+    event.preventDefault();
+    
+    const form = document.getElementById('product-form');
+    if (form && !form.checkValidity()) {
+      form.querySelectorAll(':invalid').forEach(el => {
+        el.classList.add('is-invalid');
+      });
+      toastr.error('الرجاء تعبئة الحقول المطلوبة بشكل صحيح');
+      return;
+    }
+
+    $('.checkout-progress').removeClass('d-none');
+
+    zid.cart.get()
+      .then(function (cartResponse) {
+        if (!cartResponse || !cartResponse.data) {
+          return { products: [] };
+        }
+
+        let products = [];
+        if (cartResponse.data.cart && cartResponse.data.cart.products) {
+          products = cartResponse.data.cart.products;
+        } else if (cartResponse.data.products) {
+          products = cartResponse.data.products;
+        }
+
+        return { products: products };
+      })
+      .then(function (cartData) {
+        const products = cartData.products || [];
+        
+        if (products.length === 0) {
+          return Promise.resolve();
+        }
+
+        return products.reduce((promise, product) => {
+          return promise.then(() => {
+            return zid.cart.removeProduct(product.id, product.product_id)
+              .catch(err => Promise.resolve());
+          });
+        }, Promise.resolve());
+      })
+      .then(() => {
+        localStorage.setItem('redirect_after_login', window.location.href);
+        
+        window.location.href = "/auth/login";
+      })
+      .catch(function (err) {
+        console.error('Error:', err);
+        $('.checkout-progress').addClass('d-none');
+        toastr.error('حدث خطأ، الرجاء المحاولة مرة أخرى');
+      });
+  }
+
+  async function sendProductNotifyMe() {
+    $('.send-notify-progress').removeClass('d-none');
+
+    const countryCode = '+' + ($('.send-notify-country-key').val() || '966');
+    const productId = $('.send-notify-product-id').val();
+    const email = $('.send-notify-email').val();
+    const name = $('.send-notify-name').val();
+
+    let phone = '';
+    const rawPhone = $('.send-notify-phone').val();
+    if (rawPhone) {
+      phone = countryCode + rawPhone;
+    }
+
+    const baseUrl = "{{ store.permalink }}";
+    const payload = {
+      customer_email: email,
+      customer_phone_number: phone,
+      customer_name: name
+    };
+
+    const url = baseUrl + 'api/v1/products/' + encodeURIComponent(productId) + '/stock-alerts';
+
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        let data = null;
+        try {
+          data = await res.json();
+        } catch (e) {}
+
+        if (!data || (data && data.status === 'success')) {
+          toastr.success('{{ _("Send Successfully") }}');
+        } else if (data && data.data && data.data.message) {
+          toastr.error(JSON.stringify(data.data.message), '{{ _("Sorry") }}');
+        } else {
+          toastr.error('{{ _("failed to send") }}', '{{ _("Sorry") }}');
+        }
+      } else {
+        let errData = null;
+        try {
+          errData = await res.json();
+        } catch (e) {}
+
+        const msg = (errData && errData.data && errData.data.message)
+          || (errData && errData.detail)
+          || 'HTTP ' + res.status;
+
+        toastr.error(msg, '{{ _("Sorry") }}');
+      }
+
+    } catch (error) {
+      toastr.error('{{ _("Failed to send alert request") }}', '{{ _("Sorry") }}');
+    } finally {
+      $('.send-notify-progress').addClass('d-none');
+    }
+  }
+
+  function productOptionsChanged(selected_product) {
+    if (selected_product) {
+      $('#product-id').val(selected_product.id);
+      $('.send-notify-product-id').val(selected_product.id);
+
+      if (selected_product.in_stock) {
+        // Selected a valid variant that is available.
+        // ✅ تحديث وإظهار العدد المتبقي
+                    if (selected_product.is_infinite) {
+                        $('#product-available-quantity').hide(); // إخفاء للمنتجات غير المحدودة
+                    } else if (selected_product.quantity > 0) {
+                        $('#product-available-quantity').show();
+                        $('#product-available-quantity .quantity-value').html(selected_product.quantity);
+                    } else {
+                        $('#product-available-quantity').hide(); // إخفاء لو الكمية = 0
+                    }
+
+        if (selected_product.formatted_sale_price || selected_product.sale_price) {
+          var salePrice = selected_product.formatted_sale_price || (selected_product.sale_price + selected_product.currency_symbol);
+          var regularPrice = selected_product.formatted_price || (selected_product.price + selected_product.currency_symbol);
+          var discount = '- ' + selected_product.discount_percentage + '%';
+          
+          $('.product-formatted-price').html(salePrice);
+          $('.product-formatted-price-old').html(regularPrice);
+          $('.product-formatted-price-discount').html(discount);
+
+          $('.price-tawfer').removeClass('d-none').show();
+          $('.product-formatted-price-old').show();
+          $('.product-formatted-price-discount').show();
+        } else {
+          var price = selected_product.formatted_price || (selected_product.price + selected_product.currency_symbol);
+          $('.product-formatted-price').html(price);
+          $('.product-formatted-price-old').html('');
+          $('.product-formatted-price-discount').html('');
+
+          $('.price-tawfer').addClass('d-none').hide();
+          $('.product-formatted-price-old').hide();
+          $('.product-formatted-price-discount').hide();
+        }
+
+        if (typeof formatPrices === 'function') {
+          formatPrices();
+        }
+
+        if (selected_product.weight && selected_product.weight.value) {
+          $('.div-product-weight').removeClass('d-none');
+          $('.div-product-weight .product-weight').html(selected_product.weight.value + ' ' + selected_product.weight.unit);
+        } else {
+          $('.div-product-weight').addClass('d-none');
+        }
+
+        if (selected_product.sku) {
+          $('.div-product-sku').removeClass('d-none');
+          $('.div-product-sku .product-sku').html(selected_product.sku);
+        } else {
+          $('.div-product-sku').addClass('d-none');
+        }
+
+        {% if store.settings.products.low_stock_label_enabled %}
+        var store_low_stock_limit = {{ store.settings.products.low_stock_quantity_threshold }};
+        var low_stock_message = '{{ _("Remaining %s only") }}';
+
+        if (!selected_product.is_infinite && selected_product.quantity < store_low_stock_limit) {
+          $('.low-quantity-section').removeClass('d-none').addClass('d-inline-block');
+          $('.low-quantity-section .low-quantity').html(low_stock_message.replace('%s', selected_product.quantity));
+        } else {
+          $('.low-quantity-section').removeClass('d-inline-block').addClass('d-none');
+        }
+        {% endif %}
+
+        var selectQuantity = '';
+
+        if (selected_product.is_infinite) {
+          selected_product.quantity = 300;
+        }
+
+        if (selected_product.quantity > 0) {
+          $('.select-quantity-div').removeClass('d-none');
+            var quantityMax;
+            if (selected_product.quantity > 300) {
+                  quantityMax = 300;
+              } else {
+                  quantityMax = selected_product.quantity;
+              }
+
+          selectQuantity = '<option value="1" selected>1</option>';
+          for (var i = 2; i <= quantityMax; i++) {
+            selectQuantity += '<option value="' + i + '">' + i + '</option>';
+          }
+        } else {
+          $('.select-quantity-div').addClass('d-none');
+        }
+
+        $('.select-quantity').html(selectQuantity);
+        $('.product-quantity-input').val(1);
+        $('.select-quantity').trigger('change');
+
+        $('.product-buttons').removeClass('d-none');
+        $('.section-out-of-stock-notify-me').addClass('d-none');
+
+        $('.btn-add-to-cart span').html('{{ _("Add to cart") }}');
+
+        updateProductImages(selected_product);
+      } else {
+        // Variant is sold out.
+        // ✅ إخفاء الكمية المتبقية للمنتج المنتهي
+                  $('#product-available-quantity').hide();
+
+        if (selected_product.formatted_sale_price || selected_product.sale_price) {
+          var salePrice = selected_product.formatted_sale_price || (selected_product.sale_price + selected_product.currency_symbol);
+          var regularPrice = selected_product.formatted_price || (selected_product.price + selected_product.currency_symbol);
+          var discount = '- ' + selected_product.discount_percentage + '%';
+          
+          $('.product-formatted-price').html(salePrice);
+          $('.product-formatted-price-old').html(regularPrice);
+          $('.product-formatted-price-discount').html(discount);
+
+          $('.price-tawfer').removeClass('d-none').show();
+          $('.product-formatted-price-old').show();
+          $('.product-formatted-price-discount').show();
+        } else {
+          var price = selected_product.formatted_price || (selected_product.price + selected_product.currency_symbol);
+          $('.product-formatted-price').html(price);
+          $('.product-formatted-price-old').html('');
+          $('.product-formatted-price-discount').html('');
+
+          $('.price-tawfer').addClass('d-none').hide();
+          $('.product-formatted-price-old').hide();
+          $('.product-formatted-price-discount').hide();
+        }
+
+        if (typeof formatPrices === 'function') {
+          formatPrices();
+        }
+
+        $('.select-quantity-div').addClass('d-none');
+        $('.product-buttons').addClass('d-none');
+        $('.section-out-of-stock-notify-me').removeClass('d-none');
+
+        $('.btn-add-to-cart span').html('{{ _("Error item unavailable") }}' || '{{ _("Option not available") }}');
+
+        if (selected_product.sku) {
+          $('.div-product-sku').removeClass('d-none');
+          $('.div-product-sku .product-sku').html(selected_product.sku);
+        } else {
+          $('.div-product-sku').addClass('d-none');
+        }
+        updateProductImages(selected_product);
+      }
+
+    } else {
+      // variant doesn't exist.
+      // ✅ إخفاء الكمية لو الخيار مش موجود
+                $('#product-available-quantity').hide();
+                
+      $('.select-quantity-div').addClass('d-none');
+      $('.product-buttons').addClass('d-none');
+      $('.section-out-of-stock-notify-me').removeClass('d-none');
+
+      $('.btn-add-to-cart span').html('{{ _("Error item unavailable") }}' || '{{ _("Option not available") }}');
+
+      updateProductImages(selected_product);
+    }
+  }
+
+  function updateProductImages(selected_product) {
+    if (selected_product && selected_product.media && selected_product.media.length > 0) {
+      $('.product-images-carousel').removeClass('d-none');
+      $('.product-images-carousel-thumbs').removeClass('d-none-important');
+      $('.product-images-empty').addClass('d-none');
+
+      if (typeof modalThumbsSwiper !== 'undefined') {
+        modalThumbsSwiper.destroy(true, true);
+      }
+      if (typeof swiper_main !== 'undefined') {
+        swiper_main.destroy(true, true);
+      }
+      $('.product-images-carousel').addClass('product-images-carousel-init');
+
+      productImages = selected_product.media;
+
+      var productVideos = [];
+      {% for product_item in products_videos %}
+      {% if product_item.product.id == (product.selected_product.parent_id |default (product.selected_product.id)) %}
+      productVideos.push("{{ product_item.video }}");
+      {% endif %}
+      {% endfor %}
+
+      $('#product-images-slick .swiper-wrapper').html('');
+      $('#product-images-slick .swiper-wrapper').removeAttr('style');
+      $('#product-images-slick .swiper-slide').removeAttr('style');
+      $('.product-images-carousel-thumbs .swiper-wrapper').html('');
+
+      for (var z = 0; z < productImages.length; z++) {
+        var prImage = productImages[z];
+
+        $('#product-images-slick .swiper-wrapper').append(
+          `<div class="swiper-slide">
+                        <a class="image-link" href="javascript:;">
+                            <img loading="lazy" src="${prImage.image.full_size}" class="carousel-img" alt="${selected_product.name}">
+                        ${prImage.provider && prImage.link ? `
+                            <img loading="lazy" id="main-video-icon" class="play-icon" src="{{ 'video-play.svg' | asset_url }}" alt="play"
+                                onclick="showIframe(this, '${prImage.link}')" />
+                        ` : ''}
+                        </a>
+                        <div class="iframe-video pt-1 d-none">
+                            <a id="iframe-close-btn" class="text-white btn btn-none grow" onClick="hideIframe(this)">X</a>
+                            <iframe width="100%" height="100%" src="" frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen style="max-width: 100%;">
+                            </iframe>
+                        </div>
+                    </div>`
+        );
+
+        $('.product-images-carousel-thumbs .swiper-wrapper').append(
+          `<div class="swiper-slide">
+                            <a class="thumb-image-a" data-index="${z}" href="javascript:;">
+                            <img loading="lazy" src="${prImage.image.medium}" data-index="${z}" alt="image">
+                            ${prImage.provider && prImage.link ? `
+                                <img loading="lazy" id="video-play-icon" class="play-icon" src="{{ 'video-play.svg' | asset_url }}" alt="play" data-index="${z}">
+                            ` : ''}
+                        </a>
+                        </div>`
+        );
+      }
+
+      if (productVideos && productVideos.length > 0) {
+        productVideos.forEach(function (videoSrc, index) {
+          $('#product-images-slick .swiper-wrapper').append(
+            `<div class="swiper-slide">
+                                <div class="video-slide thumb-image-a">
+                                    <video loading="lazy" width="100%" height="100%" loop autoplay muted playsinline controls>
+                                        <source src="${videoSrc}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                            </div>`
+          );
+
+          $('.product-images-carousel-thumbs .swiper-wrapper').append(
+            `<div class="swiper-slide">
+                                <div class="video-slide thumb-image-a">
+                                    <video loading="lazy" width="100%" height="100%" loop autoplay muted playsinline>
+                                        <source src="${videoSrc}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <img loading="lazy" class="play-icon" src="{{ 'video-play.svg' | asset_url }}" alt="play"/>
+                                </div>
+                            </div>`
+          );
+        });
+      }
+
+      initSlick(productImages, {% if thumb_bottom %} true{% else %} false{% endif %});
+      // استخدام الارتفاع المحفوظ فقط (لا إعادة حساب)
+      if (typeof applyFixedMediaHeightFromFirst === 'function') {
+        applyFixedMediaHeightFromFirst();
+      }
+
+    } else {
+      $('.product-images-carousel').addClass('d-none');
+      $('.product-images-carousel-thumbs').addClass('d-none-important');
+      $('.product-images-empty').removeClass('d-none');
+    }
+  }
+
+  function addReviewButtonChecks() {
+    if (!customer && (!window.customerAuthState || !window.customerAuthState.isAuthenticated)) {
+      $('#add-review-btn').css('display', 'none');
+      $('#add-review-link').removeClass('d-none');
+      var redirectPath = window.location.pathname.replace('/', '');
+      $('#add-review-link').attr('href', '/auth/login?redirect_to=' + redirectPath);
+      
+      if (typeof handleLoginAction === 'function') {
+        $('#add-review-link').on('click', function (e) {
+          e.preventDefault();
+          handleLoginAction(redirectPath);
+          return false;
+        });
+      }
+    }
+  }
+
+  // متغير global لحفظ الارتفاع الأول
+  var fixedMediaHeight = null;
+
+  function applyFixedMediaHeightFromFirst() {
+    // إذا كان الارتفاع محفوظاً بالفعل، استخدمه مباشرة
+    if (fixedMediaHeight !== null) {
+      var px = fixedMediaHeight + 'px';
+      var $container = $('#product-images-slick');
+      $container.css('height', px);
+      $container.find('.swiper-wrapper').css('height', px);
+      $container.find('.swiper-slide').css('height', px);
+      return;
+    }
+    
+    var $firstImg = $('#product-images-slick .swiper-slide img.carousel-img').first();
+    if ($firstImg.length === 0) return;
+    
+    var setHeights = function (h) {
+      if (!h || h <= 0) return;
+      
+      // حفظ الارتفاع الأول فقط
+      if (fixedMediaHeight === null) {
+        fixedMediaHeight = h;
+      }
+      
+      var px = fixedMediaHeight + 'px';
+      var $container = $('#product-images-slick');
+      $container.css('height', px);
+      $container.find('.swiper-wrapper').css('height', px);
+      $container.find('.swiper-slide').css('height', px);
+    };
+    
+    var imgEl = $firstImg.get(0);
+    if (imgEl.complete && imgEl.naturalHeight) {
+      setHeights($firstImg.height());
+    } else {
+      $firstImg.on('load', function () {
+        setHeights($firstImg.height());
+      });
+    }
+  }
+
+  $(document).ready(function () {
+    initSlick(productImages, {% if thumb_bottom %}true{% else %}false{% endif %});
+    applyFixedMediaHeightFromFirst();
+    if (customerWishlistIds && Array.isArray(customerWishlistIds)) {
+      fillWishlistItems(customerWishlistIds.map(function (id) { return { id: id }; }));
+    }
+  });
+
+  $(document).on('click', '#product-images-slick .image-link', function (event) {
+    if ($(event.target).is('#main-video-icon')) {
+      return;
+    }
+    $('.pswp').removeClass('d-hide');
+    $('.app').addClass('d-hide');
+
+    openPhotoSwiper(productImages.map(function (image) {
+      return image.image.full_size;
+    }), $('#product-images-slick .swiper-slide-active').attr('data-swiper-slide-index'));
+  });
+
+  $(document).on('click', '.variant-image-wrapper a', function (event) {
+    $('.pswp').removeClass('d-hide');
+    $('.app').addClass('d-hide');
+    var elm = event.currentTarget;
+    var varId = $(elm).attr('data-link-var-id');
+
+    var images = [];
+
+    $("div[data-var-id='" + varId + "']  img").each(function (iElm) {
+      images.push($(this).attr('data-image-url'));
+    });
+
+    openPhotoSwiper(images, $(elm).attr('data-index'));
+  });
+
+  var initSlick = function (productImages, thumbBottom) {
+    var modalThumbsSwiper = new Swiper(".product-images-carousel-thumbs", {
+      slidesPerView: 5,
+      spaceBetween: 10,
+      watchOverflow: true,
+      watchSlidesVisibility: true,
+      watchSlidesProgress: true,
+      direction: (window.innerWidth <= 992 || thumbBottom) ? 'horizontal' : 'vertical'
+    });
+
+    var swiper_main = new Swiper('#product-images-slick', {
+      slidesPerView: 1,
+      spaceBetween: 0,
+      loop: true,
+      watchOverflow: true,
+      watchSlidesVisibility: true,
+      watchSlidesProgress: true,
+      thumbs: {
+        swiper: modalThumbsSwiper,
+      },
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+      },
+      pagination: {
+        el: ".swiper-pagination",
+      },
+      allowTouchMove: true,
+      on: {
+        slideChangeTransitionStart: function () {
+          const previousSlide = $(this.slides[this.previousIndex]);
+          const iframeContainer = previousSlide.find(".iframe-video");
+          iframeContainer.addClass("d-none");
+          iframeContainer.find("iframe").attr("src", "");
+        },
+        slideChangeTransitionEnd: function () {
+          const activeSlide = $(this.slides[this.activeIndex]);
+          const playIcon = activeSlide.find("#main-video-icon");
+          if (playIcon.length) {
+            playIcon.trigger("click");
+          }
+        },
+      }
+    });
+  };
+
+  initSlick(productImages, {% if thumb_bottom %}true{% else %} false{% endif %});
+
+  $('#product-images-slick').on('init', function (event, Swiper) {
+    $('.product-images-carousel').removeClass('product-images-carousel-init');
+  });
+
+  // تحميل PhotoSwipe بشكل lazy عند الحاجة
+  var loadPhotoSwipe = function(callback) {
+    if (typeof PhotoSwipe !== 'undefined' && typeof PhotoSwipeUI_Default !== 'undefined') {
+      callback();
+      return;
+    }
+    
+    // تحميل CSS أولاً
+    if (!document.querySelector('link[href*="photoswipe"]')) {
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '{{ "photoswipe.css" | asset_url }}';
+      document.head.appendChild(link);
+    }
+    
+    // تحميل JavaScript
+    var script = document.createElement('script');
+    script.src = '{{ "photoswipe.min.js" | asset_url }}';
+    script.onload = function() {
+      var scriptUI = document.createElement('script');
+      scriptUI.src = '{{ "photoswipe-ui-default.min.js" | asset_url }}';
+      scriptUI.onload = callback;
+      document.head.appendChild(scriptUI);
+    };
+    document.head.appendChild(script);
+  };
+
+  var openPhotoSwipe = function (productImages, index) {
+    loadPhotoSwipe(function() {
+      var pswpElement = document.querySelectorAll('.pswp')[0];
+      if (!pswpElement) return;
+
+      var items = productImages.map(function (image) {
+        return {
+          src: image,
+          w: 1200,
+          h: 900
+        };
+      });
+
+      var options = {
+        history: false,
+        focus: false,
+        showAnimationDuration: 0,
+        hideAnimationDuration: 0,
+        index: parseInt('' + index)
+      };
+
+      if (typeof PhotoSwipe !== 'undefined' && typeof PhotoSwipeUI_Default !== 'undefined') {
+        var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, options);
+
+        gallery.listen('close', function () {
+          $('.pswp').addClass('d-hide');
+          $('.app').removeClass('d-hide');
+        });
+
+        gallery.init();
+      }
+    });
+  };
+
+  document.addEventListener('zid-customer-fetched', function (event) {
+    var customer = event.detail.customer;
+    if (customer) {
+      $('.send-notify-name').val(customer.name || '');
+      $('.send-notify-email').val(customer.email || '');
+      if (customer.mobile) {
+        $('.send-notify-country-key').val(customer.mobile.substring(0, 3) || '966');
+        $('.send-notify-phone').val(customer.mobile.substring(3) || '');
+      }
+    }
+  });
+
+  // Product Image Video with SwiperJS
+  const getIframeLink = (videoLink) => {
+    if (!videoLink || typeof videoLink !== 'string') {
+      return null;
+    }
+
+    const videoIdMatch = videoLink.match(
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|.*[?&]v=)|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+    );
+
+    if (videoIdMatch && videoIdMatch[1]) {
+      const videoLinkId = videoIdMatch[1];
+      return `https://www.youtube.com/embed/${videoLinkId}?autoplay=1&enablejsapi=1`;
+    }
+    return null;
+  };
+
+  const showIframe = (elm, imageVideoSrc) => {
+    if (!elm || !imageVideoSrc) {
+      return;
+    }
+
+    const iframeLink = getIframeLink(imageVideoSrc);
+    if (!iframeLink) {
+      return;
+    }
+
+    const iframeContainer = $(elm).closest('.swiper-slide').find('.iframe-video');
+    const iframeElem = iframeContainer.find("iframe");
+
+    iframeContainer.removeClass("d-none");
+    if (iframeElem.attr("src") !== iframeLink) {
+      iframeElem.attr("src", iframeLink);
+    }
+  };
+
+  const hideIframe = (elm) => {
+    if (!elm) {
+      return;
+    }
+
+    const iframeContainer = $(elm).closest(".iframe-video");
+    iframeContainer.addClass("d-none");
+    iframeContainer.find("iframe").attr("src", "");
+  };
+
+  $(document).ready(() => {
+    setTimeout(() => {
+      const activeSlide = $("#product-images-slick .swiper-slide-active .image-link");
+      const playIcon = activeSlide.find("#main-video-icon");
+      if (playIcon.length) {
+        playIcon.trigger("click");
+      }
+    }, 250);
+  });
+
+</script>
+
+<script>
+  $(document).ready(function () {
+    function getMaxQuantity() {
+      var $hiddenSelect = $('.select-quantity-div:first .select-quantity');
+      var maxQty = $hiddenSelect.find('option').length;
+      return maxQty > 0 ? maxQty : 300;
+    }
+
+    function syncAllQuantityFields(newValue) {
+      $('.select-quantity-div:first .select-quantity').val(newValue);
+
+      $('.product-quantity-input').val(newValue);
+    }
+
+    $('.increase-quantity').on('click', function () {
+      var currentValue = parseInt($('.product-quantity-input').val()) || 1;
+      var maxQuantity = getMaxQuantity();
+
+      if (currentValue < maxQuantity) {
+        syncAllQuantityFields(currentValue + 1);
+      }
+    });
+
+    $('.decrease-quantity').on('click', function () {
+      var currentValue = parseInt($('.product-quantity-input').val()) || 1;
+
+      if (currentValue > 1) {
+        syncAllQuantityFields(currentValue - 1);
+      }
+    });
+
+    $(document).on('DOMSubtreeModified', '.select-quantity', function () {
+      var $input = $('.product-quantity-input');
+      var currentInputValue = parseInt($input.val()) || 1;
+      var newMaxQuantity = getMaxQuantity();
+
+      if (currentInputValue > newMaxQuantity) {
+        syncAllQuantityFields(newMaxQuantity);
+      }
+    });
+
+    syncAllQuantityFields(1);
+  });
+</script>
+
+<script>
+  let sharePopupBackdrop = null;
+  let currentShareName = '';
+  let currentShareUrl = '';
+
+  function toggleSharePopup(event, productName, productUrl) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // حفظ بيانات المنتج الحالية للاستخدام في أيقونات المشاركة
+    currentShareName = productName || document.title;
+    currentShareUrl = productUrl || window.location.href;
+
+    const popup = document.getElementById('share-popup');
+    if (!popup) return;
+
+    const isVisible = popup.style.display !== 'none';
+
+    if (isVisible) {
+      closeSharePopup();
+    } else {
+      openSharePopup();
+    }
+  }
+
+  function openSharePopup() {
+    const popup = document.getElementById('share-popup');
+    if (!popup) return;
+    
+    // نقل البوب أب إلى body مباشرة إذا لم يكن موجوداً فيه
+    if (popup.parentElement !== document.body) {
+      document.body.appendChild(popup);
+    }
+
+    // تعبئة حقل الرابط بقيمة رابط المنتج الحالي
+    const input = document.getElementById('share-link-input');
+    if (input) {
+      input.value = currentShareUrl || window.location.href;
+    }
+
+    popup.style.display = 'block';
+    
+    // إضافة backdrop لإغلاق البوب أب عند الضغط خارجها
+    sharePopupBackdrop = document.createElement('div');
+    sharePopupBackdrop.className = 'share-popup-backdrop';
+    sharePopupBackdrop.addEventListener('click', closeSharePopup);
+    document.body.appendChild(sharePopupBackdrop);
+    
+    // إغلاق البوب أب عند الضغط على ESC
+    document.addEventListener('keydown', handleSharePopupEscape);
+  }
+
+  function closeSharePopup() {
+    const popup = document.getElementById('share-popup');
+    if (popup) {
+      popup.style.display = 'none';
+    }
+    
+    if (sharePopupBackdrop) {
+      document.body.removeChild(sharePopupBackdrop);
+      sharePopupBackdrop = null;
+    }
+    
+    document.removeEventListener('keydown', handleSharePopupEscape);
+  }
+
+  function handleSharePopupEscape(event) {
+    if (event.key === 'Escape') {
+      closeSharePopup();
+    }
+  }
+
+  // مشاركة على فيسبوك
+  function shareOnFacebook() {
+    closeSharePopup();
+    const encodedUrl = encodeURIComponent(currentShareUrl || window.location.href);
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+    // فتح في تبويب جديد بدون نافذة منبثقة
+    window.open(facebookUrl, '_blank');
+  }
+
+  // مشاركة على X (تويتر)
+  function shareOnTwitter() {
+    closeSharePopup();
+    const encodedText = encodeURIComponent(currentShareName || document.title);
+    const encodedUrl = encodeURIComponent(currentShareUrl || window.location.href);
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
+    // فتح في تبويب جديد بدون نافذة منبثقة
+    window.open(twitterUrl, '_blank');
+  }
+
+  // مشاركة على واتساب
+  function shareOnWhatsApp() {
+    closeSharePopup();
+    const text = encodeURIComponent((currentShareName || document.title) + ' ' + (currentShareUrl || window.location.href));
+    const waUrl = `https://wa.me/?text=${text}`;
+    window.open(waUrl, '_blank');
+  }
+
+  // نسخ الرابط من الحقل أسفل الأيقونات
+  function copyShareLink() {
+    const input = document.getElementById('share-link-input');
+    const btn = document.getElementById('share-link-copy-btn');
+    if (!input || !btn) return;
+
+    const urlToCopy = currentShareUrl || window.location.href;
+    input.value = urlToCopy;
+
+    copyToClipboard(urlToCopy);
+
+    // تغيير نص الزر إلى "تم النسخ"
+    const originalText = btn.innerText;
+    btn.innerText = '{{ _("Copied") }}';
+
+    // بعد 5 ثوانٍ يرجع للنص الأصلي "نسخ"
+    setTimeout(function() {
+      btn.innerText = originalText;
+    }, 5000);
+  }
+
+  // مشاركة باستخدام Web Share API (native share)
+  function shareNative() {
+    closeSharePopup();
+    const productName = currentShareName || document.title;
+    const productUrl = currentShareUrl || window.location.href;
+    const shareText = "Check out this product: " + productName;
+
+    if (navigator.share) {
+      navigator.share({
+        title: productName,
+        text: shareText,
+        url: productUrl
+      }).catch(() => {
+        fallbackShare(productName, productUrl);
+      });
+    } else {
+      fallbackShare(productName, productUrl);
+    }
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(() => {
+        showShareToast("Link copied to clipboard ✅");
+      }).catch(() => {
+        oldCopyMethod(text);
+      });
+    } else {
+      oldCopyMethod(text);
+    }
+  }
+
+  // وظيفة عامة يمكن استخدامها من أماكن أخرى إن لزم الأمر
+  function shareProduct(productName, productUrl) {
+    currentShareName = productName || document.title;
+    currentShareUrl = productUrl || window.location.href;
+    shareNative(currentShareName, currentShareUrl);
+  }
+
+function fallbackShare(name, url) {
+  // محاولة النسخ الحديثة
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(url).then(() => {
+      showShareToast("Link copied to clipboard ✅");
+    }).catch(() => {
+      oldCopyMethod(url);
+    });
+  } else {
+    oldCopyMethod(url);
+  }
+}
+
+function oldCopyMethod(text) {
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.style.position = "fixed";
+  textArea.style.left = "-999999px";
+  textArea.style.top = "-999999px";
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  try {
+    const successful = document.execCommand("copy");
+    if (successful) {
+      showShareToast("Link copied ✅");
+    } else {
+      showShareToast("Failed to copy link");
+    }
+  } catch (err) {
+    console.error("Failed to copy:", err);
+    showShareToast("Failed to copy link");
+  } finally {
+    document.body.removeChild(textArea);
+  }
+}
+
+function showShareToast(msg) {
+  let toast = document.createElement("div");
+  toast.innerText = msg;
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #000;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 99999;
+  `;
+  document.body.appendChild(toast);
+
+  setTimeout(() => toast.remove(), 2000);
+}
+
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        toastr.success('{{ _("Link copied to clipboard") }}');
+      }).catch((error) => {
+        console.log('Error copying to clipboard:', error);
+        // Fallback: use old method
+        fallbackCopyToClipboard(text);
+      });
+    } else {
+      fallbackCopyToClipboard(text);
+    }
+  }
+
+  function fallbackCopyToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      toastr.success('{{ _("Link copied to clipboard") }}');
+    } catch (err) {
+      console.log('Fallback copy failed:', err);
+    }
+    document.body.removeChild(textArea);
+  }
+</script>
+
+{% if convert_text_to_color %}
+<script>
+  const productAttributes = {{ product.attributes| tojson }};
+  
+  document.addEventListener("DOMContentLoaded", function () {
+    const listItems = document.querySelectorAll("#product-variants-options li");
+
+    // دالة للتحقق من أن الـ option متعلق بالألوان
+    function isColorOption(liElement) {
+      const parentUl = liElement.closest("ul");
+      if (!parentUl) return false;
+      
+      const label = parentUl.previousElementSibling;
+      if (!label) return false;
+      
+      const labelText = label.textContent.trim().toLowerCase();
+      const colorKeywords = ["color", "colors", "the color", "colour", "colours", "لون", "اللون", "الوان", "ألوان", "الالوان", "الألوان"];
+      
+      return colorKeywords.some(keyword => labelText.includes(keyword));
+    }
+
+    // دالة لربط الصور من nav-variants بالـ options (للألوان فقط)
+    function attachImagesToOptions() {
+      const variants = document.querySelectorAll("#nav-variants .options-table");
+
+      variants.forEach((variant) => {
+        const nameEl = variant.querySelector(".col.m-col span:not(.variant-name-sm)");
+        const imgEl = variant.querySelector(".variant-image-wrapper img");
+
+        if (!nameEl || !imgEl) return;
+
+        const variantName = nameEl.textContent.trim();
+        const relatedLi = document.querySelector(`#product-variants-options li[value="${variantName}"]`);
+        
+        if (relatedLi && isColorOption(relatedLi)) {
+          // تخزين الصورة كـ data attribute
+          relatedLi.setAttribute("data-variant-img", imgEl.src);
+        }
+      });
+    }
+
+    attachImagesToOptions();
+
+    // معالجة الألوان والأيقونات من الـ attributes
+    productAttributes.forEach(attr => {
+      if (["color", "colors", "the color", "colour", "colours", "لون", "اللون", "الوان", "ألوان", "الالوان", "الألوان"].includes(attr.name.trim().toLowerCase())) {
+        const colorName = attr.value;
+        const parentType = attr.type;
+
+        listItems.forEach(li => {
+          if (li.getAttribute("value") === colorName && isColorOption(li)) {
+            const parentUl = li.closest("ul");
+
+            // الأولوية للألوان
+            if (parentType === "color") {
+              const colorCode = attr.type_value;
+              li.style.backgroundColor = colorCode;
+              li.setAttribute("data-has-color", "true");
+
+              if (parentUl && !parentUl.classList.contains("ul-colors")) {
+                parentUl.classList.add("ul-colors");
+              }
+            } 
+            // إذا كان icon ولا يوجد لون
+            else if (parentType === "icon" && !li.hasAttribute("data-has-color")) {
+              const imgElement = document.createElement("img");
+              imgElement.src = attr.type_value.thumbnail || attr.type_value.small;
+              imgElement.alt = colorName;
+              imgElement.classList.add("variant-thumb");
+              li.appendChild(imgElement);
+
+              if (parentUl && !parentUl.classList.contains("ul-images")) {
+                parentUl.classList.add("ul-images");
+              }
+            }
+          }
+        });
+      }
+    });
+
+    // إضافة الصور من nav-variants فقط للألوان وإذا لم يكن هناك لون أو أيقونة
+    listItems.forEach(li => {
+      if (!isColorOption(li)) return; // تجاهل أي option مش متعلق بالألوان
+
+      const variantImg = li.getAttribute("data-variant-img");
+      const hasColor = li.hasAttribute("data-has-color");
+      const hasIcon = li.querySelector("img.variant-thumb");
+      
+      if (variantImg && !hasColor && !hasIcon) {
+        const imgElement = document.createElement("img");
+        imgElement.src = variantImg;
+        imgElement.classList.add("variant-thumb");
+        li.appendChild(imgElement);
+
+        const parentUl = li.closest("ul");
+        if (parentUl && !parentUl.classList.contains("ul-images")) {
+          parentUl.classList.add("ul-images");
+        }
+      }
+    });
+
+    // دالة تفعيل الصورة في nav-variants
+    function highlightVariantImage(colorName) {
+      const variants = document.querySelectorAll("#nav-variants .options-table");
+
+      variants.forEach((variant) => {
+        const txt = variant.querySelector(".col.m-col span:not(.variant-name-sm)");
+        if (!txt) return;
+
+        const variantName = txt.textContent.trim();
+
+        if (variantName === colorName) {
+          variant.classList.add("active-variant");
+        } else {
+          variant.classList.remove("active-variant");
+        }
+      });
+    }
+
+    // معالجة الضغط على الاختيارات
+    const productOptionListItemClicked = (event) => {
+      event.preventDefault();
+
+      const clickedItem = event.target.closest("li");
+      const value_li = clickedItem.getAttribute("value").trim();
+      const parentUl = clickedItem.closest("ul");
+      const label_name = parentUl.previousElementSibling;
+
+      // تحديث الـ label
+      const originalText = label_name.textContent.split(":")[0].trim();
+      label_name.innerHTML = `${originalText}: <span>${value_li}</span>`;
+
+      // تفعيل الـ li
+      Array.from(parentUl.children).forEach((li) => li.classList.remove("active"));
+      clickedItem.classList.add("active");
+
+      // تفعيل الصورة المطابقة (للألوان فقط)
+      if (isColorOption(clickedItem)) {
+        highlightVariantImage(value_li);
+      }
+    };
+
+    // ربط الأحداث
+    listItems.forEach((li) => li.addEventListener("click", productOptionListItemClicked));
+
+    // تفعيل الاختيار النشط افتراضياً
+    listItems.forEach((li) => {
+      if (li.classList.contains("active")) {
+        li.click();
+      }
+    });
+  });
+
+
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        toastr.success('{{ _("Link copied to clipboard") }}');
+      }).catch((error) => {
+        console.log('Error copying to clipboard:', error);
+        // Fallback: use old method
+        fallbackCopyToClipboard(text);
+      });
+    } else {
+      fallbackCopyToClipboard(text);
+    }
+  }
+
+  function fallbackCopyToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      toastr.success('{{ _("Link copied to clipboard") }}');
+    } catch (err) {
+      console.log('Fallback copy failed:', err);
+    }
+    document.body.removeChild(textArea);
+  }
+
+
+</script>
+{% endif %}
+
+{% endblock %}
+

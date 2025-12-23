@@ -1,0 +1,4 @@
+{% for product in product.bundle_offer.products.results %}
+	{% set index=loop.index0 %}
+  {% include 'components/product-card.jinja' %}
+{% endfor %}

@@ -1,0 +1,67 @@
+{
+  "section_id": "uuid",
+  "template": "sections/deal-days.jinja",
+  "icon": "fal fa-presentation",
+  "name": {
+    "ar": "العروض والخصومات",
+    "en": "deal days"
+  },
+  "settings": [
+    {
+      "id": "hide_element",
+      "type": "checkbox",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "id": "image",
+      "type": "image",
+      "label": {
+        "ar": "الصورة",
+        "en": "Image"
+      }
+    },
+    {
+      "id": "sub_title",
+      "type": "text",
+      "label": {
+        "ar": "العنوان الفرعي",
+        "en": "Sub title"
+      }
+    },
+    {
+      "id": "sub_title_color",
+      "type": "color",
+      "label": {
+        "ar": "لون العنوان الفرعي",
+        "en": "Sub title color"
+      }
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "label": {
+        "ar": "العنوان الرئيسي",
+        "en": "Title"
+      }
+    },
+    {
+      "id": "title_color",
+      "type": "color",
+      "label": {
+        "ar": "لون العنوان",
+        "en": "Title color"
+      }
+    },
+    {
+      "id": "date",
+      "type": "text",
+      "label": {
+        "ar": "مثال: 22/5/2025 - نهاية الخصم",
+        "en": "end date example: 22/5/2025"
+      }
+    }
+  ]
+}

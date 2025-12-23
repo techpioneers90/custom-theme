@@ -1,0 +1,127 @@
+{
+  "section_id": "uuid",
+  "template": "sections/spicial-slider.jinja",
+  "icon": "fal fa-presentation",
+  "name": {
+    "ar": "اسلايدر مميز",
+    "en": "Special Slider"
+  },
+  "display": true,
+  "settings": [
+    {
+      "id": "hide_element",
+      "type": "checkbox",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "id": "autoplay",
+      "type": "checkbox",
+      "label": {
+        "ar": "تشغيل تلقائي",
+        "en": "Autoplay"
+      }
+    },
+    {
+      "id": "stop_animation",
+      "type": "checkbox",
+      "label": {
+        "ar": "إيقاف التأثير على الصور",
+        "en": "Stop animation"
+      }
+    },
+    {
+      "id": "slider_auto",
+      "type": "checkbox",
+      "label": {
+        "ar": "الصورة أو الفيديو بالحجم الطبيعي",
+        "en": "Normal size image or video"
+      }
+    },
+    {
+      "id": "spicial_slider",
+      "type": "list",
+      "label": {
+        "ar": "السلايدات",
+        "en": "Slides"
+      },
+      "max_items": 100,
+      "settings": [
+        {
+          "id": "title",
+          "type": "text",
+          "label": {
+            "ar": "العنوان الرئيسي",
+            "en": "Title"
+          }
+        },
+        {
+          "id": "color",
+          "type": "color",
+          "label": {
+            "ar": "لون النص",
+            "en": "Text color"
+          }
+        },
+        {
+          "id": "sub_title",
+          "type": "textarea",
+          "label": {
+            "ar": "نص توضيحي",
+            "en": "Description"
+          }
+        },
+        {
+          "id": "btn_text",
+          "type": "text",
+          "label": {
+            "ar": "نص الزر",
+            "en": "Button text"
+          }
+        },
+        {
+          "id": "url",
+          "type": "url",
+          "label": {
+            "ar": "الرابط",
+            "en": "Link"
+          }
+        },
+        {
+          "id": "image",
+          "type": "image",
+          "label": {
+            "ar": "الصورة",
+            "en": "Image"
+          },
+          "info": {
+            "ar": "مقاس الصورة 1669 عرض × 817 طول",
+            "en": "Image size: 1669 width × 817 height"
+          }
+        },
+        {
+          "id": "image_mobile",
+          "type": "image",
+          "label": {
+            "ar": "صورة الجوال",
+            "en": "Mobile Image"
+          },
+          "info": {
+            "ar": "مقاس الصورة 768 عرض × 983 طول",
+            "en": "Image size: 768 width × 983 height"
+          }
+        },
+        {
+          "id": "video",
+          "type": "video",
+          "label": {
+            "ar": "الفيديو",
+            "en": "Video"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,407 @@
+{% if product %}
+{% if add_cart_small %}
+<div
+  class="card-product-style-2 product-box {% if product.is_infinite == false and product.quantity <= 0 %}product-item-out-of-stock{% endif %} tp-image-mode-{{ img_fit }}">
+  <div class="tp-product-container">
+    <div class="img-and-btns">
+      {% if store.settings.products.wishlist_enabled == true %}
+      <span class="add-to-wishlist" data-wishlist-id="{{ product.id }}">
+        <span zid-visible-customer="true">
+          <button zid-visible-wishlist="{{ product.id }}" class="icon-heart-mask filled"
+            onclick="addToWishlist(this, '{{ product.id }}')"></button>
+          <button zid-hidden-wishlist="{{ product.id }}" class="icon-heart-mask"
+            onclick="addToWishlist(this, '{{ product.id }}')"></button>
+        </span>
+        <a zid-visible-guest="true" class="icon-heart-mask" href="/auth/login?redirect_to={{ session.url.path }}"
+          onclick="event.preventDefault(); handleLoginAction('', false); return false;"></a>
+        <img loading="lazy" class="loader d-none" src="{{ 'spinner.gif' | asset_url }}" width="20" height="20" />
+      </span>
+      {% endif %}
+      <a href="/products/{{ product.slug }}" class="tp-image-product">
+        <div class="box-img-product img-1">
+          <img loading="lazy" class="lazy-img" width="200" height="300" id="product-card-img-{{ product.id }}-1" {% if
+            product.images or product.videos %} src="{{ product.main_image.image.small if product.main_image else '' }}"
+            {% else %} src="{{ image_url(('product-img.svg' | asset_url), w=235, q=100, f='auto') }}" {% endif %}
+            alt="{{ product.name }}">
+        </div>
+        {% if another_img %}
+        {% if product.images and product.images|length > 1 %}
+        <div class="box-img-product img-2">
+          <img loading="lazy" class="lazy-img" width="200" height="300" id="product-card-img-{{ product.id }}-2" {% if
+            product.images or product.videos %}
+            src="{{ product.images[1].image.small if product.images|length > 1 else (product.main_image.image.small if product.main_image else '') }}"
+            {% else %} src="{{ image_url(('product-img.svg' | asset_url), w=235, q=100, f='auto') }}" {% endif %}
+            alt="{{ product.name }}">
+        </div>
+        {% endif %}
+        {% endif %}
+        <div class="bundle-offer-badge">
+          <span class="product-card-bundle-offer" data-bundle-offer-product-id="{{ product.id }}"></span>
+          {% if product.badge %}
+          {% set positionProductCard = true %}
+          {% include 'vitrin:products/badge.jinja' %}
+          {% endif %}
+        </div>
+        {% if product.is_infinite == false and product.quantity <= 0 %} <small class="out-of-stock">{{ _("This product
+          is out of stock") }}</small>
+          {% endif %}
+          {% if store.settings.products.reviews_enabled and product.rating.total_count > 0 %}
+          <div class="product-card-rating-wrapper">
+            {{product.rating.average}}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill"
+              viewbox="0 0 16 16">
+              <path
+                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
+              </path>
+            </svg>
+            {% if product.rating.total_count > 0 %}<span class="rating-count">({{ product.rating.total_count
+              }})</span>{% endif %}
+          </div>
+          {% endif %}
+
+          {% if (product.is_infinite == true or product.quantity > 0)
+          and product.purchase_restrictions.sale_price_period_end %}
+          <div class="tp-countdown" {% if product.purchase_restrictions.sale_price_period_start %}
+            data-start="{{ product.purchase_restrictions.sale_price_period_start }}" {% endif %}
+            data-end="{{ product.purchase_restrictions.sale_price_period_end }}">
+            <ul>
+              <li>
+                <span class="seconds">0</span>
+                {{ _("S") }}
+              </li>
+              <li>
+                <span class="minutes">0</span>
+                {{ _("M") }}
+              </li>
+              <li>
+                <span class="hours">0</span>
+                {{ _("H") }}
+              </li>
+              <li>
+                <span class="days">0</span>
+                {{ _("D") }}
+              </li>
+            </ul>
+          </div>
+          {% endif %}
+      </a>
+    </div>
+    <div class="tp-content-wrapper">
+      {% if promotional_image %}
+      <img loading="lazy" class="promotional-image" src="{{promotional_image}}" alt="promotional-image">
+      {% endif %}
+      <a href="/products/{{ product.slug }}" class="tp-content-product">
+        <h2>{{ product.name | safe }}</h2>
+      </a>
+      <div class="product-card-quantity-wrapper">
+        <div class="product-card-quantity-counter">
+          <button type="button" class="product-card-qty-btn product-card-qty-minus" data-product-id="{{ product.id }}"
+            aria-label="Decrease quantity">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" color="#000000"
+              fill="none">
+              <path d="M20 12L4 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+          <input type="number" class="product-card-quantity-input" data-product-id="{{ product.id }}" value="1" min="1"
+            {% if product.is_infinite==false %}max="{{ product.quantity }}" {% else %}max="100" {% endif %} readonly>
+          <button type="button" class="product-card-qty-btn product-card-qty-plus" data-product-id="{{ product.id }}"
+            aria-label="Increase quantity">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" color="#000000"
+              fill="none">
+              <path d="M12 4V20M20 12H4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="price-cart-btns">
+        <div class="price-part">
+          {% if product.sale_price is not none %}
+          <div class="tp-price-product">
+            <p class="price-new">{{ product.sale_price }} {{ product.currency_symbol }}</p>
+            <div class="price-wafar">
+              <span class="price-old">{{ product.price }} {{ product.currency_symbol }}</span>
+              <span class="discount">- {{ product.discount_percentage }}%</span>
+            </div>
+          </div>
+          {% else %}
+          <div class="tp-price-product">
+            <p class="price-new">{{ product.price }} {{ product.currency_symbol }}</p>
+          </div>
+          {% endif %}
+          {% if product.is_infinite or product.quantity > 0 %}
+          {% if not product.is_taxable %}
+          <small class="is-not-taxable">{{ _("Tax free") }}</small>
+          {% endif %}
+          {% endif %}
+        </div>
+        <div class="footer-btns">
+          {% if product.is_infinite == false and product.quantity <= 0 %} <a class="btn-product-card-out-of-stock"
+            href="/products/{{ product.slug }}">
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="#000000"
+              fill="none">
+              <defs />
+              <path fill="currentColor"
+                d="M5.091,6.75 L6.255,6.75 C6.386,3.69 8.908,1.25 12,1.25 C15.092,1.25 17.614,3.69 17.745,6.75 L18.961,6.75 L18.961,6.75 C19.454,6.75 19.907,6.75 20.269,6.805 C20.671,6.866 21.094,7.012 21.404,7.408 C21.708,7.793 21.762,8.237 21.748,8.644 C21.736,9.023 21.658,9.488 21.57,10.012 L21.57,10.012 L21.132,12.624 C21.064,13.032 20.677,13.308 20.269,13.24 C19.86,13.171 19.584,12.785 19.653,12.376 L20.082,9.812 C20.181,9.226 20.24,8.861 20.249,8.594 C20.253,8.469 20.244,8.4 20.236,8.364 C20.232,8.348 20.228,8.34 20.227,8.338 L20.226,8.335 L20.22,8.332 C20.201,8.323 20.152,8.304 20.044,8.288 C19.808,8.252 19.472,8.25 18.909,8.25 L5.091,8.25 C4.528,8.25 4.192,8.252 3.956,8.288 C3.848,8.304 3.799,8.323 3.78,8.332 L3.774,8.335 L3.773,8.338 C3.772,8.34 3.768,8.348 3.764,8.364 C3.756,8.4 3.747,8.469 3.751,8.594 C3.76,8.861 3.819,9.226 3.918,9.812 L5.08,16.75 L11,16.75 C11.414,16.75 11.75,17.086 11.75,17.5 C11.75,17.914 11.414,18.25 11,18.25 L5.34,18.25 C5.433,18.75 5.522,19.163 5.624,19.514 C5.808,20.148 6.009,20.485 6.267,20.716 C6.521,20.942 6.852,21.087 7.452,21.166 C8.076,21.249 8.893,21.25 10.08,21.25 L11,21.25 C11.414,21.25 11.75,21.586 11.75,22 C11.75,22.414 11.414,22.75 11,22.75 L10.025,22.75 C8.904,22.75 7.988,22.75 7.255,22.653 C6.485,22.551 5.827,22.333 5.269,21.835 C4.715,21.341 4.407,20.703 4.183,19.932 C3.967,19.187 3.807,18.233 3.609,17.049 L2.438,10.059 L2.43,10.012 C2.342,9.488 2.264,9.023 2.252,8.644 C2.238,8.237 2.292,7.793 2.596,7.408 C2.906,7.012 3.329,6.866 3.731,6.805 C4.093,6.75 4.546,6.75 5.039,6.75 L5.039,6.75 Z M21.53,15.53 L18.561,18.5 L21.53,21.47 C21.823,21.763 21.823,22.237 21.53,22.53 C21.237,22.823 20.763,22.823 20.47,22.53 L17.5,19.561 L14.53,22.53 C14.237,22.823 13.763,22.823 13.47,22.53 C13.177,22.237 13.177,21.763 13.47,21.47 L16.439,18.5 L13.47,15.53 C13.177,15.237 13.177,14.763 13.47,14.47 C13.763,14.177 14.237,14.177 14.53,14.47 L17.5,17.439 L20.47,14.47 C20.763,14.177 21.237,14.177 21.53,14.47 C21.823,14.763 21.823,15.237 21.53,15.53 Z M12,2.75 C9.737,2.75 7.887,4.519 7.757,6.75 L16.243,6.75 C16.113,4.519 14.263,2.75 12,2.75 Z" />
+            </svg>
+            </a>
+            {% elif ( product.has_options or product.has_fields or product.product_class == 'dynamic_bundle' ) %}
+            <button type="button" class="btn-product-card-select-variant" onclick="event.preventDefault(); event.stopPropagation(); openQuickView('{{ product.id }}', '{{ product.slug }}')" aria-label="View options">
+              <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="#000000"
+                fill="none">
+                <defs />
+                <path fill="currentColor"
+                  d="M2,1.25 L2.966,1.25 C4.239,1.25 5.372,2.093 5.69,3.328 L6.184,5.25 L6.5,5.25 C6.914,5.25 7.25,5.586 7.25,6 C7.25,6.391 6.951,6.712 6.569,6.747 L8.665,14.89 C8.69,14.988 8.71,15.088 8.724,15.187 L16.658,14.526 C18.03,14.412 18.608,14.211 18.929,13.899 C19.249,13.587 19.466,13.014 19.618,11.646 L20.162,6.75 L19.5,6.75 C19.086,6.75 18.75,6.414 18.75,6 C18.75,5.586 19.086,5.25 19.5,5.25 L22,5.25 C22.414,5.25 22.75,5.586 22.75,6 C22.75,6.414 22.414,6.75 22,6.75 L21.671,6.75 L21.109,11.812 C20.959,13.165 20.718,14.251 19.975,14.974 C19.231,15.697 18.139,15.908 16.782,16.021 L8.493,16.712 C8.409,16.89 8.305,17.06 8.182,17.22 L7.703,17.84 C8.151,18.195 8.487,18.685 8.646,19.25 L14.354,19.25 C14.68,18.096 15.741,17.25 17,17.25 C18.519,17.25 19.75,18.481 19.75,20 C19.75,21.519 18.519,22.75 17,22.75 C15.741,22.75 14.68,21.904 14.354,20.75 L8.646,20.75 C8.32,21.904 7.259,22.75 6,22.75 C4.481,22.75 3.25,21.519 3.25,20 C3.25,18.481 4.481,17.25 6,17.25 C6.086,17.25 6.171,17.254 6.255,17.262 L6.995,16.303 C7.227,16.003 7.304,15.621 7.212,15.263 L4.237,3.702 C4.096,3.156 3.582,2.75 2.966,2.75 L2,2.75 C1.586,2.75 1.25,2.414 1.25,2 C1.25,1.586 1.586,1.25 2,1.25 Z M13.75,2.5 L13.75,5.25 L16.5,5.25 C16.914,5.25 17.25,5.586 17.25,6 C17.25,6.414 16.914,6.75 16.5,6.75 L13.75,6.75 L13.75,9.5 C13.75,9.914 13.414,10.25 13,10.25 C12.586,10.25 12.25,9.914 12.25,9.5 L12.25,6.75 L9.5,6.75 C9.086,6.75 8.75,6.414 8.75,6 C8.75,5.586 9.086,5.25 9.5,5.25 L12.25,5.25 L12.25,2.5 C12.25,2.086 12.586,1.75 13,1.75 C13.414,1.75 13.75,2.086 13.75,2.5 Z M17,21.25 C17.69,21.25 18.25,20.69 18.25,20 C18.25,19.31 17.69,18.75 17,18.75 C16.31,18.75 15.75,19.31 15.75,20 C15.75,20.69 16.31,21.25 17,21.25 Z M6,18.75 C5.31,18.75 4.75,19.31 4.75,20 C4.75,20.69 5.31,21.25 6,21.25 C6.69,21.25 7.25,20.69 7.25,20 C7.25,19.31 6.69,18.75 6,18.75 Z" />
+              </svg>
+            </button>
+            {% else %}
+            <button type="button" class="product-card-add-to-cart"
+              onclick="event.preventDefault(); event.stopPropagation(); productCartAddToCart(this,'{{ product.id }}')"
+              aria-label="AddToCart">
+              <img loading="lazy" style="display: inline" class="add-to-cart-progress d-none"
+                src="{{ 'spinner.gif' | asset_url }}" width="20" height="20" />
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" color="#000000"
+                fill="none">
+                <path d="M8 16L16.7201 15.2733C19.4486 15.046 20.0611 14.45 20.3635 11.7289L21 6" stroke="currentColor"
+                  stroke-width="1.5" stroke-linecap="round"></path>
+                <path d="M6 6H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                <circle cx="6" cy="20" r="2" stroke="currentColor" stroke-width="1.5"></circle>
+                <circle cx="17" cy="20" r="2" stroke="currentColor" stroke-width="1.5"></circle>
+                <path d="M8 20L15 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                <path
+                  d="M2 2H2.966C3.91068 2 4.73414 2.62459 4.96326 3.51493L7.93852 15.0765C8.08887 15.6608 7.9602 16.2797 7.58824 16.7616L6.63213 18"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+              </svg>
+            </button>
+            {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% else %}
+<div
+  class="product-box {% if product.is_infinite == false and product.quantity <= 0 %}product-item-out-of-stock{% endif %} tp-image-mode-{{ img_fit }}">
+  <div class="tp-product-container">
+    <div class="img-and-btns">
+      {% if store.settings.products.wishlist_enabled == true %}
+      <span class="add-to-wishlist" data-wishlist-id="{{ product.id }}">
+        <span zid-visible-customer="true">
+          <button zid-visible-wishlist="{{ product.id }}" class="icon-heart-mask filled"
+            onclick="addToWishlist(this, '{{ product.id }}')"></button>
+          <button zid-hidden-wishlist="{{ product.id }}" class="icon-heart-mask"
+            onclick="addToWishlist(this, '{{ product.id }}')"></button>
+        </span>
+        <a zid-visible-guest="true" class="icon-heart-mask" href="/auth/login?redirect_to={{ session.url.path }}"
+          onclick="event.preventDefault(); handleLoginAction('', false); return false;"></a>
+        <img loading="lazy" class="loader d-none" src="{{ 'spinner.gif' | asset_url }}" width="20" height="20" />
+      </span>
+      {% endif %}
+      <a href="/products/{{ product.slug }}" class="tp-image-product">
+        <div class="box-img-product img-1">
+          <img loading="lazy" class="lazy-img" width="200" height="300" id="product-card-img-{{ product.id }}-1" {% if
+            product.images or product.videos %} src="{{ product.main_image.image.small if product.main_image else '' }}"
+            {% else %} src="{{ image_url(('product-img.svg' | asset_url), w=235, q=100, f='auto') }}" {% endif %}
+            alt="{{ product.name }}">
+        </div>
+        {% if another_img %}
+        {% if product.images and product.images|length > 1 %}
+        <div class="box-img-product img-2">
+          <img loading="lazy" class="lazy-img" width="200" height="300" id="product-card-img-{{ product.id }}-2" {% if
+            product.images or product.videos %}
+            src="{{ product.images[1].image.small if product.images|length > 1 else (product.main_image.image.small if product.main_image else '') }}"
+            {% else %} src="{{ image_url(('product-img.svg' | asset_url), w=235, q=100, f='auto') }}" {% endif %}
+            alt="{{ product.name }}">
+        </div>
+        {% endif %}
+        {% endif %}
+        <div class="bundle-offer-badge">
+          <span class="product-card-bundle-offer" data-bundle-offer-product-id="{{ product.id }}"></span>
+          {% if product.badge %}
+          {% set positionProductCard = true %}
+          {% include 'vitrin:products/badge.jinja' %}
+          {% endif %}
+        </div>
+        {% if product.is_infinite == false and product.quantity <= 0 %} <small class="out-of-stock">{{ _("This product
+          is out of stock") }}</small>
+          {% endif %}
+
+          {% if store.settings.products.reviews_enabled and product.rating.total_count > 0 %}
+          <div class="product-card-rating-wrapper">
+            {{product.rating.average}}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill"
+              viewbox="0 0 16 16">
+              <path
+                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z">
+              </path>
+            </svg>
+            {% if product.rating.total_count > 0 %}<span class="rating-count">({{ product.rating.total_count
+              }})</span>{% endif %}
+          </div>
+          {% endif %}
+
+          {% if (product.is_infinite == true or product.quantity > 0)
+          and product.purchase_restrictions.sale_price_period_end %}
+          <div class="tp-countdown" {% if product.purchase_restrictions.sale_price_period_start %}
+            data-start="{{ product.purchase_restrictions.sale_price_period_start }}" {% endif %}
+            data-end="{{ product.purchase_restrictions.sale_price_period_end }}">
+            <ul>
+              <li>
+                <span class="seconds">0</span>
+                {{ _("S") }}
+              </li>
+              <li>
+                <span class="minutes">0</span>
+                {{ _("M") }}
+              </li>
+              <li>
+                <span class="hours">0</span>
+                {{ _("H") }}
+              </li>
+              <li>
+                <span class="days">0</span>
+                {{ _("D") }}
+              </li>
+            </ul>
+          </div>
+          {% endif %}
+      </a>
+      <div class="footer-btns">
+        {% if product.is_infinite == false and product.quantity <= 0 %} <a class="btn-product-card-out-of-stock"
+          href="/products/{{ product.slug }}" tabindex="-1" aria-label="out-of-stock">
+          <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="#000000"
+            fill="none">
+            <path
+              d="M2.52992 14.7696C2.31727 16.1636 3.268 17.1312 4.43205 17.6134C8.89481 19.4622 15.1052 19.4622 19.5679 17.6134C20.732 17.1312 21.6827 16.1636 21.4701 14.7696C21.3394 13.9129 20.6932 13.1995 20.2144 12.5029C19.5873 11.5793 19.525 10.5718 19.5249 9.5C19.5249 5.35786 16.1559 2 12 2C7.84413 2 4.47513 5.35786 4.47513 9.5C4.47503 10.5718 4.41272 11.5793 3.78561 12.5029C3.30684 13.1995 2.66061 13.9129 2.52992 14.7696Z"
+              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M8 19C8.45849 20.7252 10.0755 22 12 22C13.9245 22 15.5415 20.7252 16 19" stroke="currentColor"
+              stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <span>{{ _("Notify me") }}</span>
+          </a>
+          {% elif ( product.has_options or product.has_fields or product.product_class == 'dynamic_bundle' ) %}
+          <button type="button" class="btn-product-card-select-variant" onclick="event.preventDefault(); event.stopPropagation(); openQuickView('{{ product.id }}', '{{ product.slug }}')" aria-label="View options">
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="#000000"
+              fill="none">
+              <path
+                d="M3.87289 17.0194L2.66933 9.83981C2.48735 8.75428 2.39637 8.21152 2.68773 7.85576C2.9791 7.5 3.51461 7.5 4.58564 7.5H19.4144C20.4854 7.5 21.0209 7.5 21.3123 7.85576C21.6036 8.21152 21.5126 8.75428 21.3307 9.83981L20.1271 17.0194C19.7282 19.3991 19.5287 20.5889 18.7143 21.2945C17.9 22 16.726 22 14.3782 22H9.62182C7.27396 22 6.10003 22 5.28565 21.2945C4.47127 20.5889 4.27181 19.3991 3.87289 17.0194Z"
+                stroke="currentColor" stroke-width="1.5" />
+              <path d="M17.5 7.5C17.5 4.46243 15.0376 2 12 2C8.96243 2 6.5 4.46243 6.5 7.5" stroke="currentColor"
+                stroke-width="1.5" />
+            </svg>
+            {{ _('Has options') }}
+          </button>
+          {% else %}
+          <button type="button" class="product-card-add-to-cart"
+            onclick="event.preventDefault(); event.stopPropagation(); productCartAddToCart(this,'{{ product.id }}')"
+            aria-label="AddToCart">
+            <img loading="lazy" style="display: inline" class="add-to-cart-progress d-none"
+              src="{{ 'spinner.gif' | asset_url }}" width="20" height="20" />
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="#000000"
+              fill="none">
+              <path
+                d="M3.87289 17.0194L2.66933 9.83981C2.48735 8.75428 2.39637 8.21152 2.68773 7.85576C2.9791 7.5 3.51461 7.5 4.58564 7.5H19.4144C20.4854 7.5 21.0209 7.5 21.3123 7.85576C21.6036 8.21152 21.5126 8.75428 21.3307 9.83981L20.1271 17.0194C19.7282 19.3991 19.5287 20.5889 18.7143 21.2945C17.9 22 16.726 22 14.3782 22H9.62182C7.27396 22 6.10003 22 5.28565 21.2945C4.47127 20.5889 4.27181 19.3991 3.87289 17.0194Z"
+                stroke="currentColor" stroke-width="1.5" />
+              <path d="M17.5 7.5C17.5 4.46243 15.0376 2 12 2C8.96243 2 6.5 4.46243 6.5 7.5" stroke="currentColor"
+                stroke-width="1.5" />
+            </svg>
+            {{ _("Add to cart") }}
+          </button>
+          {% endif %}
+      </div>
+    </div>
+    <div class="tp-content-wrapper">
+      {% if promotional_image %}
+      <img loading="lazy" class="promotional-image" src="{{promotional_image}}" alt="promotional-image">
+      {% endif %}
+      <a href="/products/{{ product.slug }}" class="tp-content-product">
+        <h2>{{ product.name | safe }}</h2>
+        {% if product.formatted_sale_price is not none %}
+        <div class="tp-price-product">
+          <p class="price-new">{{ product.formatted_sale_price }}</p>
+          <div class="price-wafar">
+            <span class="price-old">{{ product.formatted_price }}</span>
+            <span class="discount">- {{ product.discount_percentage }}%</span>
+          </div>
+        </div>
+        {% else %}
+        <div class="tp-price-product">
+          <p class="price-new">{{ product.formatted_price }}</p>
+        </div>
+        {% endif %}
+
+        {% if product.is_infinite or product.quantity > 0 %}
+        {% if not product.is_taxable %}
+        <small class="is-not-taxable">{{ _("Tax free") }}</small>
+        {% endif %}
+        {% endif %}
+      </a>
+      <div class="product-card-quantity-wrapper">
+        <div class="product-card-quantity-counter">
+          <button type="button" class="product-card-qty-btn product-card-qty-minus" data-product-id="{{ product.id }}"
+            aria-label="Decrease quantity">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" color="#000000"
+              fill="none">
+              <path d="M20 12L4 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+          <input type="number" class="product-card-quantity-input" data-product-id="{{ product.id }}" value="1" min="1"
+            {% if product.is_infinite==false %}max="{{ product.quantity }}" {% else %}max="100" {% endif %} readonly>
+          <button type="button" class="product-card-qty-btn product-card-qty-plus" data-product-id="{{ product.id }}"
+            aria-label="Increase quantity">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" color="#000000"
+              fill="none">
+              <path d="M12 4V20M20 12H4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="footer-btns">
+        {% if product.is_infinite == false and product.quantity <= 0 %} <a class="btn-product-card-out-of-stock"
+          disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="#000000"
+            fill="none">
+            <defs />
+            <path fill="currentColor"
+              d="M5.091,6.75 L6.255,6.75 C6.386,3.69 8.908,1.25 12,1.25 C15.092,1.25 17.614,3.69 17.745,6.75 L18.961,6.75 L18.961,6.75 C19.454,6.75 19.907,6.75 20.269,6.805 C20.671,6.866 21.094,7.012 21.404,7.408 C21.708,7.793 21.762,8.237 21.748,8.644 C21.736,9.023 21.658,9.488 21.57,10.012 L21.57,10.012 L21.132,12.624 C21.064,13.032 20.677,13.308 20.269,13.24 C19.86,13.171 19.584,12.785 19.653,12.376 L20.082,9.812 C20.181,9.226 20.24,8.861 20.249,8.594 C20.253,8.469 20.244,8.4 20.236,8.364 C20.232,8.348 20.228,8.34 20.227,8.338 L20.226,8.335 L20.22,8.332 C20.201,8.323 20.152,8.304 20.044,8.288 C19.808,8.252 19.472,8.25 18.909,8.25 L5.091,8.25 C4.528,8.25 4.192,8.252 3.956,8.288 C3.848,8.304 3.799,8.323 3.78,8.332 L3.774,8.335 L3.773,8.338 C3.772,8.34 3.768,8.348 3.764,8.364 C3.756,8.4 3.747,8.469 3.751,8.594 C3.76,8.861 3.819,9.226 3.918,9.812 L5.08,16.75 L11,16.75 C11.414,16.75 11.75,17.086 11.75,17.5 C11.75,17.914 11.414,18.25 11,18.25 L5.34,18.25 C5.433,18.75 5.522,19.163 5.624,19.514 C5.808,20.148 6.009,20.485 6.267,20.716 C6.521,20.942 6.852,21.087 7.452,21.166 C8.076,21.249 8.893,21.25 10.08,21.25 L11,21.25 C11.414,21.25 11.75,21.586 11.75,22 C11.75,22.414 11.414,22.75 11,22.75 L10.025,22.75 C8.904,22.75 7.988,22.75 7.255,22.653 C6.485,22.551 5.827,22.333 5.269,21.835 C4.715,21.341 4.407,20.703 4.183,19.932 C3.967,19.187 3.807,18.233 3.609,17.049 L2.438,10.059 L2.43,10.012 C2.342,9.488 2.264,9.023 2.252,8.644 C2.238,8.237 2.292,7.793 2.596,7.408 C2.906,7.012 3.329,6.866 3.731,6.805 C4.093,6.75 4.546,6.75 5.039,6.75 L5.039,6.75 Z M21.53,15.53 L18.561,18.5 L21.53,21.47 C21.823,21.763 21.823,22.237 21.53,22.53 C21.237,22.823 20.763,22.823 20.47,22.53 L17.5,19.561 L14.53,22.53 C14.237,22.823 13.763,22.823 13.47,22.53 C13.177,22.237 13.177,21.763 13.47,21.47 L16.439,18.5 L13.47,15.53 C13.177,15.237 13.177,14.763 13.47,14.47 C13.763,14.177 14.237,14.177 14.53,14.47 L17.5,17.439 L20.47,14.47 C20.763,14.177 21.237,14.177 21.53,14.47 C21.823,14.763 21.823,15.237 21.53,15.53 Z M12,2.75 C9.737,2.75 7.887,4.519 7.757,6.75 L16.243,6.75 C16.113,4.519 14.263,2.75 12,2.75 Z" />
+          </svg>
+          <span>{{ _("Notify me") }}</span>
+          </a>
+          {% elif ( product.has_options or product.has_fields or product.product_class == 'dynamic_bundle' ) %}
+          <a class="btn-product-card-select-variant" href="/products/{{ product.slug }}">
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="#000000"
+              fill="none">
+              <path
+                d="M3.87289 17.0194L2.66933 9.83981C2.48735 8.75428 2.39637 8.21152 2.68773 7.85576C2.9791 7.5 3.51461 7.5 4.58564 7.5H19.4144C20.4854 7.5 21.0209 7.5 21.3123 7.85576C21.6036 8.21152 21.5126 8.75428 21.3307 9.83981L20.1271 17.0194C19.7282 19.3991 19.5287 20.5889 18.7143 21.2945C17.9 22 16.726 22 14.3782 22H9.62182C7.27396 22 6.10003 22 5.28565 21.2945C4.47127 20.5889 4.27181 19.3991 3.87289 17.0194Z"
+                stroke="currentColor" stroke-width="1.5" />
+              <path d="M17.5 7.5C17.5 4.46243 15.0376 2 12 2C8.96243 2 6.5 4.46243 6.5 7.5" stroke="currentColor"
+                stroke-width="1.5" />
+            </svg>
+            {{ _('Has options') }}
+          </a>
+          {% else %}
+          <button type="button" class="product-card-add-to-cart"
+            onclick="event.preventDefault(); event.stopPropagation(); productCartAddToCart(this,'{{ product.id }}')"
+            aria-label="AddToCart">
+            <img loading="lazy" style="display: inline" class="add-to-cart-progress d-none"
+              src="{{ 'spinner.gif' | asset_url }}" width="20" height="20" />
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" color="#000000"
+              fill="none">
+              <path
+                d="M3.87289 17.0194L2.66933 9.83981C2.48735 8.75428 2.39637 8.21152 2.68773 7.85576C2.9791 7.5 3.51461 7.5 4.58564 7.5H19.4144C20.4854 7.5 21.0209 7.5 21.3123 7.85576C21.6036 8.21152 21.5126 8.75428 21.3307 9.83981L20.1271 17.0194C19.7282 19.3991 19.5287 20.5889 18.7143 21.2945C17.9 22 16.726 22 14.3782 22H9.62182C7.27396 22 6.10003 22 5.28565 21.2945C4.47127 20.5889 4.27181 19.3991 3.87289 17.0194Z"
+                stroke="currentColor" stroke-width="1.5" />
+              <path d="M17.5 7.5C17.5 4.46243 15.0376 2 12 2C8.96243 2 6.5 4.46243 6.5 7.5" stroke="currentColor"
+                stroke-width="1.5" />
+            </svg>
+            {{ _("Add to cart") }}
+          </button>
+          {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endif %}

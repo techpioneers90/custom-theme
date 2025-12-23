@@ -1,0 +1,78 @@
+{
+  "section_id": "uuid",
+  "template": "sections/home-brands.jinja",
+  "icon": "fal fa-sparkles",
+  "name": {
+    "ar": "الماركات",
+    "en": "Brands"
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "hide_element",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "type": "text",
+      "id": "small_subtitle",
+      "label": {
+        "ar": "عنوان ترويجي",
+        "en": "Promotional title"
+      }
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": {
+        "ar": "العنوان الرئيسي",
+        "en": "Title"
+      }
+    },
+    {
+      "type": "text",
+      "id": "small_text",
+      "label": {
+        "ar": "نص إضافي",
+        "en": "Additional text"
+      }
+    },
+    {
+      "type": "checkbox",
+      "id": "rounded_edges",
+      "label": {
+        "ar": "حواف دائرية",
+        "en": "Rounded edges"
+      }
+    },
+    {
+      "type": "list",
+      "id": "brands",
+      "max_items": 100,
+      "label": {
+        "ar": "الصورة",
+        "en": "Picture"
+      },
+      "settings": [
+        {
+          "type": "image",
+          "id": "image",
+          "label": {
+            "ar": "الصورة",
+            "en": "Image"
+          }
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": {
+            "ar": "الرابط",
+            "en": "Link"
+          }
+        }
+      ]
+    }
+  ]
+}

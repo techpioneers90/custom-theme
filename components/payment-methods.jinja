@@ -1,0 +1,5 @@
+{% if payment_list_images %}
+  {% for payment in payment_list_images %}
+    <img loading="lazy" src="{{ image_url(payment.payment_logo) }}"  alt="payment">
+  {% endfor %}
+{% endif %}

@@ -1,0 +1,103 @@
+{
+  "section_id": "uuid",
+  "template": "sections/testimonials.jinja",
+  "icon": "fal fa-user",
+  "name": {
+    "ar": "أراء العملاء | تطبيق عناقيد",
+    "en": "Testimonials | Bunches App"
+  },
+  "display": true,
+  "settings": [
+    {
+      "id": "hide_element",
+      "type": "checkbox",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "id": "background_color",
+      "type": "color",
+      "label": {
+        "ar": "لون الخلفية",
+        "en": "Background color"
+      }
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "label": {
+        "ar": "العنوان",
+        "en": "Title"
+      }
+    },
+    {
+      "id": "color",
+      "type": "color",
+      "label": {
+        "ar": "لون العنوان",
+        "en": "Title color"
+      }
+    },
+    {
+      "id": "background_item",
+      "type": "color",
+      "label": {
+        "ar": "لون خلفية العنصر",
+        "en": "Item background color"
+      }
+    },
+    {
+      "id": "testimonials",
+      "type": "list",
+      "label": {
+        "ar": "آراء العملاء",
+        "en": "Testimonials"
+      },
+      "max_items": 100,
+      "settings": [
+        {
+          "id": "name",
+          "type": "text",
+          "label": {
+            "ar": "الإسم",
+            "en": "Name"
+          }
+        },
+        {
+          "id": "text",
+          "type": "textarea",
+          "label": {
+            "ar": "النص",
+            "en": "Text"
+          }
+        },
+        {
+          "id": "color_text",
+          "type": "color",
+          "label": {
+            "ar": "لون النص",
+            "en": "Text color"
+          }
+        },
+        {
+          "id": "color_name",
+          "type": "color",
+          "label": {
+            "ar": "لون الإسم",
+            "en": "Name color"
+          }
+        },
+        {
+          "id": "image",
+          "type": "image",
+          "label": {
+            "ar": "الصورة",
+            "en": "Image"
+          }
+        }
+      ]
+    }
+  ]
+}

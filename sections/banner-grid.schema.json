@@ -1,0 +1,74 @@
+{
+  "section_id": "uuid",
+  "template": "sections/banner-grid.jinja",
+  "icon": "fal fa-presentation",
+  "name": {
+    "ar": "عناصر بنرات",
+    "en": "banners items"
+  },
+  "settings": [
+    {
+      "id": "hide_element",
+      "type": "checkbox",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "id": "banner_grid",
+      "type": "list",
+      "label": {
+        "ar": "الصورة",
+        "en": "Picture"
+      },
+      "settings": [
+        {
+          "id": "image",
+          "type": "image",
+          "label": {
+            "ar": "الصورة",
+            "en": "Image"
+          },
+          "info": {
+            "ar": "مقاس الصورة 1132 عرض * 792 طول",
+            "en": "Image size: 1132 width * 792 height"
+          }
+        },
+        {
+          "id": "sub_title",
+          "type": "text",
+          "label": {
+            "ar": "نص فرعي",
+            "en": "sub title"
+          }
+        },
+        {
+          "id": "title",
+          "type": "text",
+          "label": {
+            "ar": "العنوان الرئيسي",
+            "en": "Title"
+          }
+        },
+        {
+          "id": "btn_text",
+          "type": "text",
+          "label": {
+            "ar": "نص الزر",
+            "en": "Btn text"
+          }
+        },
+        {
+          "id": "url",
+          "type": "url",
+          "label": {
+            "ar": "الرابط",
+            "en": "Link"
+          }
+        }
+      ]
+    }
+  ]
+}
+

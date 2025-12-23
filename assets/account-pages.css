@@ -1,0 +1,245 @@
+.flex-profile {
+  display: flex;
+  gap: 32px;
+}
+
+.flex-profile .profile-box {
+  width: 400px;
+  min-width: 400px;
+  position: sticky;
+  top: 116px;
+  height: max-content;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  padding: 16px;
+  border-radius: 24px;
+}
+
+.flex-profile .profile-box ul {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flex-profile .profile-box li a {
+  display: flex;
+  gap: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.flex-profile .profile-box li a.active {
+  background: var(--primary-color);
+  color: var(--text-color-primary-bg);
+}
+
+.flex-profile .profile-box li svg {
+  color: currentColor;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+}
+
+.flex-profile .profile-box .content-list-profile {
+  width: 100%;
+}
+
+.flex-profile .profile-box .content-list-profile h3 {
+  font-size: 19px;
+  margin-bottom: 4px;
+}
+
+.flex-profile .profile-box .content-list-profile p {
+  margin: 0;
+  font-size: 15px;
+  opacity: .9;
+  line-height: 22px;
+}
+
+.flex-profile .content-profile-page {
+  width: 100%;
+}
+
+.profile-page-title {
+  margin-bottom: 32px;
+}
+
+.account-content .form-account-info .form-row:first-of-type {
+  display: flex;
+  gap: 16px;
+}
+
+.account-content .form-group {
+  margin-bottom: 16px;
+}
+
+.account-content .form-group .form-control {
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.account-content .custom-checkbox-container {
+  padding-right: 28px !important;
+}
+
+.account-content .custom-checkbox-container .custom-checkbox-checkmark {
+  background: #fff !important;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  height: 22px;
+  width: 22px;
+  top: 3px;
+}
+
+.account-content .custom-checkbox-container .custom-checkbox-checkmark:after {
+  border-color: var(--tp-text-body);
+  position: absolute;
+  left: 7px;
+  top: 3px;
+  width: 6px;
+  border-width: 0 2px 2px 0;
+  height: 11px;
+  transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+}
+
+.account-content #col-save-button {
+  justify-content: start !important;
+  margin-top: 24px;
+}
+
+.account-content button,
+.logout-form button {
+  padding: 7px 16px;
+  min-width: 100px;
+  font-size: 16px;
+  border-radius: 10px;
+}
+
+.account-content button#btn_profile_delete_account {
+  background: #fff !important;
+  color: var(--bs-btn-bg);
+  border-color: var(--bs-btn-bg);
+  filter: unset;
+}
+
+.account-content h2 {
+  cursor: auto;
+  display: inline-block;
+  margin-left: 20px;
+}
+
+.account-content h2+hr {
+  display: none;
+}
+
+.account-content h2+hr+div {
+  display: inline-block;
+}
+
+.account-content .form-account-info {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--tp-grey-2);
+}
+
+.flex-box-logout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.flex-box-logout:has(.logout-form) .profile-page-title {
+  margin-bottom: 0;
+}
+
+.address-personal-btn {
+  display: flex;
+  width: max-content;
+  gap: 6px;
+}
+
+.address-personal-btn svg {
+  color: currentColor;
+}
+
+.list-of-addresses {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.list-of-addresses li {
+  padding: 12px 15px;
+  border: 1px solid var(--tp-grey-3);
+  border-radius: 12px;
+  transition: .2s;
+  -webkit-transition: .2s;
+  -moz-transition: .2s;
+  -ms-transition: .2s;
+  -o-transition: .2s;
+}
+
+.list-of-addresses li:hover {
+  border-color: var(--primary-color);
+}
+
+.list-of-addresses li .action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: end;
+}
+
+.list-of-addresses .action a {
+  cursor: pointer;
+}
+
+.list-of-addresses .action .delete-button {
+  color: brown;
+}
+
+.list-of-addresses .action a svg {
+  color: currentColor;
+}
+
+.list-of-addresses .address-list h4 {
+  font-size: 18px;
+}
+
+.list-of-addresses .address-list h4+h4 {
+  font-size: 16px;
+  font-weight: normal;
+}
+
+.list-of-addresses .address-list p {
+  margin: 0;
+}
+
+.list-of-addresses .address-list a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+}
+
+.list-of-addresses .address-list a svg {
+  color: currentColor;
+}
+
+.head-table {
+  font-weight: 500;
+  font-size: 17px;
+}
+
+.body-table {
+  font-size: 16px;
+  border: 1px solid var(--tp-grey-3);
+  padding: 6px 16px;
+  border-radius: 8px;
+}

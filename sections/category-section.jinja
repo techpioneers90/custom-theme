@@ -1,0 +1,152 @@
+{% if not settings.hide_element %}
+<section class="tp-product-category s-block {% if settings.square_shape %} square-shape {% endif %} {% if settings.no_bg %} no-bg {% endif %}" section-id="{{ sectionId }}">
+	<style>
+		/* قبل ما Swiper يتهيأ، خفي الشرائح غير المرئية */
+		[section-id="{{ sectionId }}"] .tp-category-swiper:not(.swiper-initialized) .swiper-slide:not(:first-child) {
+			display: none;
+		}
+	</style>
+	
+	<div class="container">
+		<div class="tp-title-section">
+			{% if settings.small_subtitle %}
+				<span>{{ settings.small_subtitle }}</span>
+			{% endif %}
+			{% if settings.title %}
+				<h3>{{ settings.title }}</h3>
+			{% endif %}
+			{% if settings.small_text %}
+				<p>{{ settings.small_text }}</p>
+			{% endif %}
+		</div>
+
+		<div class="tp-category-swiper {% if settings.fixed_categories_on_mobile %}fixed-categories-mobile{% endif %} swiper-container">
+			<div class="swiper-wrapper">
+				{% if 'categories' in settings %}
+        {% set category_items = settings.categories %}
+        {% if category_items is callable %}
+            {% set category_items = category_items() %}
+        {% endif %}
+        {% else %}
+            {% set category_items = [] %}
+        {% endif %}
+        {% if category_items is not iterable %}
+            {% set category_items = [] %}
+        {% endif %}
+
+        {% for categoryItem in category_items %}
+					<div class="swiper-slide">
+						<div class="tp-product-category-item text-center">
+							<div class="tp-product-category-thumb fix">
+								<a href="/categories/{{ categoryItem.category.id }}/{{ categoryItem.category.slug }}" style="background: {{ settings.background_color }};">
+									<img loading="lazy" width="125" height="125" {% if categoryItem.category.image %} src="{{ image_url(categoryItem.category.image_full_size, { w: 400, q: 100, f:'auto' }) }}" {% else %} src="{{ image_url(asset_url ~ 'product-img.svg',{ w: 235, q: 100, f:'auto' }) }}" {% endif %} loading="lazy" alt="{{ categoryItem.category.name }}">
+								</a>
+							</div>
+							<div class="tp-product-category-content">
+								<h3 class="tp-product-category-title">
+									<a href="/categories/{{ categoryItem.category.id }}/{{ categoryItem.category.slug }}">{{ categoryItem.category.name }}</a>
+								</h3>
+								{% if categoryItem.sub_title %}
+									<p>{{ categoryItem.sub_title }}</p>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+			<div class="tp-slider-arrow tp-swiper-arrow">
+				<button type="button" class="tp-slider-button-next">
+					<svg width="8" height="14" viewbox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M7 13L1 7L7 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+				</button>
+				<button type="button" class="tp-slider-button-prev">
+					<svg width="8" height="14" viewbox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M1 13L7 7L1 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+				</button>
+			</div>
+		</div>
+
+
+		{% if settings.display_more and settings.more_text %}
+			<a class="href" href="/categories">{{ settings.more_text }}
+				<svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewbox="0 0 32 32">
+					<g fill="none" class="stroke-current" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10">
+						<circle class="arrow-icon--circle" cx="16" cy="16" r="15.12"></circle>
+						<path class="arrow-icon--arrow" d="M16.14 9.93L22.21 16l-6.07 6.07M8.23 16h13.98"></path>
+					</g>
+				</svg>
+			</a>
+		{% endif %}
+	</div>
+
+<script>
+  (function() {
+    function initSwiper() {
+      const isMobile = window.innerWidth <= 768;
+      const fixedMode = {{ 'true' if settings.fixed_categories_on_mobile else 'false' }};
+      if (!(isMobile && fixedMode)) {
+        var catgSlider = new Swiper('[section-id="{{ sectionId }}"] .tp-category-swiper', {
+          slidesPerView: "auto",
+          spaceBetween: 16,
+          freeMode: true,
+          autoplay: {
+            delay: 3000,
+          },
+          navigation: {
+            nextEl: '[section-id="{{ sectionId }}"] .tp-slider-button-next',
+            prevEl: '[section-id="{{ sectionId }}"] .tp-slider-button-prev',
+          },
+          breakpoints: {
+            0: {
+              spaceBetween: 10,
+            },
+            576: {
+              slidesPerView: "auto",
+              spaceBetween: 16,
+            },
+          },
+        });
+      }
+    }
+
+    if ('IntersectionObserver' in window) {
+      var section = document.querySelector('[section-id="{{ sectionId }}"]');
+      if (section) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              if (typeof Swiper !== 'undefined') {
+                initSwiper();
+                observer.unobserve(entry.target);
+              } else {
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', initSwiper);
+                } else {
+                  initSwiper();
+                }
+                observer.unobserve(entry.target);
+              }
+            }
+          });
+        }, {
+          rootMargin: '300px'
+        });
+        
+        observer.observe(section);
+      }
+    } else {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSwiper);
+      } else {
+        initSwiper();
+      }
+    }
+  })();
+</script>
+</section>
+{% endif %}
+
+
+

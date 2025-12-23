@@ -1,0 +1,70 @@
+{
+  "section_id": "uuid",
+  "template": "sections/home-faqs-section.jinja",
+  "icon": "fal fa-presentation",
+  "name": {
+    "ar": "الاسئلة الشائعة ",
+    "en": "Faqs"
+  },
+  "settings": [
+    {
+      "id": "hide_element",
+      "type": "checkbox",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "type": "text",
+      "id": "small_subtitle",
+      "label": {
+        "ar": "عنوان ترويجي",
+        "en": "Promotional title"
+      }
+    },
+    {
+      "type": "text",
+      "id": "details_title",
+      "label": {
+        "ar": "العنوان الرئيسي",
+        "en": "Title"
+      }
+    },
+    {
+      "type": "text",
+      "id": "details_desc",
+      "label": {
+        "ar": "نص إضافي",
+        "en": "Additional text"
+      }
+    },
+    {
+      "type": "list",
+      "id": "faqs_store_features",
+      "max_items": 100,
+      "label": {
+        "ar": "السؤال",
+        "en": "Question"
+      },
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "ar": "السؤال",
+            "en": "Question"
+          }
+        },
+        {
+          "type": "textarea",
+          "id": "answer",
+          "label": {
+            "ar": "الجواب",
+            "en": "Answer"
+          }
+        }
+      ]
+    }
+  ]
+}

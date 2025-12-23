@@ -1,0 +1,160 @@
+{% if not settings.hide_element %}
+<section class="tp-quick-links s-block" section-id="{{ sectionId }}">
+	<style>
+		/* قبل ما slick يتهيأ، خفي الشرائح غير المرئية */
+		[section-id="{{ sectionId }}"] .tp-quick-links-swiper:not(.slick-initialized) .swiper-slide:not(:first-child) {
+			display: none;
+		}
+	</style>
+	
+	<div class="container">
+  {% if settings.title %}
+		<div class="tp-title-section">
+			<h3>{{ settings.title }}</h3>
+		</div>
+  {% endif %}
+		<div class="tp-quick-links-swiper {% if settings.fixed_links_on_mobile %}fixed-links-mobile{% endif %}">
+			{% if 'quick_links' in settings %}
+      {% set quick_links = settings.quick_links %}
+      {% if quick_links is callable %}
+      {% set quick_links = quick_links() %}
+      {% endif %}
+      {% else %}
+      {% set quick_links = [] %}
+      {% endif %}
+      {% if quick_links is not iterable %}
+          {% set quick_links = [] %}
+      {% endif %}
+
+      {% for slide in quick_links %}
+					<div class="swiper-slide">
+						<a href="{% if slide.url %}{{ slide.url }}{% else %}javascript:;{% endif %}" aria-label="link">
+							<img loading="lazy" width="106" height="155" class="lazy-img" src="{{ image_url(slide.image) }}"  alt="">
+						</a>
+					</div>
+				{% endfor %}
+		</div>
+	</div>
+
+
+   <script>
+  (function() {
+    function initSlider() {
+      const isMobileView = window.innerWidth <= 768;
+      const fixedModeLinks = {{ 'true' if settings.fixed_links_on_mobile else 'false' }};
+      const arrowNextClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_right' : 'icon-keyboard_arrow_left';
+      const arrowPrevClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_left' : 'icon-keyboard_arrow_right';
+
+      if (!(isMobileView && fixedModeLinks)) {
+        const $slider = $('[section-id="{{ sectionId }}"] .tp-quick-links-swiper');
+
+        if ($slider.length && !$slider.hasClass('slick-initialized')) {
+          $slider.slick({
+            slidesToScroll: 13,
+            slidesToShow: 13,
+            infinite: true,
+            autoplay: {{ 'true' if settings.autoplay_enabled else 'false' }},
+            autoplaySpeed: 3000,
+            arrows: true,
+            dots: true,
+            rtl: !(window.appDirection === 'ltr'),
+            nextArrow: '<button class="slick-next slick-arrow" aria-label="Next" type="button"><span class="' + arrowNextClass + '"></span></button>',
+            prevArrow: '<button class="slick-prev slick-arrow" aria-label="Previous" type="button"><span class="' + arrowPrevClass + '"></span></button>',
+            responsive: [
+              {
+                breakpoint: 1300,
+                settings: {
+                  slidesToShow: 12,
+                  slidesToScroll: 12,
+                }
+              },
+              {
+                breakpoint: 1200,
+                settings: {
+                  slidesToShow: 11,
+                  slidesToScroll: 11,
+                }
+              },
+              {
+                breakpoint: 1024,
+                settings: {
+                  slidesToShow: 10,
+                  slidesToScroll: 10,
+                }
+              },
+              {
+                breakpoint: 992,
+                settings: {
+                  slidesToShow: 8,
+                  slidesToScroll: 8,
+                }
+              },
+              {
+                breakpoint: 768,
+                settings: {
+                  slidesToShow: 6,
+                  slidesToScroll: 6,
+                }
+              },
+              {
+                breakpoint: 576,
+                settings: {
+                  slidesToShow: 4,
+                  slidesToScroll: 4,
+                }
+              },
+              {
+                breakpoint: 355,
+                settings: {
+                  slidesToShow: 3,
+                  slidesToScroll: 3,
+                }
+              }
+            ]
+          });
+        }
+      }
+    }
+
+    if ('IntersectionObserver' in window) {
+      var section = document.querySelector('[section-id="{{ sectionId }}"]');
+      if (section) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+                initSlider();
+                observer.unobserve(entry.target);
+              } else {
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', initSlider);
+                } else {
+                  initSlider();
+                }
+                observer.unobserve(entry.target);
+              }
+            }
+          });
+        }, {
+          rootMargin: '300px'
+        });
+        
+        observer.observe(section);
+      }
+    } else {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSlider);
+      } else {
+        initSlider();
+      }
+    }
+  })();
+</script>
+
+
+</section>
+{% endif %}
+
+
+
+

@@ -1,0 +1,183 @@
+{% if not settings.hide_element %}
+<section class="tp-video s-block {% if settings.remove_transparent_layer %} remove-transparent-layer {% endif %}" section-id="{{ sectionId }}">
+	<div class="relative">
+		<video class="video-desktop" width="100%" loop autoplay muted playsinline preload="none" data-video-src="{{ settings.video }}">
+			<source type="video/mp4" data-src="{{ settings.video }}">
+			Your browser does not support the video tag.
+		</video>
+		{% if settings.video_mobile %}
+			<video class="video-mobile" width="100%" loop autoplay muted playsinline preload="none" data-video-src="{{ settings.video_mobile }}">
+				<source type="video/mp4" data-src="{{ settings.video_mobile }}">
+				Your browser does not support the video tag.
+			</video>
+		{% endif %}
+		{% if settings.title %}
+			<div class="box-text-info">
+				{% if settings.title %}
+					<h3>{{ settings.title }}
+						{% if settings.dynamic_words | length > 0 %}
+							<span id="typed-{{ sectionId }}" style="color:{{settings.text_word}}" class="element" data-elements="{% for word in settings.dynamic_words %}{{ word.word }}{% if not loop.last %}, {% endif %}{% endfor %}"></span>
+						{% endif %}
+					</h3>
+				{% endif %}
+				{% if settings.sub_title %}
+					<p>{{ settings.sub_title }}</p>
+				{% endif %}
+				{% if settings.btn_text %}
+					<a href="{% if settings.url %}{{ settings.url }}{% else %}javascript:;{% endif %}" class="tp-btn tp-btn-white">
+						{{ settings.btn_text }}
+					</a>
+				{% endif %}
+			</div>
+		{% endif %}
+	</div>
+	
+	<script>
+		// تحميل وتشغيل الفيديو تلقائياً عند الاقتراب من السكشن
+		(function() {
+			function loadAndPlayVideo(videoElement) {
+				if (!videoElement || videoElement.dataset.loaded === 'true') return;
+				
+				var source = videoElement.querySelector('source[data-src]');
+				if (source && !source.src) {
+					source.src = source.getAttribute('data-src');
+					videoElement.load();
+					videoElement.dataset.loaded = 'true';
+					
+					// بدء التشغيل التلقائي بعد تحميل الفيديو
+					var playVideo = function() {
+						videoElement.play().catch(function(error) {
+							// بعض المتصفحات قد ترفض autoplay، لا بأس
+							console.log('Autoplay prevented:', error);
+						});
+						videoElement.removeEventListener('canplay', playVideo);
+						videoElement.removeEventListener('loadeddata', playVideo);
+					};
+					
+					// إذا كان الفيديو جاهز بالفعل، شغله مباشرة
+					if (videoElement.readyState >= 3) {
+						playVideo();
+					} else {
+						// انتظر حتى يكون الفيديو جاهزاً للعب
+						videoElement.addEventListener('canplay', playVideo, { once: true });
+						videoElement.addEventListener('loadeddata', playVideo, { once: true });
+					}
+				}
+			}
+
+			function initVideoLoading() {
+				var section = document.querySelector('[section-id="{{ sectionId }}"]');
+				if (!section) return;
+				
+				var videos = section.querySelectorAll('video[data-video-src]');
+				if (videos.length === 0) return;
+
+				// تحقق إذا كان الفيديو في viewport من البداية
+				function checkIfInViewport(video) {
+					var rect = video.getBoundingClientRect();
+					var isVisible = rect.top < window.innerHeight + 100 && rect.bottom > -100;
+					return isVisible;
+				}
+
+				if ('IntersectionObserver' in window) {
+					var observer = new IntersectionObserver(function(entries) {
+						entries.forEach(function(entry) {
+							if (entry.isIntersecting) {
+								loadAndPlayVideo(entry.target);
+								observer.unobserve(entry.target);
+							}
+						});
+					}, {
+						rootMargin: '300px'
+					});
+					
+					videos.forEach(function(video) {
+						observer.observe(video);
+						
+						// تحقق فوراً إذا كان في viewport
+						if (checkIfInViewport(video)) {
+							setTimeout(function() {
+								loadAndPlayVideo(video);
+							}, 100);
+						}
+					});
+				} else {
+					// Fallback للمتصفحات القديمة
+					videos.forEach(function(video) {
+						if (checkIfInViewport(video)) {
+							loadAndPlayVideo(video);
+						}
+					});
+				}
+			}
+
+			// انتظر حتى يكون DOM جاهز
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', initVideoLoading);
+			} else {
+				// إذا كان DOM جاهز، انتظر قليلاً للتأكد من أن العناصر موجودة
+				setTimeout(initVideoLoading, 50);
+			}
+		})();
+	</script>
+
+	<script>
+		// تحميل وتهيئة typed.js فقط عند الحاجة
+		(function() {
+			var element = document.getElementById("typed-{{ sectionId }}");
+			if (!element) return;
+
+			function initTyped() {
+				// تحميل مكتبة typed.js ديناميكياً
+				if (typeof Typed === 'undefined') {
+					var script = document.createElement('script');
+					script.src = 'https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.8/typed.min.js';
+					script.onload = function() {
+						startTyped();
+					};
+					document.head.appendChild(script);
+				} else {
+					startTyped();
+				}
+			}
+
+			function startTyped() {
+				var strings = element.getAttribute("data-elements").split(",");
+				var options = {
+					strings: strings,
+					typeSpeed: 100,
+					backSpeed: 100,
+					backDelay: 1000,
+					loop: true
+				};
+				new Typed(element, options);
+			}
+
+			// تهيئة typed.js فقط عند ظهور العنصر
+			if ('IntersectionObserver' in window) {
+				var observer = new IntersectionObserver(function(entries) {
+					entries.forEach(function(entry) {
+						if (entry.isIntersecting) {
+							initTyped();
+							observer.unobserve(entry.target);
+						}
+					});
+				}, {
+					rootMargin: '300px'
+				});
+				
+				observer.observe(element);
+			} else {
+				// Fallback للمتصفحات القديمة
+				if (document.readyState === 'loading') {
+					document.addEventListener('DOMContentLoaded', initTyped);
+				} else {
+					initTyped();
+				}
+			}
+		})();
+	</script>
+</section>
+{% endif %}
+
+

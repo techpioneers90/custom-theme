@@ -1,0 +1,67 @@
+
+  <section class="tp-brands-style-2 s-block {% if settings.show_in_app_only %}d-none{% endif %}" section-id="{{ sectionId }}">
+    <div class="container">
+        <div class="tp-title-section">
+          {% if settings.small_subtitle %}
+            <span>{{ settings.small_subtitle }}</span>
+          {% endif %}
+          {% if settings.title %}
+            <h3 >{{ settings.title }}</h3>
+          {% endif %}
+          {% if settings.desc %}
+            <p >{{ settings.desc }}</p>
+          {% endif %}
+        </div>
+
+        {% if 'store_partners' in settings %}
+          {% set store_partners = settings.store_partners %}
+          {% if store_partners is callable %}
+            {% set store_partners = store_partners() %}
+          {% endif %}
+        {% else %}
+          {% set store_partners = [] %}
+        {% endif %}
+        {% if store_partners is not iterable %}
+            {% set store_partners = [] %}
+        {% endif %}
+      <div class="brands-style-box">
+        <div class="animated-brands--marquee">
+          <div class="marquee__group">
+          {% for brand in store_partners %}
+            <a href="{% if brand.url %}{{ brand.url }}{% else %}javascript:;{% endif %}" aria-label="brand">
+                <img loading="lazy" width="80" height="80" class="lazy-img" src="{{ image_url(brand.image) }}"  alt="brand">
+            </a>
+          {% endfor %}
+          </div>
+          <div class="marquee__group">
+          {% for brand in store_partners %}
+            <a href="{% if brand.url %}{{ brand.url }}{% else %}javascript:;{% endif %}" aria-label="brand">
+                <img loading="lazy" width="80" height="80" class="lazy-img" src="{{ image_url(brand.image) }}"  alt="brand">
+            </a>
+          {% endfor %}
+          </div>
+        </div>
+        {% if not settings.reverse_duplication %}
+          <div class="animated-brands--marquee" >
+            <div class="marquee__group">
+            {% for brand in store_partners %}
+              <a href="{% if brand.url %}{{ brand.url }}{% else %}javascript:;{% endif %}" aria-label="brand">
+                  <img loading="lazy" width="80" height="80" class="lazy-img" src="{{ image_url(brand.image) }}"  alt="brand">
+              </a>
+            {% endfor %}
+            </div>
+            <div class="marquee__group">
+            {% for brand in store_partners %}
+              <a href="{% if brand.url %}{{ brand.url }}{% else %}javascript:;{% endif %}" aria-label="brand">
+                  <img loading="lazy" width="80" height="80" class="lazy-img" src="{{ image_url(brand.image) }}"  alt="brand">
+              </a>
+            {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section> 
+
+
+

@@ -1,0 +1,331 @@
+{% if not settings.hide_element %}
+<section class="tp-banner-with-products s-block" section-id="{{ sectionId }}">
+	<style>
+		/* قبل ما slick يتهيأ، خفي الشرائح غير المرئية */
+		[section-id="{{ sectionId }}"] .tp-products-box-swiper:not(.slick-initialized) .swiper-slide:not(:first-child) {
+			display: none;
+		}
+	</style>
+	
+	<div class="container">
+    <div class="banner-products {% if settings.reverse_box %} reverse-box {% endif %}">
+      <div class="banner-info">
+        {% if settings.video and settings.image %}
+          <video width="350" height="450" loop autoplay muted playsinline preload="none" title="video" data-video-src="{{ settings.video }}">
+            <source type="video/mp4" data-src="{{ settings.video }}">
+            Your browser does not support the video tag.
+          </video>
+        {% elif settings.image %}
+          <img 
+            loading="lazy" 
+            width="350" 
+            height="450" 
+            class="lazy-img" 
+            src="{{ settings.image }}" 
+            alt="image"
+            fetchpriority="auto">
+        {% elif settings.video %}
+          <video width="350" height="450" loop autoplay muted playsinline preload="none" title="video" data-video-src="{{ settings.video }}">
+            <source type="video/mp4" data-src="{{ settings.video }}">
+            Your browser does not support the video tag.
+          </video>
+        {% endif %}
+        {% if settings.title or settings.btn_text %}
+          <div class="box-text-info">
+            {% if settings.title %}
+              <h3>{{settings.title}}</h3>
+            {% endif %}
+            {% if settings.des %}
+              <p>{{settings.des}}</p>
+            {% endif %}
+            {% if settings.date %}
+              <div class="tp-countdown-banner" data-date="{{settings.date}}">
+                <ul>
+                  <li>
+                    <span class="seconds">0</span>
+                    {{ _("S") }}
+                  </li>
+                  <li>
+                    <span class="minutes">0</span>
+                    {{ _("M") }}
+                  </li>
+                  <li>
+                    <span class="hours">0</span>
+                    {{ _("H") }}
+                  </li>
+                  <li>
+                    <span class="days">0</span>
+                    {{ _("D") }}
+                  </li>
+                </ul>
+              </div>
+            {% endif %}
+            {% if settings.btn_text %}
+              <a href="{% if settings.url %}{{ settings.url }}{% else %}javascript:;{% endif %}" class="tp-btn tp-btn-white-outline">{{settings.btn_text}}</a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+      {% set limit = (settings.product_limit|default(6)|int) %}
+      {% if limit < 1 %}{% set limit = 6 %}{% endif %}
+
+      <div class="tp-products-box" >
+        <div class="tp-products-box-swiper">
+              {% if settings.products and settings.products.results %}
+                {% for product in settings.products.results[:limit] %}
+								  <div class="swiper-slide">
+                    {% set index=loop.index0 %}{% include 'components/product-card.jinja' %}
+                  </div>
+								{% endfor %}
+              {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <script>
+  (function() {
+    // تهيئة السلايدر فقط عندما يكون مرئياً
+    function initSlider() {
+      var arrowNextClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_right' : 'icon-keyboard_arrow_left';
+      var arrowPrevClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_left' : 'icon-keyboard_arrow_right';
+
+      document.querySelectorAll('[section-id="{{ sectionId }}"] .tp-products-box-swiper').forEach(function(slider){
+        var $slider = $(slider);
+
+        if (!$slider.hasClass('slick-initialized')) {
+          $slider.slick({
+            slidesToScroll: 4,
+            slidesToShow: 4,
+            infinite: false,
+            autoplay: true,
+            autoplaySpeed: 3000,
+            arrows: true,
+            dots: false,
+            rtl: !(window.appDirection === 'ltr'),
+            nextArrow: '<button class="slick-next slick-arrow" aria-label="Next" type="button"><span class="'+arrowNextClass+'"></span></button>',
+            prevArrow: '<button class="slick-prev slick-arrow" aria-label="Previous" type="button"><span class="'+arrowPrevClass+'"></span></button>',
+            responsive: [
+              {
+                breakpoint: 1200,
+                settings: { slidesToShow: 3, slidesToScroll: 3 }
+              },
+              {
+                breakpoint: 992,
+                settings: { slidesToShow: 4, slidesToScroll: 4 }
+              },
+              {
+                breakpoint: 768,
+                settings: { slidesToShow: 3, slidesToScroll: 3 }
+              },
+              {
+                breakpoint: 450,
+                settings: { slidesToShow: 2, slidesToScroll: 2 }
+              },
+              {
+                breakpoint: 350,
+                settings: { slidesToShow: 1, slidesToScroll: 1 }
+              }
+            ]
+          });
+        }
+      });
+    }
+
+    // استخدام IntersectionObserver لتهيئة السلايدر فقط عند ظهوره
+    if ('IntersectionObserver' in window) {
+      var section = document.querySelector('[section-id="{{ sectionId }}"]');
+      if (section) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+                initSlider();
+                observer.unobserve(entry.target);
+              } else {
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', initSlider);
+                } else {
+                  initSlider();
+                }
+                observer.unobserve(entry.target);
+              }
+            }
+          });
+        }, {
+          rootMargin: '300px'
+        });
+        
+        observer.observe(section);
+      }
+    } else {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSlider);
+      } else {
+        initSlider();
+      }
+    }
+  })();
+</script>
+
+
+  
+  <script>
+    (function() {
+      // تهيئة العدّاد فقط عند ظهوره
+      function initCountdown(countdown) {
+        const targetDate = countdown.getAttribute('data-date');
+        if (!targetDate) return;
+        
+        const endDate = new Date(targetDate.split('/').reverse().join('/')).getTime();
+        const interval = setInterval(function() {
+          const now = new Date().getTime();
+          const distance = endDate - now;
+
+          const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+          const daysEl = countdown.querySelector('.days');
+          const hoursEl = countdown.querySelector('.hours');
+          const minutesEl = countdown.querySelector('.minutes');
+          const secondsEl = countdown.querySelector('.seconds');
+
+          if (daysEl) daysEl.textContent = days;
+          if (hoursEl) hoursEl.textContent = hours;
+          if (minutesEl) minutesEl.textContent = minutes;
+          if (secondsEl) secondsEl.textContent = seconds;
+
+          if (distance < 0) {
+            clearInterval(interval);
+            countdown.remove();
+          }
+        }, 1000);
+      }
+
+      // استخدام IntersectionObserver لتهيئة العدّاد فقط عند ظهوره
+      if ('IntersectionObserver' in window) {
+        const countdowns = document.querySelectorAll('[section-id="{{ sectionId }}"] .tp-countdown-banner');
+        if (countdowns.length > 0) {
+          const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+              if (entry.isIntersecting) {
+                initCountdown(entry.target);
+                observer.unobserve(entry.target);
+              }
+            });
+          }, {
+            rootMargin: '300px'
+          });
+
+          countdowns.forEach(function(countdown) {
+            observer.observe(countdown);
+          });
+        }
+      } else {
+        // Fallback للمتصفحات القديمة
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function() {
+            const countdowns = document.querySelectorAll('[section-id="{{ sectionId }}"] .tp-countdown-banner');
+            countdowns.forEach(initCountdown);
+          });
+        } else {
+          const countdowns = document.querySelectorAll('[section-id="{{ sectionId }}"] .tp-countdown-banner');
+          countdowns.forEach(initCountdown);
+        }
+      }
+    })();
+  </script>
+
+  <script>
+    // تحميل وتشغيل الفيديو تلقائياً عند الاقتراب من السكشن
+    (function() {
+      function loadAndPlayVideo(videoElement) {
+        if (!videoElement || videoElement.dataset.loaded === 'true') return;
+        
+        var source = videoElement.querySelector('source[data-src]');
+        if (source && !source.src) {
+          source.src = source.getAttribute('data-src');
+          videoElement.load();
+          videoElement.dataset.loaded = 'true';
+          
+          // بدء التشغيل التلقائي بعد تحميل الفيديو
+          var playVideo = function() {
+            videoElement.play().catch(function(error) {
+              // بعض المتصفحات قد ترفض autoplay، لا بأس
+              console.log('Autoplay prevented:', error);
+            });
+            videoElement.removeEventListener('canplay', playVideo);
+            videoElement.removeEventListener('loadeddata', playVideo);
+          };
+          
+          // إذا كان الفيديو جاهز بالفعل، شغله مباشرة
+          if (videoElement.readyState >= 3) {
+            playVideo();
+          } else {
+            // انتظر حتى يكون الفيديو جاهزاً للعب
+            videoElement.addEventListener('canplay', playVideo, { once: true });
+            videoElement.addEventListener('loadeddata', playVideo, { once: true });
+          }
+        }
+      }
+
+      function initVideoLoading() {
+        var section = document.querySelector('[section-id="{{ sectionId }}"]');
+        if (!section) return;
+        
+        var video = section.querySelector('video[data-video-src]');
+        if (!video) return;
+
+        // تحقق إذا كان الفيديو في viewport من البداية
+        function checkIfInViewport() {
+          var rect = video.getBoundingClientRect();
+          var isVisible = rect.top < window.innerHeight + 100 && rect.bottom > -100;
+          return isVisible;
+        }
+
+        if ('IntersectionObserver' in window) {
+          var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+              if (entry.isIntersecting) {
+                loadAndPlayVideo(entry.target);
+                observer.unobserve(entry.target);
+              }
+            });
+          }, {
+            rootMargin: '300px'
+          });
+          
+          observer.observe(video);
+          
+          // تحقق فوراً إذا كان في viewport
+          if (checkIfInViewport()) {
+            setTimeout(function() {
+              loadAndPlayVideo(video);
+            }, 100);
+          }
+        } else {
+          // Fallback للمتصفحات القديمة
+          if (checkIfInViewport()) {
+            loadAndPlayVideo(video);
+          }
+        }
+      }
+
+      // انتظر حتى يكون DOM جاهز
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initVideoLoading);
+      } else {
+        // إذا كان DOM جاهز، انتظر قليلاً للتأكد من أن العناصر موجودة
+        setTimeout(initVideoLoading, 50);
+      }
+    })();
+  </script>
+</section>
+{% endif %}
+
+
+
+

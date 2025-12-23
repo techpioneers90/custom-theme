@@ -1,0 +1,155 @@
+  {% if not settings.hide_element %}
+  <section class="tp-points-products s-block" section-id="{{ sectionId }}">
+    <div class="container">
+        <div class="tp-title-section">
+          {% if settings.small_subtitle %}
+            <span>{{ settings.small_subtitle }}</span>
+          {% endif %}
+          {% if settings.title %}
+            <h3 >{{ settings.title }}</h3>
+          {% endif %}
+          {% if settings.small_text %}
+            <p>{{ settings.small_text }}</p>
+          {% endif %}
+        </div>
+
+{% if 'products_list' in settings %}
+  {% set products_list = settings.products_list %}
+  {% if products_list is callable %}
+    {% set products_list = products_list() %}
+  {% endif %}
+{% else %}
+  {% set products_list = [] %}
+{% endif %}
+        {% if products_list is not iterable %}
+            {% set products_list = [] %}
+        {% endif %}
+
+      <div class="dot-banner-image-wrapper">
+      <img loading="lazy" width="1200" height="550" class="banner-image lazy-img" src="{{ image_url(settings.image) }}"  alt="img">
+        {% for point in products_list %}
+        <div class="banner-dot--elem" style="top: {{ point.from_top }}%;right: {{ point.from_right }}%;">
+          <div class="dot-btn">
+            <svg class="z-30 rounded-full" xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 0 24 24"
+              width="16">
+              <path d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+            </svg>
+          </div>
+          <div class="banner-dot-popover">
+            <a href="/products/{{ point.product.slug }}">
+              {% if point.product.images and point.product.images|length > 0 %}
+              <img loading="lazy" width="60" height="60" class="lazy-img" src="{{ point.product.images[0]['image']['large'] }}" alt="">
+              {% endif %}
+              <div class="popover-content">
+                <h3>{{ point.product.name | safe }}</h3>
+                {% if point.product.formatted_sale_price is not none %}
+								<p>
+                  <span>{{ point.product.formatted_price }}</span>
+                  <em>
+                  {{ point.product.formatted_sale_price }}
+                  </em>
+                </p>
+								{% else %}
+									<p>
+                  {{ point.product.formatted_price }}
+                  </p>
+								{% endif %}
+              </div>
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+        <div class="image-indecator">
+          <span>{{ _("Current position, from top") }}: <strong class="from-top">0</strong>%</span>
+          <span>{{ _("From right") }}: <strong class="from-right">0</strong>%</span>
+        </div>
+      </div>
+    </div>
+      <script>
+  (function() {
+    function initPointsProducts() {
+      const section = document.querySelector('[section-id="{{ sectionId }}"]');
+      if (!section) return;
+      
+      const wrapper = section.querySelector('.dot-banner-image-wrapper');
+      const imageIndicator = section.querySelector('.image-indecator');
+      if (!wrapper || !imageIndicator) return;
+
+      function updatePopovers() {
+        const wrapperOffset = wrapper.getBoundingClientRect();
+        const wrapperWidth = wrapper.offsetWidth;
+
+        section.querySelectorAll('.banner-dot--elem').forEach(function (dot) {
+          const popover = dot.querySelector('.banner-dot-popover');
+          if (!popover) return;
+          
+          const dotOffset = dot.getBoundingClientRect();
+          const dotLeft = dotOffset.left - wrapperOffset.left;
+          const dotRight = wrapperWidth - (dotLeft + dot.offsetWidth);
+          const dotTop = dotOffset.top - wrapperOffset.top;
+          popover.classList.remove('show-below', 'show-above', 'show-left', 'show-right');
+          if (dotTop < 150) {
+            popover.classList.add('show-below');
+          } else {
+            popover.classList.add('show-above');
+          }
+
+          if (dotRight > 150) {
+            popover.classList.add('show-right');
+          }
+        });
+      }
+
+      updatePopovers();
+
+      wrapper.addEventListener('mousemove', function (event) {
+        const wrapperOffset = wrapper.getBoundingClientRect();
+        const wrapperWidth = wrapper.offsetWidth;
+        const wrapperHeight = wrapper.offsetHeight;
+
+        const dotX = event.clientX - wrapperOffset.left;
+        const dotY = event.clientY - wrapperOffset.top;
+
+        const fromTop = (dotY / wrapperHeight) * 100;
+        const fromRight = ((wrapperWidth - dotX) / wrapperWidth) * 100;
+
+        const fromTopEl = imageIndicator.querySelector('.from-top');
+        const fromRightEl = imageIndicator.querySelector('.from-right');
+        if (fromTopEl) fromTopEl.textContent = Math.round(fromTop);
+        if (fromRightEl) fromRightEl.textContent = Math.round(fromRight);
+
+        updatePopovers();
+      });
+    }
+
+    if ('IntersectionObserver' in window) {
+      var section = document.querySelector('[section-id="{{ sectionId }}"]');
+      if (section) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              initPointsProducts();
+              observer.unobserve(entry.target);
+            }
+          });
+        }, {
+          rootMargin: '300px'
+        });
+        
+        observer.observe(section);
+      }
+    } else {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPointsProducts);
+      } else {
+        initPointsProducts();
+      }
+    }
+  })();
+  </script>
+  </section>
+{% endif %}
+
+
+

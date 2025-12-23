@@ -1,0 +1,64 @@
+{
+  "section_id": "uuid",
+  "template": "sections/video-with-products.jinja",
+  "icon": "fal fa-presentation",
+  "name": {
+    "ar": "فيديو ومنتجات",
+    "en": "Video with Products"
+  },
+  "display": true,
+  "settings": [
+    {
+      "id": "hide_element",
+      "type": "checkbox",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "id": "reverse_box",
+      "type": "checkbox",
+      "label": {
+        "ar": "عرض الفيديو على اليسار",
+        "en": "Display video on the left"
+      }
+    },
+    {
+      "id": "small_subtitle",
+      "type": "text",
+      "label": {
+        "ar": "عنوان ترويجي",
+        "en": "Promotional title"
+      }
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "label": {
+        "ar": "العنوان الرئيسي",
+        "en": "Title"
+      }
+    },
+    {
+      "id": "products",
+      "type": "products",
+      "label": {
+        "ar": "اختر قائمة المنتجات",
+        "en": "Select category products"
+      }
+    },
+    {
+      "id": "video",
+      "type": "video",
+      "label": {
+        "ar": "الفيديو",
+        "en": "Video"
+      },
+      "info": {
+        "ar": "مقاس الفيديو 727 عرض × 1000 طول",
+        "en": "Video size: 727 width × 1000 height"
+      }
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "section_id": "uuid",
+  "template": "sections/category-section.jinja",
+  "icon": "fal fa-cabinet-filing",
+  "name": {
+    "ar": "التصنيفات",
+    "en": "categories"
+  },
+  "settings": [
+    {
+      "id": "hide_element",
+      "type": "checkbox",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "id": "small_subtitle",
+      "type": "text",
+      "label": {
+        "ar": "عنوان ترويجي",
+        "en": "Promotional title"
+      }
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "label": {
+        "ar": "العنوان الرئيسي",
+        "en": "title"
+      }
+    },
+    {
+      "id": "small_text",
+      "type": "text",
+      "label": {
+        "ar": "نص اضافي",
+        "en": "additional text"
+      }
+    },
+    {
+      "id": "fixed_categories_on_mobile",
+      "type": "checkbox",
+      "label": {
+        "ar": "إظهار التصنيفات ثابتة في الجوال",
+        "en": "Show categories fixed on mobile"
+      }
+    },
+    {
+      "id": "square_shape",
+      "type": "checkbox",
+      "label": {
+        "ar": "شكل مربع",
+        "en": "Square shape"
+      }
+    },
+    {
+      "id": "no_bg",
+      "type": "checkbox",
+      "label": {
+        "ar": "بدون خلفية",
+        "en": "without background"
+      }
+    },
+    {
+      "id": "background_color",
+      "type": "color",
+      "label": {
+        "ar": "لون الخلفية",
+        "en": "background color"
+      }
+    },
+    {
+      "id": "categories",
+      "type": "list",
+      "label": {
+        "ar": "التصنيف",
+        "en": "category"
+      },
+      "max_items": 100,
+      "settings": [
+        {
+          "id": "category",
+          "type": "category",
+          "label": {
+            "ar": "اختر التصنيف",
+            "en": "Select category"
+          }
+        }
+      ]
+    },
+    {
+      "id": "display_more",
+      "type": "checkbox",
+      "label": {
+        "ar": "عرض زر جميع التصنيفات",
+        "en": "Display button more products"
+      }
+    },
+    {
+      "id": "more_text",
+      "type": "text",
+      "label": {
+        "ar": "نص زر جميع التصنيفات",
+        "en": "More text"
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{% if not settings.hide_element %}
+<section class="tp-bar" style="background: {{ settings.background_color }};" section-id="{{ sectionId }}">
+  <div class="tp-mask">
+    <div class="tp-marquee">
+      {% if 'advertisement_bar' in settings %}
+      {% set ads = settings.advertisement_bar %}
+      {% if ads is callable %}
+      {% set ads = ads() %}
+      {% endif %}
+      {% else %}
+      {% set ads = [] %}
+      {% endif %}
+      {% if ads is not iterable %}
+      {% set ads = [] %}
+      {% endif %}
+
+      {% for advertisement in ads %}
+      <a href="{% if advertisement.url %}{{ advertisement.url }}{% else %}javascript:;{% endif %}"
+        style="color: {{ advertisement.text_color }};">
+        {% if advertisement.image %}
+        <img loading="lazy" width="26" height="26" class="lazy-img" src="{{ image_url(advertisement.image) }}" alt="">
+        {% endif %}
+        {{ advertisement.title }}
+      </a>
+      {% endfor %}
+    </div>
+    <div class="tp-marquee">
+      {% for advertisement in ads %}
+      <a href="{% if advertisement.url %}{{ advertisement.url }}{% else %}javascript:;{% endif %}"
+        style="color: {{ advertisement.text_color }};">
+        {% if advertisement.image %}
+        <img loading="lazy" width="26" height="26" class="lazy-img" src="{{ image_url(advertisement.image) }}" alt="">
+        {% endif %}
+        {{ advertisement.title }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}

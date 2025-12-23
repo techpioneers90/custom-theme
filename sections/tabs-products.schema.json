@@ -1,0 +1,182 @@
+{
+  "section_id": "uuid",
+  "template": "sections/tabs-products.jinja",
+  "icon": "fal fa-box",
+  "name": {
+    "ar": "منتجات بتبويبات",
+    "en": "Tabbed Products"
+  },
+  "display": true,
+  "settings": [
+    {
+      "id": "hide_element",
+      "type": "checkbox",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "id": "autoplay_enabled",
+      "type": "checkbox",
+      "label": {
+        "ar": "تشغيل التحريك التلقائي",
+        "en": "Enable autoplay"
+      }
+    },
+    {
+      "id": "product_limit",
+      "type": "select",
+      "label": {
+        "ar": "الحد الأقصى للمنتجات",
+        "en": "Maximum number of products"
+      },
+      "options": [
+        { "value": "5", "label": { "ar": "٥ منتجات", "en": "5 Products" } },
+        { "value": "6", "label": { "ar": "٦ منتجات", "en": "6 Products" } },
+        { "value": "8", "label": { "ar": "٨ منتجات", "en": "8 Products" } },
+        { "value": "12", "label": { "ar": "١٢ منتج", "en": "12 Products" } },
+        { "value": "16", "label": { "ar": "١٦ منتج", "en": "16 Products" } },
+        { "value": "20", "label": { "ar": "٢٠ منتج", "en": "20 Products" } },
+        { "value": "24", "label": { "ar": "٢٤ منتج", "en": "24 Products" } }
+      ]
+    },
+    {
+      "id": "items_xl",
+      "type": "select",
+      "label": {
+        "ar": "عدد العناصر - شاشات كبيرة جدًا",
+        "en": "Items - Extra Large (≥1200px)"
+      },
+      "options": [
+        { "value": "6", "label": { "ar": "٦", "en": "6" } },
+        { "value": "5", "label": { "ar": "٥", "en": "5" } },
+        { "value": "4", "label": { "ar": "٤", "en": "4" } },
+        { "value": "3", "label": { "ar": "٣", "en": "3" } },
+        { "value": "2", "label": { "ar": "٢", "en": "2" } },
+        { "value": "1", "label": { "ar": "١", "en": "1" } }
+      ]
+    },
+    {
+      "id": "items_lg",
+      "type": "select",
+      "label": {
+        "ar": "عدد العناصر - شاشات كبيرة",
+        "en": "Items - Large (≥1024px)"
+      },
+      "options": [
+        { "value": "5", "label": { "ar": "٥", "en": "5" } },
+        { "value": "4", "label": { "ar": "٤", "en": "4" } },
+        { "value": "3", "label": { "ar": "٣", "en": "3" } },
+        { "value": "2", "label": { "ar": "٢", "en": "2" } },
+        { "value": "1", "label": { "ar": "١", "en": "1" } }
+      ]
+    },
+    {
+      "id": "items_md",
+      "type": "select",
+      "label": {
+        "ar": "عدد العناصر - شاشات متوسطة",
+        "en": "Items - Medium (≥768px)"
+      },
+      "options": [
+        { "value": "4", "label": { "ar": "٤", "en": "4" } },
+        { "value": "3", "label": { "ar": "٣", "en": "3" } },
+        { "value": "2", "label": { "ar": "٢", "en": "2" } },
+        { "value": "1", "label": { "ar": "١", "en": "1" } }
+      ]
+    },
+    {
+      "id": "items_sm",
+      "type": "select",
+      "label": {
+        "ar": "عدد العناصر - شاشات صغيرة",
+        "en": "Items - Small (≥450px)"
+      },
+      "options": [
+        { "value": "3", "label": { "ar": "٣", "en": "3" } },
+        { "value": "2", "label": { "ar": "٢", "en": "2" } },
+        { "value": "1", "label": { "ar": "١", "en": "1" } }
+      ]
+    },
+    {
+      "id": "items_xs",
+      "type": "select",
+      "label": {
+        "ar": "عدد العناصر - شاشات صغيرة جدًا",
+        "en": "Items - Extra Small (≥350px)"
+      },
+      "options": [
+        { "value": "2", "label": { "ar": "٢", "en": "2" } },
+        { "value": "1", "label": { "ar": "١", "en": "1" } }
+      ]
+    },
+    {
+      "id": "background_color",
+      "type": "color",
+      "label": {
+        "ar": "لون الخلفية",
+        "en": "Background color"
+      }
+    },
+    {
+      "id": "text_color",
+      "type": "color",
+      "label": {
+        "ar": "لون النص",
+        "en": "Text color"
+      }
+    },
+    {
+      "id": "small_subtitle",
+      "type": "text",
+      "label": {
+        "ar": "عنوان ترويجي",
+        "en": "Promotional Title"
+      }
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "label": {
+        "ar": "العنوان الرئيسي",
+        "en": "Main Title"
+      }
+    },
+    {
+      "id": "small_text",
+      "type": "text",
+      "label": {
+        "ar": "نص إضافي",
+        "en": "Additional Text"
+      }
+    },
+    {
+      "id": "tabs",
+      "type": "list",
+      "label": {
+        "ar": "التبويبات",
+        "en": "Tabs"
+      },
+      "max_items": 100,
+      "settings": [
+        {
+          "id": "label",
+          "type": "text",
+          "label": {
+            "ar": "اسم التبويب",
+            "en": "Tab Label"
+          }
+        },
+        {
+          "id": "category",
+          "type": "category_products",
+          "label": {
+            "ar": "منتجات التبويب",
+            "en": "Tab Products"
+          }
+        }
+      ]
+    }
+  ]
+}

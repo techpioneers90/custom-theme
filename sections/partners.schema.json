@@ -1,0 +1,82 @@
+{
+  "section_id": "uuid",
+  "template": "sections/partners.jinja",
+  "icon": "fal fa-sparkles",
+  "name": {
+    "ar": "ماركات شكل 2 | تطبيق عناقيد",
+    "en": "Brands style 2 | Bunches App"
+  },
+  "settings": [
+    {
+      "id": "show_in_app_only",
+      "type": "checkbox",
+      "label": {
+        "ar": "إظهار في التطبيق فقط",
+        "en": "Show in app only"
+      }
+    },
+    {
+      "id": "small_subtitle",
+      "type": "text",
+      "label": {
+        "ar": "عنوان ترويجي",
+        "en": "Promotional title"
+      }
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "label": {
+        "ar": "العنوان الرئيسي",
+        "en": "Title"
+      }
+    },
+    {
+      "id": "desc",
+      "type": "text",
+      "label": {
+        "ar": "نص اضافي",
+        "en": "Additional text"
+      }
+    },
+    {
+      "id": "reverse_duplication",
+      "type": "checkbox",
+      "label": {
+        "ar": "إلغاء تكرار العنصر",
+        "en": "Cancel reverse item"
+      }
+    },
+    {
+      "id": "store_partners",
+      "type": "list",
+      "max_items": 100,
+      "label": {
+        "ar": "الصورة",
+        "en": "Picture"
+      },
+      "settings": [
+        {
+          "id": "image",
+          "type": "image",
+          "label": {
+            "ar": "الصورة",
+            "en": "Image"
+          },
+          "info": {
+            "ar": "مقاس الصورة 100 عرض * 100 طول",
+            "en": "Image size: 100 width * 100 height"
+          }
+        },
+        {
+          "id": "url",
+          "type": "url",
+          "label": {
+            "ar": "الرابط",
+            "en": "Link"
+          }
+        }
+      ]
+    }
+  ]
+}

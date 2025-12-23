@@ -1,0 +1,95 @@
+{
+  "section_id": "uuid",
+  "template": "sections/videos-story.jinja",
+  "icon": "fa fa-play",
+  "name": {
+    "ar": "عناصر فيديوهات",
+    "en": "Videos Items"
+  },
+  "display": true,
+  "settings": [
+    {
+      "id": "hide_element",
+      "type": "checkbox",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "id": "background_color",
+      "type": "color",
+      "label": {
+        "ar": "لون الخلفية",
+        "en": "Background color"
+      }
+    },
+    {
+      "id": "text_color",
+      "type": "color",
+      "label": {
+        "ar": "لون النص",
+        "en": "Text color"
+      }
+    },
+    {
+      "id": "small_subtitle",
+      "type": "text",
+      "label": {
+        "ar": "عنوان ترويجي",
+        "en": "Promotional title"
+      }
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "label": {
+        "ar": "العنوان الرئيسي",
+        "en": "Title"
+      }
+    },
+    {
+      "id": "small_text",
+      "type": "text",
+      "label": {
+        "ar": "نص إضافي",
+        "en": "Additional text"
+      }
+    },
+    {
+      "id": "videos",
+      "type": "list",
+      "label": {
+        "ar": "الفيديو",
+        "en": "Videos"
+      },
+      "max_items": 100,
+      "settings": [
+        {
+          "id": "poster",
+          "type": "image",
+          "label": {
+            "ar": "صورة الغلاف",
+            "en": "Cover image"
+          }
+        },
+        {
+          "id": "url",
+          "type": "text",
+          "label": {
+            "ar": "رابط الفيديو",
+            "en": "Video URL"
+          }
+        },
+        {
+          "id": "video",
+          "type": "video",
+          "label": {
+            "ar": "الفيديو",
+            "en": "Video"
+          }
+        }
+      ]
+    }
+  ]
+}

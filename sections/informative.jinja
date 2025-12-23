@@ -1,0 +1,65 @@
+{% if not settings.hide_element %}
+<section class="tp-informative-container s-block" section-id="{{ sectionId }}">
+	<div class="container">
+        <div class="tp-title-section">
+          {% if settings.small_subtitle %}
+            <span>{{ settings.small_subtitle }}</span>
+          {% endif %}
+          {% if settings.title %}
+            <h3 >{{ settings.title }}</h3>
+          {% endif %}
+          {% if settings.small_text %}
+            <p >{{ settings.small_text }}</p>
+          {% endif %}
+        </div>
+
+        {% if 'informative_box' in settings %}
+        {% set informative_box = settings.informative_box %}
+        {% if informative_box is callable %}
+            {% set informative_box = informative_box() %}
+        {% endif %}
+        {% else %}
+            {% set informative_box = [] %}
+        {% endif %}
+          {% if informative_box is not iterable %}
+            {% set informative_box = [] %}
+        {% endif %}
+
+        {% set right_items = informative_box[:4] %}
+{% set left_items = informative_box[4:8] %}
+
+		<div class="tp-informative">
+			<div class="right-section">
+				{% for item in right_items %}
+					<a href="{% if item.url %}{{ item.url }}{% else %}javascript:;{% endif %}" class="informative-box" >
+						<div class="informative-text">
+							<h3>{{ item.title }}</h3>
+							<p>{{ item.description }}</p>
+						</div>
+						<img loading="lazy" width="80" height="80" class="lazy-img" src="{{ item.image }}" alt="{{ item.title }}" >
+					</a>
+				{% endfor %}
+			</div>
+
+			<div class="center-image">
+				<img loading="lazy" width="300" height="500" class="lazy-img" src="{{ settings.main_image }}" alt="" >
+			</div>
+
+			<div class="left-section">
+				{% for item in left_items %}
+					<a href="{% if item.url %}{{ item.url }}{% else %}javascript:;{% endif %}" class="informative-box" >
+						<div class="informative-text">
+							<h3>{{ item.title }}</h3>
+							<p>{{ item.description }}</p>
+						</div>
+						<img loading="lazy" width="80" height="80" class="lazy-img" src="{{ item.image }}" alt="{{ item.title }}" >
+					</a>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+</section>
+{% endif %}
+
+
+

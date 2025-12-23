@@ -1,0 +1,159 @@
+{% if not settings.hide_element %}
+<section class="tp-testimonial-area" section-id="{{ sectionId }}" style="background: {{ settings.background_color }};">
+      <style>
+        /* قبل ما slick يتهيأ، خفي الشرائح غير المرئية */
+        [section-id="{{ sectionId }}"] .tp-testimonial-slider-active:not(.slick-initialized) .swiper-slide:not(:first-child) {
+          display: none;
+        }
+      </style>
+      
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-xl-12">
+            <div class="tp-testimonial-slider p-relative z-index-1">
+              <div class="tp-testimonial-shape">
+                <span class="tp-testimonial-shape-gradient"></span>
+              </div>
+              <h3 class="tp-testimonial-section-title text-center" style="color: {{ settings.color }};">{{ settings.title }}</h3>
+              <div class="tp-testimonial-slider-active">
+                  {% if 'testimonials' in settings %}
+                    {% set testimonials = settings.testimonials %}
+                    {% if testimonials is callable %}
+                      {% set testimonials = testimonials() %}
+                    {% endif %}
+                  {% else %}
+                    {% set testimonials = [] %}
+                  {% endif %}
+                    {% if testimonials is not iterable %}
+                        {% set testimonials = [] %}
+                    {% endif %}
+
+                    {% for testimonial in testimonials %}
+                  <div class="swiper-slide">
+                    <div class="tp-testimonial-item" style="background: {{ settings.background_item }};">
+                      <div class="tp-testimonial-content">
+                        <p style="color: {{ testimonial.color_text }};">“ {{ testimonial.text }} ”</p>
+                      </div>
+                      <div class="tp-testimonial-user-wrapper d-flex align-items-center justify-content-center">
+                        <div class="tp-testimonial-user d-flex align-items-center">
+                          <div class="tp-testimonial-avater">
+                        {% if testimonial.image %}
+                          <img loading="lazy" width="50" height="50" class="lazy-img" src="{{ testimonial.image }}" alt="user-image">
+                          {% else %}
+                            <img loading="lazy" width="50" height="50" class="lazy-img" src="{{ 'user.png' | asset_url }}" alt="user-image">
+                          {% endif %}
+                          </div>
+
+                          <div class="tp-testimonial-user-info tp-testimonial-user-translate">
+                            <h3 class="tp-testimonial-user-title" style="color: {{ testimonial.color_name }};">{{ testimonial.name }}</h3>
+                            <div class="tp-testimonial-rating">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                                <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                              </svg>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                                <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                              </svg>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                                <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                              </svg>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                                <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                              </svg>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                                <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+   <script>
+  (function() {
+    function initSlider() {
+      var arrowNextClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_right' : 'icon-keyboard_arrow_left';
+      var arrowPrevClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_left' : 'icon-keyboard_arrow_right';
+
+      var $slider = $('[section-id="{{ sectionId }}"] .tp-testimonial-slider-active');
+
+      if ($slider.length && !$slider.hasClass('slick-initialized')) {
+        $slider.slick({
+          slidesToScroll: 3,
+          slidesToShow: 3,
+          infinite: true,
+          autoplay: true,
+          autoplaySpeed: 5000,
+          arrows: false,
+          dots: true,
+          rtl: !(window.appDirection === 'ltr'),
+          nextArrow: '<button class="slick-next slick-arrow" aria-label="Next" type="button"><span class="'+arrowNextClass+'"></span></button>',
+          prevArrow: '<button class="slick-prev slick-arrow" aria-label="Previous" type="button"><span class="'+arrowPrevClass+'"></span></button>',
+          responsive: [
+            {
+              breakpoint: 768,
+              settings: {
+                slidesToShow: 2,
+                slidesToScroll: 2,
+              }
+            },
+            {
+              breakpoint: 576,
+              settings: {
+                slidesToShow: 1,
+                slidesToScroll: 1,
+              }
+            }
+          ]
+        });
+      }
+    }
+
+    if ('IntersectionObserver' in window) {
+      var section = document.querySelector('[section-id="{{ sectionId }}"]');
+      if (section) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+                initSlider();
+                observer.unobserve(entry.target);
+              } else {
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', initSlider);
+                } else {
+                  initSlider();
+                }
+                observer.unobserve(entry.target);
+              }
+            }
+          });
+        }, {
+          rootMargin: '300px'
+        });
+        
+        observer.observe(section);
+      }
+    } else {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSlider);
+      } else {
+        initSlider();
+      }
+    }
+  })();
+</script>
+
+</section>
+{% endif %}
+
+
+
+
+

@@ -1,0 +1,50 @@
+{% if not settings.hide_element %}
+<section
+  class="tp-banners s-block {{ 'no-rounded' if settings.no_rounded else '' }} {{ 'stack-banners-mobile' if settings.stack_banners_mobile else '' }} {{ 'no-padding' if settings.no_padding else '' }}"
+  style="background: {{ settings.background_color }};" section-id="{{ sectionId }}">
+  <div class="container">
+    <div class="tp-title-section">
+      {% if settings.small_subtitle %}
+      <span style="color: {{ settings.text_color }};">{{ settings.small_subtitle }}</span>
+      {% endif %}
+      {% if settings.title %}
+      <h3 style="color: {{ settings.text_color }};">{{ settings.title }}</h3>
+      {% endif %}
+      {% if settings.small_text %}
+      <p style="color: {{ settings.text_color }};">{{ settings.small_text }}</p>
+      {% endif %}
+    </div>
+
+    {% set items = safeget(settings, "items", []) %}
+    {% if items is callable %}
+    {% set items = items() %}
+    {% endif %}
+    {% if items is not iterable %}
+    {% set items = [] %}
+    {% endif %}
+
+    {% if items and items|length > 0 %}
+    <div class="tp-items tp-items-{{ items|length if items|length <= 3 else '3' }}">
+      {% for item in items %}
+      {% set item_image = safeget(item, "image", "") %}
+      {% set item_image_mobile = safeget(item, "image_mobile", "") %}
+      {% set item_url = safeget(item, "url", "") %}
+      {% if item_image or item_image_mobile %}
+      <a href="{% if item_url %}{{ item_url }}{% else %}javascript:;{% endif %}">
+        <picture>
+          {% if item_image_mobile %}
+          <source media="(max-width: 767px)" srcset="{{ image_url(item_image_mobile) }}">
+          {% endif %}
+          {% if item_image %}
+          <source media="(min-width: 768px)" srcset="{{ image_url(item_image) }}">
+          {% endif %}
+          <img loading="lazy" width="1800" height="450" class="lazy-img" src="{{ image_url(item_image if item_image else item_image_mobile) }}" alt="banner">
+        </picture>
+      </a>
+      {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endif %}

@@ -1,0 +1,135 @@
+{
+  "section_id": "uuid",
+  "template": "sections/slider-imgs.jinja",
+  "icon": "fal fa-presentation",
+  "name": {
+    "ar": "سلايدر صور | تطبيق عناقيد",
+    "en": "Images Slider | Bunches App"
+  },
+  "display": true,
+  "settings": [
+    {
+      "id": "show_in_app_only",
+      "type": "checkbox",
+      "label": {
+        "ar": "إظهار في التطبيق فقط",
+        "en": "Show in app only"
+      }
+    },
+    {
+      "id": "full_container",
+      "type": "checkbox",
+      "label": {
+        "ar": "بدون هوامش",
+        "en": "Without margins"
+      }
+    },
+    {
+      "id": "slider",
+      "type": "list",
+      "label": {
+        "ar": "الصور",
+        "en": "Images"
+      },
+      "max_items": 100,
+      "settings": [
+        {
+          "id": "image",
+          "type": "image",
+          "label": {
+            "ar": "الصورة",
+            "en": "Image"
+          },
+          "info": {
+            "ar": "مقاس الصورة 1669 عرض × 668 طول",
+            "en": "Image size: 1669 width × 668 height"
+          }
+        },
+        {
+          "id": "image_mobile",
+          "type": "image",
+          "label": {
+            "ar": "صورة الجوال",
+            "en": "Mobile Image"
+          },
+          "info": {
+            "ar": "مقاس الصورة 768 عرض × 566 طول",
+            "en": "Image size: 768 width × 566 height"
+          }
+        },
+        {
+          "id": "text_place",
+          "type": "radio",
+          "label": {
+            "ar": "مكان النص",
+            "en": "Text place"
+          },
+          "options": [
+            {
+              "value": "right",
+              "label": {
+                "ar": "على اليمين",
+                "en": "Right"
+              }
+            },
+            {
+              "value": "center",
+              "label": {
+                "ar": "في المنتصف",
+                "en": "Center"
+              }
+            },
+            {
+              "value": "left",
+              "label": {
+                "ar": "على اليسار",
+                "en": "Left"
+              }
+            }
+          ],
+          "default": "center"
+        },
+        {
+          "id": "text_color",
+          "type": "color",
+          "label": {
+            "ar": "لون النص",
+            "en": "Text color"
+          }
+        },
+        {
+          "id": "des",
+          "type": "text",
+          "label": {
+            "ar": "نص فرعي",
+            "en": "Sub title"
+          }
+        },
+        {
+          "id": "title",
+          "type": "textarea",
+          "label": {
+            "ar": "العنوان الرئيسي",
+            "en": "Title"
+          }
+        },
+        {
+          "id": "btn_text",
+          "type": "text",
+          "label": {
+            "ar": "نص الزر",
+            "en": "Button text"
+          }
+        },
+        {
+          "id": "url",
+          "type": "url",
+          "label": {
+            "ar": "الرابط",
+            "en": "Link"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{% set autoplay = autoplay if autoplay is defined else true %}
+{% set show_controls = show_controls if show_controls is defined else true %}
+{% set show_play_icon = show_play_icon if show_play_icon is defined else true %}
+
+{% set video_displayed = false %}
+{% for product_item in products_videos %}
+  {% if product_item.product.id == (product.selected_product.parent_id|default(product.selected_product.id)) %}
+    {% if not video_displayed %}
+      <div class="swiper-slide">
+        <div class="video-slide thumb-image-a">
+          <video loading="lazy" width="100%" height="100%" 
+          loop {% if autoplay %}autoplay{% endif %}
+          playsinline
+          {% if show_controls %}controls{% endif %}>
+            <source src="{{ product_item.video }}" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          {% if show_play_icon %}
+          <img loading="lazy" class="play-icon" src="{{ 'video-play.svg' | asset_url }}" alt="play"/>
+          {% endif %}
+        </div>
+      </div>
+      {% set video_displayed = true %}
+    {% endif %}
+  {% endif %}
+{% endfor %}

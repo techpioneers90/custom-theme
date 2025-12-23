@@ -1,0 +1,71 @@
+<div class="tp-menu-list">
+	<div class="container">
+		<ul class="ul-list">
+			{% if show_all_categories %}
+				{% for menu in store.settings.menus.main_menu.items %}
+					{% if menu.url %}
+						<li class="top-level-link {% if menu.items and mega_menu %}megamenu{% endif %} {% if safeget(menu, "url") == '/c/' or safeget(menu, "url") == '/categories/' %} all-categories {% endif %}">
+							<a href="{{ menu.url }}">{{ menu.label }}
+								<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="16" height="16" color="currentColor" fill="none">
+									<path d="M18 9.00005C18 9.00005 13.5811 15 12 15C10.4188 15 6 9 6 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+								</svg>
+							</a>
+							{% if menu.items | length > 0 %}
+								<ul class="dropdown">
+									{% for menu_sub in menu.items %}
+										<li>
+											<a href="{{ menu_sub.url }}" class="weight-500">{{ menu_sub.label }}</a>
+											{% if menu_sub.items | length > 0 %}
+												<ul class="dropdown">
+													{% for menu_sub_sub in menu_sub.items %}
+														<li>
+															<a href="{{ menu_sub_sub.url }}">{{ menu_sub_sub.label }}</a>
+														</li>
+													{% endfor %}
+												</ul>
+											{% endif %}
+										</li>
+									{% endfor %}
+								</ul>
+							{% endif %}
+						</li>
+					{% endif %}
+				{% endfor %}
+			{% else %}
+				{% set main_menu = store.settings.menus.main_menu.items %}
+          {% if not main_menu %}
+            {% set main_menu = [] %}
+          {% endif %}
+          {% for menu in main_menu[:7] %}
+					{% if menu.url %}
+						<li class="top-level-link {% if menu.items and mega_menu %}megamenu{% endif %} {% if safeget(menu, "url") == '/c/' or safeget(menu, "url") == '/categories/' %} all-categories {% endif %}">
+							<a href="{{ menu.url }}">{{ menu.label }}
+								<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="16" height="16" color="currentColor" fill="none">
+									<path d="M18 9.00005C18 9.00005 13.5811 15 12 15C10.4188 15 6 9 6 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+								</svg>
+							</a>
+							{% if menu.items | length > 0 %}
+								<ul class="dropdown">
+									{% for menu_sub in menu.items %}
+										<li>
+											<a href="{{ menu_sub.url }}" class="weight-500">{{ menu_sub.label }}</a>
+											{% if menu_sub.items | length > 0 %}
+												<ul class="dropdown">
+													{% for menu_sub_sub in menu_sub.items %}
+														<li>
+															<a href="{{ menu_sub_sub.url }}">{{ menu_sub_sub.label }}</a>
+														</li>
+													{% endfor %}
+												</ul>
+											{% endif %}
+										</li>
+									{% endfor %}
+								</ul>
+							{% endif %}
+						</li>
+					{% endif %}
+				{% endfor %}
+			{% endif %}
+		</ul>
+	</div>
+</div>

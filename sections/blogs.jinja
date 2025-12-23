@@ -1,0 +1,149 @@
+{% if not settings.hide_element %}
+<section class="tp-blog s-block" section-id="{{ sectionId }}">
+  <style>
+    /* قبل ما slick يتهيأ، خفي الشرائح غير المرئية */
+    [section-id="{{ sectionId }}"] .tp-blog-items:not(.slick-initialized) .swiper-slide:not(:first-child) {
+      display: none;
+    }
+  </style>
+  
+  <div class="container">
+    <div class="tp-title-section">
+      {% if settings.small_subtitle %}
+      <span>{{ settings.small_subtitle }}</span>
+      {% endif %}
+      {% if settings.title %}
+      <h3>{{ settings.title }}</h3>
+      {% endif %}
+      {% if settings.small_text %}
+      <p>{{ settings.small_text }}</p>
+      {% endif %}
+    </div>
+    <div class="tp-blog-items swiper-container">
+      {% if 'blogs' in settings %}
+      {% set blogs = settings.blogs %}
+      {% if blogs is callable %}
+      {% set blogs = blogs() %}
+      {% endif %}
+      {% else %}
+      {% set blogs = [] %}
+      {% endif %}
+      {% if blogs is not iterable %}
+      {% set blogs = [] %}
+      {% endif %}
+
+      {% for blog in blogs %}
+      <div class="swiper-slide">
+        <div class="blog-box">
+          <a href="{% if blog.url %}{{ blog.url }}{% else %}javascript:;{% endif %}" class="blog-img">
+            <img 
+              loading="{% if loop.index0 < 3 %}eager{% else %}lazy{% endif %}" 
+              {% if loop.index0 == 0 %}fetchpriority="high"{% endif %}
+              width="350" 
+              height="350" 
+              class="lazy-img" 
+              src="{{ image_url(blog.image) }}"
+              alt="{{ blog.title }}">
+          </a>
+          <h4>
+            <a href="{% if blog.url %}{{ blog.url }}{% else %}javascript:;{% endif %}">
+              {{ blog.title }}
+            </a>
+          </h4>
+          <p>{{ blog.sub_title }}</p>
+          {% if blog.btn_text %}
+          <div class="footer-blog">
+            <a href="{% if blog.url %}{{ blog.url }}{% else %}javascript:;{% endif %}" class="tp-btn-primary-outline">
+              {{ blog.btn_text }}
+              {# <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
+                <path d="M3.99982 11.9998L19.9998 11.9998" stroke="currentColor" stroke-width="1.5"
+                  stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M8.99963 17C8.99963 17 3.99968 13.3176 3.99966 12C3.99965 10.6824 8.99966 7 8.99966 7"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg> #}
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      function initSlider() {
+        var arrowNextClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_right' : 'icon-keyboard_arrow_left';
+        var arrowPrevClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_left' : 'icon-keyboard_arrow_right';
+
+        var $slider = $('[section-id="{{ sectionId }}"] .tp-blog-items');
+
+        if ($slider.length && !$slider.hasClass('slick-initialized')) {
+          $slider.slick({
+            slidesToScroll: 3,
+            slidesToShow: 3,
+            infinite: true,
+            autoplay: true,
+            autoplaySpeed: 3000,
+            arrows: true,
+            dots: false,
+            rtl: !(window.appDirection === 'ltr'),
+            nextArrow: '<button class="slick-next slick-arrow" aria-label="Next" type="button"><span class="' + arrowNextClass + '"></span></button>',
+            prevArrow: '<button class="slick-prev slick-arrow" aria-label="Previous" type="button"><span class="' + arrowPrevClass + '"></span></button>',
+            responsive: [
+              {
+                breakpoint: 768,
+                settings: {
+                  slidesToShow: 2,
+                  slidesToScroll: 2,
+                },
+              },
+              {
+                breakpoint: 375,
+                settings: {
+                  slidesToShow: 1,
+                  slidesToScroll: 1,
+                },
+              },
+            ]
+          });
+        }
+      }
+
+      if ('IntersectionObserver' in window) {
+        var section = document.querySelector('[section-id="{{ sectionId }}"]');
+        if (section) {
+          var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+              if (entry.isIntersecting) {
+                if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+                  initSlider();
+                  observer.unobserve(entry.target);
+                } else {
+                  if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initSlider);
+                  } else {
+                    initSlider();
+                  }
+                  observer.unobserve(entry.target);
+                }
+              }
+            });
+          }, {
+            rootMargin: '300px'
+          });
+          
+          observer.observe(section);
+        }
+      } else {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initSlider);
+        } else {
+          initSlider();
+        }
+      }
+    })();
+  </script>
+
+</section>
+{% endif %}

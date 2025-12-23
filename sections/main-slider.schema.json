@@ -1,0 +1,98 @@
+{
+  "section_id": "uuid",
+  "template": "sections/main-slider.jinja",
+  "icon": "fal fa-presentation",
+  "name": {
+    "ar": "اسلايدر ونصوص",
+    "en": "Slider with Texts"
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "hide_element",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "type": "list",
+      "id": "main_slider",
+      "max_items": 100,
+      "label": {
+        "ar": "الصورة",
+        "en": "Picture"
+      },
+      "settings": [
+        {
+          "type": "color",
+          "id": "background_color",
+          "label": {
+            "ar": "لون الخلفية",
+            "en": "Background color"
+          }
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": {
+            "ar": "لون النص",
+            "en": "Text color"
+          }
+        },
+        {
+          "type": "text",
+          "id": "sub_title",
+          "label": {
+            "ar": "العنوان الفرعي",
+            "en": "Sub title"
+          }
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "ar": "العنوان الرئيسي",
+            "en": "Title"
+          }
+        },
+        {
+          "type": "textarea",
+          "id": "des",
+          "label": {
+            "ar": "نص توضيحي",
+            "en": "Description"
+          }
+        },
+        {
+          "type": "text",
+          "id": "btn_text",
+          "label": {
+            "ar": "نص الزر",
+            "en": "Button text"
+          }
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": {
+            "ar": "الرابط",
+            "en": "Link"
+          }
+        },
+        {
+          "type": "image",
+          "id": "image",
+          "label": {
+            "ar": "الصورة",
+            "en": "Image"
+          },
+          "info": {
+            "ar": "مقاس الصورة 634 عرض × 372 طول",
+            "en": "Image size: 634 width × 372 height"
+          }
+        }
+      ]
+    }
+  ]
+}

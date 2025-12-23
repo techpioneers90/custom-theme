@@ -1,0 +1,124 @@
+{
+  "section_id": "uuid",
+  "template": "sections/banner-with-products.jinja",
+  "icon": "fal fa-presentation",
+  "name": {
+    "ar": "بنر ومنتجات",
+    "en": "banner with products"
+  },
+  "settings": [
+    {
+      "id": "hide_element",
+      "type": "checkbox",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "id": "reverse_box",
+      "type": "checkbox",
+      "label": {
+        "ar": "عرض الصورة او الفيديو علي اليسار",
+        "en": "Display the image or video on the left"
+      }
+    },
+    {
+      "id": "autoplay_enabled",
+      "type": "checkbox",
+      "label": {
+        "ar": "تشغيل التحريك التلقائي",
+        "en": "Enable autoplay"
+      }
+    },
+    {
+      "id": "product_limit",
+      "type": "select",
+      "label": {
+        "ar": "الحد الأقصى للمنتجات",
+        "en": "Maximum Number of Products"
+      },
+      "options": [
+        { "value": "5", "label": { "ar": "٥ منتجات", "en": "5 Products" } },
+        { "value": "6", "label": { "ar": "٦ منتجات", "en": "6 Products" } },
+        { "value": "8", "label": { "ar": "٨ منتجات", "en": "8 Products" } },
+        { "value": "12", "label": { "ar": "١٢ منتج", "en": "12 Products" } },
+        { "value": "16", "label": { "ar": "١٦ منتج", "en": "16 Products" } },
+        { "value": "20", "label": { "ar": "٢٠ منتج", "en": "20 Products" } },
+        { "value": "24", "label": { "ar": "٢٤ منتج", "en": "24 Products" } }
+      ]
+    },
+    {
+      "id": "image",
+      "type": "image",
+      "label": {
+        "ar": "الصورة",
+        "en": "Image"
+      },
+      "info": {
+        "ar": "مقاس الصورة 727 عرض * 1000 طول",
+        "en": "Image size: 727 width * 1000 height"
+      }
+    },
+    {
+      "id": "video",
+      "type": "video",
+      "label": {
+        "ar": "الفيديو",
+        "en": "Video"
+      },
+      "info": {
+        "ar": "مقاس الفيديو 727 عرض * 1000 طول",
+        "en": "Video size: 727 width * 1000 height"
+      }
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "label": {
+        "ar": "العنوان الرئيسي",
+        "en": "Title"
+      }
+    },
+    {
+      "id": "des",
+      "type": "textarea",
+      "label": {
+        "ar": "نص توضيحي",
+        "en": "Description"
+      }
+    },
+    {
+      "id": "date",
+      "type": "text",
+      "label": {
+        "ar": "مثال: 22/5/2025 - نهاية الخصم",
+        "en": "end date example: 22/5/2025"
+      }
+    },
+    {
+      "id": "btn_text",
+      "type": "text",
+      "label": {
+        "ar": "نص الزر",
+        "en": "Btn text"
+      }
+    },
+    {
+      "id": "url",
+      "type": "url",
+      "label": {
+        "ar": "الرابط",
+        "en": "Link"
+      }
+    },
+    {
+      "id": "products",
+      "type": "products",
+      "label": {
+        "ar": "اختر قائمة المنتجات ",
+        "en": "Select category products"
+      }
+    }
+  ]
+}

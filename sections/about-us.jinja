@@ -1,0 +1,93 @@
+{% if not settings.hide_element %} 
+<section class="tp-about-us s-block" section-id="{{ sectionId }}">
+	<div class="container">
+		<div class="about-box">
+			<div class="about-text">
+				{% if settings.sub_title %}
+					<span>{{ settings.sub_title }}</span>
+				{% endif %}
+				{% if settings.title %}
+					<h3>{{ settings.title }}</h3>
+				{% endif %}
+				{% if settings.des %}
+					<p>{{ settings.des }}</p>
+				{% endif %}
+				{% if settings.btn_text %}
+					<a href="{% if settings.url %}{{ settings.url }}{% else %}javascript:;{% endif %}" class="tp-btn">
+						{{ settings.btn_text }}
+					</a>
+				{% endif %}
+			</div>
+			<div class="about-media">
+				{% if settings.video and settings.image %}
+					<video width="500" height="500" loop autoplay muted playsinline preload="none" title="{{ settings.title }}" data-video-src="{{ settings.video }}">
+						<source type="video/mp4" data-src="{{ settings.video }}">
+						Your browser does not support the video tag.
+					</video>
+				{% elif settings.image %}
+					<img 
+						loading="lazy" 
+						width="500" 
+						height="500" 
+						class="lazy-img" 
+						src="{{ settings.image }}" 
+						alt="{{ settings.title }}"
+						fetchpriority="auto">
+				{% elif settings.video %}
+					<video width="500" height="500" loop autoplay muted playsinline preload="none" title="{{ settings.title }}" data-video-src="{{ settings.video }}">
+						<source type="video/mp4" data-src="{{ settings.video }}">
+						Your browser does not support the video tag.
+					</video>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+
+	<script>
+		(function() {
+			// تحميل الفيديو فقط عند ظهوره في viewport
+			if ('IntersectionObserver' in window) {
+				var section = document.querySelector('[section-id="{{ sectionId }}"]');
+				if (section) {
+					var video = section.querySelector('video[data-video-src]');
+					if (video) {
+						var observer = new IntersectionObserver(function(entries) {
+							entries.forEach(function(entry) {
+								if (entry.isIntersecting) {
+									var videoElement = entry.target;
+									var source = videoElement.querySelector('source[data-src]');
+									if (source && !source.src) {
+										source.src = source.getAttribute('data-src');
+										videoElement.load();
+										observer.unobserve(videoElement);
+									}
+								}
+							});
+						}, {
+							rootMargin: '300px'
+						});
+						
+						observer.observe(video);
+					}
+				}
+			} else {
+				// Fallback للمتصفحات القديمة - تحميل الفيديو عند DOMContentLoaded
+				if (document.readyState === 'loading') {
+					document.addEventListener('DOMContentLoaded', function() {
+						var video = document.querySelector('[section-id="{{ sectionId }}"] video[data-video-src]');
+						if (video) {
+							var source = video.querySelector('source[data-src]');
+							if (source) {
+								source.src = source.getAttribute('data-src');
+								video.load();
+							}
+						}
+					});
+				}
+			}
+		})();
+	</script>
+</section>
+{% endif %}
+
+

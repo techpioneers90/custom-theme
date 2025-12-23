@@ -1,0 +1,16 @@
+{% extends "layout.jinja" %}
+
+
+{% block header %} {% include 'header.jinja' %} {% endblock %}
+
+{% block main_content %}
+
+    <div class="tp-home {{ 'remove_top_padding_home_large' if remove_top_padding_home_large else '' }} {{ 'remove_top_padding_home_small' if remove_top_padding_home_small else '' }}">
+        {% template_components %}
+    </div>
+
+{% endblock %}
+
+{% block footer %} {% include 'footer.jinja' %} {% endblock %}
+
+{% block footer_scripts %}{% endblock %}

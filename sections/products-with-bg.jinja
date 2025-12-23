@@ -1,0 +1,164 @@
+{% if not settings.hide_element %}
+<section class="tp-product-background s-block pt-0" section-id="{{ sectionId }}">
+    <style>
+      /* قبل ما slick يتهيأ، خفي الشرائح غير المرئية */
+      [section-id="{{ sectionId }}"] .tp-products-swiper:not(.slick-initialized) .swiper-slide:not(:first-child) {
+        display: none;
+      }
+    </style>
+    
+    <div class="tp-slider-bg" style="background-image: url('{{ settings.background_image }}');">
+      <div class="container">
+            <div class="tp-title-section">
+              {% if settings.small_subtitle %}
+                <span>{{ settings.small_subtitle }}</span>
+              {% endif %}
+              {% if settings.title %}
+                <h3 >{{ settings.title }}</h3>
+              {% endif %}
+              {% if settings.small_text %}
+                <p >{{ settings.small_text }}</p>
+              {% endif %}
+            </div>
+      </div>
+    </div>
+
+{% set items_xl = (settings.items_xl|default(6))|int %}
+{% set items_lg = (settings.items_lg|default(5))|int %}
+{% set items_md = (settings.items_md|default(4))|int %}
+{% set items_sm = (settings.items_sm|default(2))|int %}
+{% set items_xs = (settings.items_xs|default(1))|int %}
+{% if items_xl < 1 %}{% set items_xl = 1 %}{% endif %}
+{% if items_lg < 1 %}{% set items_lg = 1 %}{% endif %}
+{% if items_md < 1 %}{% set items_md = 1 %}{% endif %}
+{% if items_sm < 1 %}{% set items_sm = 1 %}{% endif %}
+{% if items_xs < 1 %}{% set items_xs = 1 %}{% endif %}
+
+{% set limit = (settings.product_limit|default(6)|int) %}
+{% if limit < 1 %}{% set limit = 6 %}{% endif %}
+
+    <div class="container">
+      <div class="tp-products-slider">
+        <div class="tp-products-swiper">
+          {% if settings.products and settings.products.results %}
+            {% for product in settings.products.results[:limit] %}
+                <div class="swiper-slide">
+                  {% set index=loop.index0 %}
+                  {% include 'components/product-card.jinja' %}
+                </div>
+              {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+          {% if settings.display_more and store.settings.more_text %}
+          <a class="href" href="{{ settings.products.url }}">{{ settings.more_text }}
+            <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+              <g fill="none" class="stroke-current" stroke-width="1.5" stroke-linejoin="round" stroke-miterlimit="10">
+                <circle class="arrow-icon--circle" cx="16" cy="16" r="15.12"></circle>
+                <path class="arrow-icon--arrow" d="M16.14 9.93L22.21 16l-6.07 6.07M8.23 16h13.98"></path>
+              </g>
+            </svg>
+          </a>
+        {% endif %}
+    </div>
+
+
+  <script>
+  (function() {
+    function initSlider() {
+      var arrowNextClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_right' : 'icon-keyboard_arrow_left';
+      var arrowPrevClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_left' : 'icon-keyboard_arrow_right';
+      var $slider = $('[section-id="{{ sectionId }}"] .tp-products-swiper');
+
+      if ($slider.length && !$slider.hasClass('slick-initialized')) {
+        $slider.slick({
+          slidesToShow: {{ items_xl }},
+          slidesToScroll: {{ items_xl }},
+          infinite: true,
+          autoplay: {{ 'true' if settings.autoplay_enabled else 'false' }},
+          autoplaySpeed: 3000,
+          arrows: false,
+          dots: false,
+          rtl: !(window.appDirection === 'ltr'),
+          nextArrow:'<button class="slick-next slick-arrow" aria-label="Next" type="button" style=""><span class="'+arrowNextClass+'"></span></button>',
+          prevArrow:'<button class="slick-prev slick-arrow" aria-label="Previous" type="button" style=""><span class="'+arrowPrevClass+'"></span></button>',
+          responsive: [
+          {
+            breakpoint: 1200,
+            settings: {
+              slidesToShow: {{ items_lg }},
+              slidesToScroll: {{ items_lg }}
+            }
+          },
+          {
+            breakpoint: 1024,
+            settings: {
+              slidesToShow: {{ items_md }},
+              slidesToScroll: {{ items_md }}
+            }
+          },
+          {
+            breakpoint: 768,
+            settings: {
+              slidesToShow: {{ items_sm }},
+              slidesToScroll: {{ items_sm }}
+            }
+          },
+          {
+            breakpoint: 450,
+            settings: {
+              slidesToShow: {{ items_xs }},
+              slidesToScroll: {{ items_xs }}
+            }
+          },
+          {
+            breakpoint: 350,
+            settings: {
+              slidesToShow: 1,
+              slidesToScroll: 1
+            }
+          }
+        ]
+        });
+      }
+    }
+
+    if ('IntersectionObserver' in window) {
+      var section = document.querySelector('[section-id="{{ sectionId }}"]');
+      if (section) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+                initSlider();
+                observer.unobserve(entry.target);
+              } else {
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', initSlider);
+                } else {
+                  initSlider();
+                }
+                observer.unobserve(entry.target);
+              }
+            }
+          });
+        }, {
+          rootMargin: '300px'
+        });
+        
+        observer.observe(section);
+      }
+    } else {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSlider);
+      } else {
+        initSlider();
+      }
+    }
+  })();
+</script>
+
+</section>
+{% endif %}
+
+

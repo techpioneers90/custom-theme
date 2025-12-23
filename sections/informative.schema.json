@@ -1,0 +1,102 @@
+{
+  "section_id": "uuid",
+  "template": "sections/informative.jinja",
+  "icon": "fal fa-sparkles",
+  "name": {
+    "ar": "روابط ومميزات",
+    "en": "Links and Features"
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "hide_element",
+      "label": {
+        "ar": "إخفاء العنصر من الصفحة",
+        "en": "Hide element from page"
+      }
+    },
+    {
+      "type": "text",
+      "id": "small_subtitle",
+      "label": {
+        "ar": "عنوان ترويجي",
+        "en": "Promotional title"
+      }
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": {
+        "ar": "العنوان الرئيسي",
+        "en": "title"
+      }
+    },
+    {
+      "type": "text",
+      "id": "small_text",
+      "label": {
+        "ar": "نص إضافي",
+        "en": "additional text"
+      }
+    },
+    {
+      "type": "image",
+      "id": "main_image",
+      "label": {
+        "ar": "الصورة الرئيسية",
+        "en": "Main image"
+      },
+      "info": {
+        "ar": "مقاس الصورة 446 عرض × 500 طول",
+        "en": "Image size: 446 width × 500 height"
+      }
+    },
+    {
+      "type": "list",
+      "id": "informative_box",
+      "max_items": 8,
+      "label": {
+        "ar": "عنصر",
+        "en": "Item"
+      },
+      "settings": [
+        {
+          "type": "image",
+          "id": "image",
+          "label": {
+            "ar": "الصورة",
+            "en": "Image"
+          },
+          "info": {
+            "ar": "مقاس الصورة 80 عرض × 80 طول",
+            "en": "Image size: 80 width × 80 height"
+          }
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "ar": "العنوان",
+            "en": "Title"
+          }
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": {
+            "ar": "العنوان الفرعي",
+            "en": "Sub title"
+          }
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": {
+            "ar": "الرابط",
+            "en": "Link"
+          }
+        }
+      ]
+    }
+  ]
+}

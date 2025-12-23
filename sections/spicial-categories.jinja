@@ -1,0 +1,34 @@
+  {% if not settings.hide_element %}  
+    <section class="tp-category-style-2 s-block" section-id="{{ sectionId }}">
+      <div class="container">
+        <div class="tp-category-box-2" style="background: {{ settings.background_color }};">
+          <h3>{{ settings.title }}</h3>
+          {% if settings.image %}
+          <img loading="lazy" width="180" height="175" class="big-catg lazy-img" src="{{ image_url(settings.image) }}"  alt="">
+          {% endif %}
+          <div class="listed-categories">
+          {% if 'spicial_categories' in settings %}
+          {% set spicial_categories = settings.spicial_categories %}
+          {% if spicial_categories is callable %}
+              {% set spicial_categories = spicial_categories() %}
+          {% endif %}
+          {% else %}
+              {% set spicial_categories = [] %}
+          {% endif %}
+          {% if spicial_categories is not iterable %}
+              {% set spicial_categories = [] %}
+          {% endif %}
+
+          {% for item in spicial_categories %}
+            <a href="{% if item.url %}{{ item.url }}{% else %}javascript:;{% endif %}">
+              <img loading="lazy" width="54" height="54" class="lazy-img" src="{{ image_url(item.image) }}"  alt="">
+              <p>{{ item.title }}</p>
+            </a>
+          {% endfor %}
+          </div>
+        </div>
+      </div>
+    </section>
+{% endif %}
+    
+

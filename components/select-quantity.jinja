@@ -1,0 +1,11 @@
+<select id="product-quantity" name="quantity" class="select-quantity">
+	{% if product.selected_product.is_infinite or product.selected_product.quantity > 300 %}
+		{% set maxQuantity = 300 %}
+	{% else %}
+		{% set maxQuantity = product.selected_product.quantity %}
+	{% endif %}
+
+	{% for n in range(1, maxQuantity + 1) %}
+		<option value="{{ n }}" {% if n == 1 %}selected{% endif %}>{{ n }}</option>
+	{% endfor %}
+</select>

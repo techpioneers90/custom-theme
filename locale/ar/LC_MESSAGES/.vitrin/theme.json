@@ -1,0 +1,19 @@
+{
+  "id": "9bfcf375-1e89-4c23-83df-517390f89dc1",
+  "slug": "theme-1766512203783-9bfcf375",
+  "updatedAt": "2025-12-23T17:50:30.212Z",
+  "pushHistory": [
+    {
+      "themeId": "9bfcf375-1e89-4c23-83df-517390f89dc1",
+      "versionId": "4f42cf2d-99d3-4bd4-954b-4a4e3f54227f",
+      "version": "1.0.0",
+      "pushedAt": "2025-12-23T17:50:06.433Z"
+    },
+    {
+      "themeId": "9bfcf375-1e89-4c23-83df-517390f89dc1",
+      "versionId": "4f42cf2d-99d3-4bd4-954b-4a4e3f54227f",
+      "version": "1.0.1",
+      "pushedAt": "2025-12-23T17:50:30.211Z"
+    }
+  ]
+}
