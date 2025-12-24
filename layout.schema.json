@@ -501,36 +501,80 @@
       },
       "settings": [
         {
-          "id": "display_mode",
-          "type": "checkbox",
+          "id": "category_settings",
+          "type": "list",
           "label": {
-            "ar": "عرض صفحات بدل زر التحميل",
-            "en": "Display products with pagination"
-          }
+            "ar": "إعدادات التصنيفات",
+            "en": "Category Settings"
+          },
+          "settings": [
+            {
+              "id": "category_id",
+              "type": "category",
+              "label": {
+                "ar": "التصنيف",
+                "en": "Category"
+              }
+            },
+            {
+              "id": "fixed_categories",
+              "type": "checkbox",
+              "label": {
+                "ar": "إظهار التصنيفات الفرعية ثابتة",
+                "en": "Show sub categories fixed"
+              }
+            },
+            {
+              "id": "hide_sub_categories_names",
+              "type": "checkbox",
+              "label": {
+                "ar": "إخفاء أسماء التصنيفات الفرعية",
+                "en": "Hide sub categories names"
+              }
+            }
+          ]
         },
         {
-          "id": "auto_load_more",
-          "type": "checkbox",
+          "id": "category_banners",
+          "type": "list",
           "label": {
-            "ar": "تحميل المزيد من المنتجات تلقائيا",
-            "en": "Display more products automatically"
-          }
-        },
-        {
-          "id": "Sort_mode",
-          "type": "checkbox",
-          "label": {
-            "ar": "عرض المنتجات الأحدث افتراضيًا",
-            "en": "Sort products by newest by default"
-          }
-        },
-        {
-          "id": "fixed_on_mobile",
-          "type": "checkbox",
-          "label": {
-            "ar": "إظهار التصنيفات الفرعية ثابتة في الجوال",
-            "en": "Show sub categories fixed on mobile"
-          }
+            "ar": "بانرات التصنيفات",
+            "en": "Category Banners"
+          },
+          "settings": [
+            {
+              "id": "category_id",
+              "type": "category",
+              "label": {
+                "ar": "التصنيف",
+                "en": "Category"
+              }
+            },
+            {
+              "id": "banner_image",
+              "type": "image",
+              "label": {
+                "ar": "صورة البانر",
+                "en": "Banner Image"
+              }
+            },
+            {
+              "id": "banner_image_mobile",
+              "type": "image",
+              "label": {
+                "ar": "صورة البانر للجوال",
+                "en": "Banner Image Mobile"
+              }
+            },
+            {
+              "id": "banner_url",
+              "type": "url",
+              "label": {
+                "ar": "رابط البانر",
+                "en": "Banner Link"
+              }
+            }
+          ]
         }
       ]
     },
@@ -625,14 +669,6 @@
         "en": "product single"
       },
       "settings": [
-        {
-          "id": "convert_text_to_color",
-          "type": "checkbox",
-          "label": {
-            "ar": "تحويل النص إلى لون",
-            "en": "Convert text to color"
-          }
-        },
         {
           "id": "hide_short_description",
           "type": "checkbox",
@@ -1313,67 +1349,6 @@
               "label": {
                 "ar": "الفيديو",
                 "en": "video"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "brands_categories",
-      "icon": "fal fa-sparkles",
-      "name": {
-        "ar": "ماركات التصنيفات",
-        "en": "Brands categories"
-      },
-      "settings": [
-        {
-          "id": "main_title",
-          "type": "text",
-          "label": {
-            "ar": "العنوان الرئيسي",
-            "en": "title"
-          }
-        },
-        {
-          "id": "store_partners",
-          "type": "list",
-          "max_items": 200,
-          "label": {
-            "ar": "الصورة",
-            "en": "Picture"
-          },
-          "settings": [
-            {
-              "id": "category",
-              "type": "category",
-              "label": {
-                "ar": "اختر التصنيف",
-                "en": "Choose Category"
-              }
-            },
-            {
-              "id": "title",
-              "type": "text",
-              "label": {
-                "ar": "اسم الماركة",
-                "en": "Brand Name"
-              }
-            },
-            {
-              "id": "image",
-              "type": "image",
-              "label": {
-                "ar": "الصورة",
-                "en": "Image"
-              }
-            },
-            {
-              "id": "url",
-              "type": "url",
-              "label": {
-                "ar": "الرابط",
-                "en": "Link"
               }
             }
           ]

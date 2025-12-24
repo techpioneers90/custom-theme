@@ -42,24 +42,8 @@
     </div>
         </div>
 
-{% if display_mode %}
+
     {% set totalPages=products.pages_count %}{% set currentPage=products.page %}{% include 'components/pagination.jinja' %}
-    {% else %}
-    {% if auto_load_more %}
-      <button id="load-more-button" class="load-more-button" data-pages="{{ products.pages_count }}">
-        <span class="btn-loader">
-            <span class="loader-more"></span>
-        </span>
-      </button>
-    {% else %}
-      <button id="load-more-button" class="load-more-button tp-btn" data-pages="{{ products.pages_count }}">
-        <span class="btn-loader d-none">
-            <span class="loader-more"></span>
-        </span>
-        <span class="btn-label">{{ _("Load more") }}</span>
-      </button>
-    {% endif %}
-{% endif %}
 {% endblock %}
 
 {% block footer %} {% include 'footer.jinja' %} {% endblock %}
@@ -93,9 +77,6 @@
         {% endif %}
     </script>
 
-{% if not display_mode %}
-  <script type="text/javascript" src="{{ 'load-more.js' | asset_url }}"></script>
-{% endif %}
 <script>
 window.addEventListener('DOMContentLoaded', (event) => {
     var fromPriceInput = document.querySelector("input[name='from_price'][type='hidden']");

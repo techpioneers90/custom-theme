@@ -30,17 +30,12 @@
 {% set center_content = settings.footer_setting_center_content %}
 {% set shipping_icons = settings.footer_setting_shipping_icons %}
 {% set contact_us = settings.footer_setting_contact_us %}
-{% set display_mode = settings.categories_page_display_mode %}
-{% set auto_load_more = settings.categories_page_auto_load_more %}
-{% set Sort_mode = settings.categories_page_Sort_mode %}
-{% set fixed_on_mobile = settings.categories_page_fixed_on_mobile %}
 {% set img_fit = settings.product_card_img_fit %}
 {% set img_height_large_screen = settings.product_card_img_height_large_screen %}
 {% set img_height_small_screen = settings.product_card_img_height_small_screen %}
 {% set another_img = settings.product_card_another_img %}
 {% set add_cart_small = settings.product_card_add_cart_small %}
 {% set promotional_image = settings.product_card_promotional_image %}
-{% set convert_text_to_color = settings.product_single_convert_text_to_color %}
 {% set hide_short_description = settings.product_single_hide_short_description %}
 {% set hide_share = settings.product_single_hide_share %}
 {% set sticky_cart = settings.product_single_sticky_cart %}
@@ -61,7 +56,6 @@
 {% set Popup_cart = settings.Popup_cart_Popup_list %}
 {% set products_videos = settings.products_videos_products_list %}
 {% set brands_categories_title = settings.brands_categories_main_title %}
-{% set store_partners = settings.brands_categories_store_partners %}
 
 <!doctype html>
 <html class="no-js" lang="{{ session.lang }}" dir="{{ session.locale.language.direction }}">
@@ -76,34 +70,11 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     {% vitrin_head %}
 		<link rel="shortcut icon" type="image/jpg" href="{{ store.icon }}"/>
-    {% if Sort_mode %}
-      <script>
-          (function () {
-          const pathname = window.location.pathname;
-
-          const isAllProductsPage = pathname === '/products';
-          const isSingleCategoryPage = pathname.startsWith('/categories/') && pathname !== '/categories';
-
-          if (isAllProductsPage || isSingleCategoryPage) {
-            const urlParams = new URLSearchParams(window.location.search);
-
-            if (!urlParams.has('sort_by') || !urlParams.has('order')) {
-              urlParams.set('sort_by', 'created_at');
-              urlParams.set('order', 'desc');
-
-              const newUrl = `${pathname}?${urlParams.toString()}`;
-              window.location.replace(newUrl);
-            }
-          }
-        })();
-      </script>
-    {% endif %}
     {% if head_scripts %}
     {{ head_scripts | safe }}
 {% endif %}
 
     <script>
-      window.enableAutoLoadMore = {{ 'true' if auto_load_more else 'false' }};
       window.imgFit = "{{ img_fit }}";
       window.imgHeightLargeScreen = {% if img_height_large_screen is defined and img_height_large_screen is not none %}{{ img_height_large_screen }}{% else %}13{% endif %};
       window.imgHeightSmallScreen = {% if img_height_small_screen is defined and img_height_small_screen is not none %}{{ img_height_small_screen }}{% else %}11{% endif %};
