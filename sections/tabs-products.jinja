@@ -103,7 +103,8 @@
         }
 
         // عرض حالة التحميل
-        slider.innerHTML = '<div class="loading-products">جاري التحميل...</div>';
+        const textColor = "{{ settings.text_color }}";
+        slider.innerHTML = `<div class="loading-products" style="display: flex; align-items: center; justify-content: center; min-height: 100px; color: ${textColor || '#000'}; font-size: 16px;">جاري التحميل...</div>`;
 
         try {
             const response = await window.zid.products.list({
@@ -112,6 +113,9 @@
             }, { showErrorNotification: true });
 
             if (response && response.results && response.results.length > 0) {
+                // إخفاء السلايدر حتى يتم تحميل جميع المنتجات
+                slider.style.opacity = '0';
+                slider.style.visibility = 'hidden';
                 slider.innerHTML = '';
                 
                 // استخدام createProductCard من load-more.js إذا كان متاحاً
@@ -134,16 +138,27 @@
                 }
                 
                 if (typeof createCard === 'function') {
-                    for (const product of response.results) {
-                        // createProductCard ترجع عنصر DOM، ليس HTML string
+                    // تحميل جميع المنتجات بشكل متوازي (parallel) بدلاً من متسلسل
+                    const productPromises = response.results.map(async (product) => {
                         const productElement = await createCard(product);
                         if (productElement) {
                             const slideDiv = document.createElement('div');
                             slideDiv.className = 'swiper-slide';
                             slideDiv.appendChild(productElement);
+                            return slideDiv;
+                        }
+                        return null;
+                    });
+                    
+                    // انتظار تحميل جميع المنتجات
+                    const slideElements = await Promise.all(productPromises);
+                    
+                    // إضافة جميع المنتجات دفعة واحدة
+                    slideElements.forEach(slideDiv => {
+                        if (slideDiv) {
                             slider.appendChild(slideDiv);
                         }
-                    }
+                    });
                     
                     // تفعيل العداد التنازلي والتحقق من الأسعار بعد إضافة جميع المنتجات
                     if (typeof initializeCountdowns === 'function') {
@@ -153,10 +168,16 @@
                     if (typeof formatPrices === 'function') {
                         formatPrices(slider);
                     }
+                    
+                    // إظهار السلايدر بعد تحميل جميع المنتجات
+                    slider.style.opacity = '1';
+                    slider.style.visibility = 'visible';
                 } else {
                     // إذا لم تكن createProductCard متاحة، نستخدم طريقة بديلة
                     console.warn('createProductCard function not found, using fallback method');
-                    for (const product of response.results) {
+                    
+                    // إنشاء جميع المنتجات دفعة واحدة
+                    const slideElements = response.results.map(product => {
                         const slideDiv = document.createElement('div');
                         slideDiv.className = 'swiper-slide';
                         slideDiv.innerHTML = `
@@ -170,13 +191,25 @@
                                 </a>
                             </div>
                         `;
+                        return slideDiv;
+                    });
+                    
+                    // إضافة جميع المنتجات دفعة واحدة
+                    slideElements.forEach(slideDiv => {
                         slider.appendChild(slideDiv);
-                    }
+                    });
+                    
+                    // إظهار السلايدر بعد تحميل جميع المنتجات
+                    slider.style.opacity = '1';
+                    slider.style.visibility = 'visible';
                 }
 
-                // تهيئة الـ slider بعد تحميل المنتجات
+                // تهيئة الـ slider بعد تحميل جميع المنتجات وإظهارها
                 if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
-                    initSlickSlider(slider);
+                    // استخدام setTimeout صغير لضمان أن DOM تم تحديثه
+                    setTimeout(() => {
+                        initSlickSlider(slider);
+                    }, 50);
                 }
             } else {
                 slider.innerHTML = '<div class="no-products">لا توجد منتجات</div>';
@@ -299,37 +332,53 @@
         });
     }
 
-    // استخدام IntersectionObserver لتهيئة التبويبات فقط عند ظهورها
-    if ('IntersectionObserver' in window) {
-        const section = document.querySelector('[section-id="{{ sectionId }}"]');
-        if (section) {
-            const observer = new IntersectionObserver(function(entries) {
-                entries.forEach(function(entry) {
-                    if (entry.isIntersecting) {
-                        if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
-                            initTabs();
-                            observer.unobserve(entry.target);
-                        } else {
-                            if (document.readyState === 'loading') {
-                                document.addEventListener('DOMContentLoaded', initTabs);
-                            } else {
-                                initTabs();
-                            }
-                            observer.unobserve(entry.target);
-                        }
-                    }
-                });
-            }, {
-                rootMargin: '300px'
-            });
-            
-            observer.observe(section);
+    // التحقق من أننا في صفحة التصنيف (sectionId يبدأ بـ category-tabs-)
+    const isCategoryPage = sectionId.indexOf('category-tabs-') === 0;
+    
+    if (isCategoryPage) {
+        // في صفحة التصنيف: تهيئة التبويبات مباشرة بدون IntersectionObserver
+        if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+            initTabs();
+        } else {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initTabs);
+            } else {
+                initTabs();
+            }
         }
     } else {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initTabs);
+        // في الصفحة الرئيسية: استخدام IntersectionObserver لتهيئة التبويبات فقط عند ظهورها
+        if ('IntersectionObserver' in window) {
+            const section = document.querySelector('[section-id="{{ sectionId }}"]');
+            if (section) {
+                const observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+                                initTabs();
+                                observer.unobserve(entry.target);
+                            } else {
+                                if (document.readyState === 'loading') {
+                                    document.addEventListener('DOMContentLoaded', initTabs);
+                                } else {
+                                    initTabs();
+                                }
+                                observer.unobserve(entry.target);
+                            }
+                        }
+                    });
+                }, {
+                    rootMargin: '300px'
+                });
+                
+                observer.observe(section);
+            }
         } else {
-            initTabs();
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initTabs);
+            } else {
+                initTabs();
+            }
         }
     }
 })();

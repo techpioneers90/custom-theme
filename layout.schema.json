@@ -772,22 +772,6 @@
               }
             },
             {
-              "id": "no_rounded",
-              "type": "checkbox",
-              "label": {
-                "ar": "بدون حواف دائرية",
-                "en": "No rounded edges"
-              }
-            },
-            {
-              "id": "no_padding",
-              "type": "checkbox",
-              "label": {
-                "ar": "إزالة المسافات بين هذا العنصر والعناصر المجاورة",
-                "en": "Remove spacing between this element and adjacent elements"
-              }
-            },
-            {
               "id": "stack_banners_mobile",
               "type": "checkbox",
               "label": {
@@ -920,11 +904,11 @@
               }
             },
             {
-              "id": "products",
-              "type": "products",
+              "id": "category",
+              "type": "category",
               "label": {
-                "ar": "اختر قائمة المنتجات",
-                "en": "Select category products"
+                "ar": "اختر التصنيف",
+                "en": "Select category"
               }
             },
             {

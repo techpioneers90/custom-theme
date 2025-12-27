@@ -4324,7 +4324,7 @@ body:has(.tp-slider-banners + .tp-slider-banners) .tp-slider-banners {
   content: "";
   height: 2px;
   width: 0;
-  background-color: var(--tp-text-body);
+  background-color: currentColor;
   position: absolute;
   right: 0;
   left: 0;

@@ -6,6 +6,12 @@
 
 {% block top_links %}
 	<link rel="stylesheet" type="text/css" href="{{ 'toastr.min.css' | asset_url }}" />
+
+  <style>
+    .tp-video-with-products {
+      padding-bottom: 20px;
+    }
+  </style>
 {% endblock %}
 
 {% block main_content %}
@@ -226,6 +232,23 @@
     {% for video_item in category_video_with_products %}
       {% set sectionId = 'category-video-' ~ category.id ~ '-' ~ loop.index %}
       {% set settings = video_item %}
+      {# إضافة category من category (ليس category_id) من الإعدادات - category_id يحدد في أي صفحة يظهر، category يحدد المنتجات #}
+      {% if video_item.category %}
+        {% set video_category = video_item.category %}
+        {% if video_category is mapping %}
+          {% set video_category_id = video_category.id %}
+        {% else %}
+          {% set video_category_id = video_category %}
+        {% endif %}
+        {% set _ = settings.update({'category': {'id': video_category_id}}) %}
+      {% elif video_item.category_id %}
+        {# Fallback: إذا لم يكن category موجوداً، استخدم category_id (للتوافق مع الإصدارات القديمة) #}
+        {% set video_category_id = video_item.category_id %}
+        {% if video_category_id is mapping %}
+          {% set video_category_id = video_category_id.id %}
+        {% endif %}
+        {% set _ = settings.update({'category': {'id': video_category_id}}) %}
+      {% endif %}
       {% include 'sections/video-with-products.jinja' %}
     {% endfor %}
   {% else %}

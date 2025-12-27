@@ -41,7 +41,7 @@
           {% include 'vitrin:products/badge.jinja' %}
           {% endif %}
         </div>
-        {% if product.is_infinite == false and product.quantity <= 0 %} <small class="out-of-stock">{{ _("out of stock") }}</small>
+        {% if product.is_infinite == false and product.quantity <= 0 %} <small class="out-of-stock">{{ _("Out of stock") }}</small>
           {% endif %}
           {% if store.settings.products.reviews_enabled and product.rating.total_count > 0 %}
           <div class="product-card-rating-wrapper">

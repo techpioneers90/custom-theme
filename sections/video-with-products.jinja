@@ -34,8 +34,17 @@
 						<h3>{{ settings.title }}</h3>
 					{% endif %}
 				</div>
-				<div class="tp-products-box-swiper">
-						{% if settings.products and settings.products.results %}
+				<div class="tp-products-box-swiper" 
+				     {% if settings.category and settings.category.id %}data-category-id="{{ settings.category.id }}"{% elif settings.products and settings.products.id %}data-products-id="{{ settings.products.id }}"{% endif %}
+				     {% if settings.products and settings.products.type %}data-products-type="{{ settings.products.type }}"{% endif %}>
+						{% if settings.category and settings.category.results %}
+						{% for product in settings.category.results %}
+							<div class="swiper-slide">
+								{% set index=loop.index0 %}
+                {% include 'components/product-card.jinja' %}
+							</div>
+						{% endfor %}
+						{% elif settings.products and settings.products.results %}
 						{% for product in settings.products.results %}
 							<div class="swiper-slide">
 								{% set index=loop.index0 %}
@@ -49,6 +58,178 @@
 	</div>
        <script>
   (function() {
+    const sectionId = "{{ sectionId }}";
+    const limit = {{ settings.product_limit|default(6)|int }};
+    
+    // دالة للانتظار حتى يصبح window.zid متاحاً
+    async function waitForZid(maxWaitTime = 5000) {
+      const startTime = Date.now();
+      while (!window.zid || !window.zid.products || !window.zid.products.list) {
+        if (Date.now() - startTime > maxWaitTime) {
+          return false;
+        }
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      return true;
+    }
+
+    // دالة لجلب المنتجات من API
+    async function loadVideoProducts() {
+      const slider = document.querySelector('[section-id="' + sectionId + '"] .tp-products-box-swiper');
+      if (!slider) {
+        return;
+      }
+
+      // إذا كان هناك منتجات موجودة بالفعل (من الصفحة الرئيسية)، لا نحتاج لجلبها
+      const existingProducts = slider.querySelectorAll('.swiper-slide .product-box, .product-box');
+      if (existingProducts.length > 0) {
+        return; // المنتجات موجودة بالفعل، لا حاجة لجلبها من API
+      }
+      
+      // الانتظار حتى يصبح window.zid متاحاً
+      const zidAvailable = await waitForZid();
+      if (!zidAvailable) {
+        return;
+      }
+
+      // التحقق من data-category-id أولاً (لصفحة التصنيف)
+      let categoryId = slider.getAttribute('data-category-id');
+      
+      // إذا لم يكن هناك categoryId، نحاول استخدام products (للمنصة الرئيسية)
+      if (!categoryId) {
+        const productsId = slider.getAttribute('data-products-id');
+        const productsType = slider.getAttribute('data-products-type');
+        
+        if (productsType === 'products_category' && productsId) {
+          categoryId = productsId;
+        }
+      }
+      
+      // إذا لم يكن هناك categoryId بعد، نحاول استخدام category_id من الصفحة (body)
+      if (!categoryId) {
+        const bodyCategoryId = document.body.getAttribute('data-category-id');
+        if (bodyCategoryId) {
+          categoryId = bodyCategoryId;
+        }
+      }
+      
+      // إذا لم يكن هناك categoryId بعد، نحاول استخدام category من settings
+      {% if settings.category and settings.category.id %}
+      if (!categoryId) {
+        categoryId = "{{ settings.category.id }}";
+      }
+      {% endif %}
+      
+      if (!categoryId) {
+        return;
+      }
+
+      // عرض حالة التحميل
+      slider.style.opacity = '0';
+      slider.style.visibility = 'hidden';
+      slider.innerHTML = '<div class="loading-products" style="display: flex; align-items: center; justify-content: center; min-height: 100px; color: #000; font-size: 16px;">جاري التحميل...</div>';
+
+      try {
+        const response = await window.zid.products.list({
+          categories: categoryId,
+          page_size: limit
+        }, { showErrorNotification: true });
+
+        if (response && response.results && response.results.length > 0) {
+          slider.innerHTML = '';
+          
+          // استخدام createProductCard من load-more.js إذا كان متاحاً
+          let createCard = window.createProductCard;
+          
+          if (!createCard && typeof createProductCard !== 'undefined') {
+            createCard = createProductCard;
+          }
+          
+          // إذا لم تكن متاحة بعد، ننتظر حتى 2 ثانية
+          if (!createCard) {
+            let attempts = 0;
+            while (!createCard && attempts < 20) {
+              await new Promise(resolve => setTimeout(resolve, 100));
+              createCard = window.createProductCard || (typeof createProductCard !== 'undefined' ? createProductCard : null);
+              attempts++;
+            }
+          }
+          
+          if (typeof createCard === 'function') {
+            // تحميل جميع المنتجات بشكل متوازي (parallel) بدلاً من متسلسل
+            const productPromises = response.results.map(async (product) => {
+              const productElement = await createCard(product);
+              if (productElement) {
+                const slideDiv = document.createElement('div');
+                slideDiv.className = 'swiper-slide';
+                slideDiv.appendChild(productElement);
+                return slideDiv;
+              }
+              return null;
+            });
+            
+            // انتظار تحميل جميع المنتجات
+            const slideElements = await Promise.all(productPromises);
+            
+            // إضافة جميع المنتجات دفعة واحدة
+            slideElements.forEach(slideDiv => {
+              if (slideDiv) {
+                slider.appendChild(slideDiv);
+              }
+            });
+            
+            // تفعيل العداد التنازلي والتحقق من الأسعار بعد إضافة جميع المنتجات
+            if (typeof initializeCountdowns === 'function') {
+              initializeCountdowns(slider);
+            }
+            
+            if (typeof formatPrices === 'function') {
+              formatPrices(slider);
+            }
+            
+            // إظهار السلايدر بعد تحميل جميع المنتجات
+            slider.style.opacity = '1';
+            slider.style.visibility = 'visible';
+          } else {
+            // إذا لم تكن createProductCard متاحة، نستخدم طريقة بديلة
+            
+            const slideElements = response.results.map(product => {
+              const slideDiv = document.createElement('div');
+              slideDiv.className = 'swiper-slide';
+              slideDiv.innerHTML = `
+                <div class="product-box">
+                  <a href="${product.html_url || '#'}">
+                    <div class="box-img-product">
+                      <img src="${product.images && product.images.length ? product.images[0].image.large : ''}" alt="${product.name}">
+                    </div>
+                    <h3>${product.name}</h3>
+                    <div class="price">${product.price_string || ''}</div>
+                  </a>
+                </div>
+              `;
+              return slideDiv;
+            });
+            
+            slideElements.forEach(slideDiv => {
+              slider.appendChild(slideDiv);
+            });
+            
+            slider.style.opacity = '1';
+            slider.style.visibility = 'visible';
+          }
+        } else {
+          slider.innerHTML = '<div class="no-products" style="display: flex; align-items: center; justify-content: center; min-height: 100px; color: #000; font-size: 16px;">لا توجد منتجات</div>';
+          slider.style.opacity = '1';
+          slider.style.visibility = 'visible';
+        }
+      } catch (error) {
+        console.error('Error loading video products:', error);
+        slider.innerHTML = '<div class="error-loading" style="display: flex; align-items: center; justify-content: center; min-height: 100px; color: #000; font-size: 16px;">حدث خطأ أثناء تحميل المنتجات</div>';
+        slider.style.opacity = '1';
+        slider.style.visibility = 'visible';
+      }
+    }
+
     // تهيئة السلايدر فقط عندما يكون مرئياً
     function initSlider() {
       var arrowNextClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_right' : 'icon-keyboard_arrow_left';
@@ -60,7 +241,7 @@
         $slider.slick({
           slidesToScroll: 4,
           slidesToShow: 4,
-          infinite: false,
+          infinite: true,
           autoplay: true,
           autoplaySpeed: 3000,
           arrows: true,
@@ -95,37 +276,71 @@
       }
     }
 
-    // استخدام IntersectionObserver لتهيئة السلايدر فقط عند ظهوره
-    if ('IntersectionObserver' in window) {
-      var section = document.querySelector('[section-id="{{ sectionId }}"]');
-      if (section) {
-        var observer = new IntersectionObserver(function(entries) {
-          entries.forEach(function(entry) {
-            if (entry.isIntersecting) {
-              if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
-                initSlider();
-                observer.unobserve(entry.target);
-              } else {
-                if (document.readyState === 'loading') {
-                  document.addEventListener('DOMContentLoaded', initSlider);
-                } else {
-                  initSlider();
-                }
+    // التحقق من أننا في صفحة التصنيف (sectionId يبدأ بـ category-video-)
+    var isCategoryPage = sectionId.indexOf('category-video-') === 0;
+    
+    if (isCategoryPage) {
+      // في صفحة التصنيف: تحميل المنتجات وتهيئة السلايدر مباشرة بدون IntersectionObserver
+      loadVideoProducts().then(function() {
+        if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+          setTimeout(function() {
+            initSlider();
+          }, 50);
+        } else {
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+              setTimeout(initSlider, 50);
+            });
+          } else {
+            setTimeout(initSlider, 50);
+          }
+        }
+      });
+    } else {
+      // في الصفحة الرئيسية: استخدام IntersectionObserver لتهيئة السلايدر فقط عند ظهوره
+      if ('IntersectionObserver' in window) {
+        var section = document.querySelector('[section-id="' + sectionId + '"]');
+        if (section) {
+          var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+              if (entry.isIntersecting) {
+                // تحميل المنتجات أولاً إذا لم تكن موجودة
+                loadVideoProducts().then(function() {
+                  // ثم تهيئة السلايدر
+                  if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+                    setTimeout(function() {
+                      initSlider();
+                    }, 50);
+                  } else {
+                    if (document.readyState === 'loading') {
+                      document.addEventListener('DOMContentLoaded', function() {
+                        setTimeout(initSlider, 50);
+                      });
+                    } else {
+                      setTimeout(initSlider, 50);
+                    }
+                  }
+                });
                 observer.unobserve(entry.target);
               }
-            }
+            });
+          }, {
+            rootMargin: '300px'
           });
-        }, {
-          rootMargin: '300px'
-        });
-        
-        observer.observe(section);
-      }
-    } else {
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initSlider);
+          
+          observer.observe(section);
+        }
       } else {
-        initSlider();
+        // تحميل المنتجات أولاً إذا لم تكن موجودة
+        loadVideoProducts().then(function() {
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+              setTimeout(initSlider, 50);
+            });
+          } else {
+            setTimeout(initSlider, 50);
+          }
+        });
       }
     }
   })();
