@@ -10,6 +10,36 @@
 
 {% block main_content %}
 
+<div class="breadcrumb-subtitle">
+{# {% set img = category.image %}
+{% set title = category.name %}
+{% set description = category.description %}
+	{% include 'components/breadcrumb-subTitle-detail.jinja' %} #}
+	<section class="breadcrumb-section">
+		<nav aria-label="breadcrumb">
+				<div class="container">
+			    <ol class="breadcrumb">
+					<li class="breadcrumb-item" aria-current="page">
+						<a href="/">{{ _("Home") }}</a>
+					</li>
+					{% if category.parent_category.parent_category %}
+						<li class="breadcrumb-item" aria-current="page">
+							<a href="{{ category.parent_category.parent_category.url }}">{{ category.parent_category.parent_category.name }}</a>
+						</li>
+					{% endif %}
+
+					{% if category.parent_category %}
+						<li class="breadcrumb-item" aria-current="page">
+							<a href="{{ category.parent_category.url }}">{{ category.parent_category.name }}</a>
+						</li>
+					{% endif %}
+					<li class="breadcrumb-item active " aria-current="page">{{ category.name }}</li>
+			    </ol>
+				</div>
+		</nav>
+	</section>
+</div>
+
   {# عرض البانرات المخصصة للتصنيف #}
   {% set category_banners = [] %}
   {% if 'categories_page_category_banners' in settings %}
@@ -110,44 +140,96 @@
         });
       });
     </script>
-  {# إذا لم يكن هناك بانرات مخصصة، اعرض البانر الافتراضي إن وجد #}
-  {% elif category.cover_image %}
-    <div class="container">
-      <img loading="lazy" class="category-cover-img" src="{{ image_url(category.cover_image) }}" alt="cover_image"></img>
-    </div>
   {% endif %}
 
+  {# عرض منتجات بتبويبات للتصنيف #}
+  {% set category_tabs_products = [] %}
+  {% if 'categories_page_category_tabs_products' in settings %}
+    {% set tabs_products_list = settings.categories_page_category_tabs_products %}
+    {% if tabs_products_list is callable %}
+      {% set tabs_products_list = tabs_products_list() %}
+    {% endif %}
+    {% if tabs_products_list is iterable %}
+      {% for tabs_item in tabs_products_list %}
+        {% set tabs_category_id = tabs_item.category_id %}
+        {% if tabs_category_id is mapping %}
+          {% set tabs_category_id = tabs_category_id.id %}
+        {% endif %}
+        {% if tabs_category_id|string == category.id|string %}
+          {% set _ = category_tabs_products.append(tabs_item) %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+  
+  {# عرض منتجات بتبويبات #}
+  {% if category_tabs_products | length > 0 %}
+    {% for tabs_item in category_tabs_products %}
+      {% set sectionId = 'category-tabs-' ~ category.id ~ '-' ~ loop.index %}
+      {% set settings = tabs_item %}
+      {% include 'sections/tabs-products.jinja' %}
+    {% endfor %}
+  {% else %}
+  {% endif %}
 
-<div class="breadcrumb-subtitle">
-{% set img = category.image %}
-{% set title = category.name %}
-{% set description = category.description %}
-	{% include 'components/breadcrumb-subTitle-detail.jinja' %}
-	<section class="breadcrumb-section">
-		<nav aria-label="breadcrumb">
-				<div class="container">
-			    <ol class="breadcrumb">
-					<li class="breadcrumb-item" aria-current="page">
-						<a href="/">{{ _("Home") }}</a>
-					</li>
-					{% if category.parent_category.parent_category %}
-						<li class="breadcrumb-item" aria-current="page">
-							<a href="{{ category.parent_category.parent_category.url }}">{{ category.parent_category.parent_category.name }}</a>
-						</li>
-					{% endif %}
+  {# عرض بانرات للتصنيف #}
+  {% set category_banners_sections = [] %}
+  {% if 'categories_page_category_banners_sections' in settings %}
+    {% set banners_sections_list = settings.categories_page_category_banners_sections %}
+    {% if banners_sections_list is callable %}
+      {% set banners_sections_list = banners_sections_list() %}
+    {% endif %}
+    {% if banners_sections_list is iterable %}
+      {% for banners_item in banners_sections_list %}
+        {% set banners_category_id = banners_item.category_id %}
+        {% if banners_category_id is mapping %}
+          {% set banners_category_id = banners_category_id.id %}
+        {% endif %}
+        {% if banners_category_id|string == category.id|string %}
+          {% set _ = category_banners_sections.append(banners_item) %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+  
+  {# عرض بانرات #}
+  {% if category_banners_sections | length > 0 %}
+    {% for banners_item in category_banners_sections %}
+      {% set sectionId = 'category-banners-' ~ category.id ~ '-' ~ loop.index %}
+      {% set settings = banners_item %}
+      {% include 'sections/banners.jinja' %}
+    {% endfor %}
+  {% endif %}
 
-					{% if category.parent_category %}
-						<li class="breadcrumb-item" aria-current="page">
-							<a href="{{ category.parent_category.url }}">{{ category.parent_category.name }}</a>
-						</li>
-					{% endif %}
-					<li class="breadcrumb-item active " aria-current="page">{{ category.name }}</li>
-			    </ol>
-				</div>
-		</nav>
-	</section>
-</div>
-
+  {# عرض فيديو ومنتجات للتصنيف #}
+  {% set category_video_with_products = [] %}
+  {% if 'categories_page_category_video_with_products' in settings %}
+    {% set video_products_list = settings.categories_page_category_video_with_products %}
+    {% if video_products_list is callable %}
+      {% set video_products_list = video_products_list() %}
+    {% endif %}
+    {% if video_products_list is iterable %}
+      {% for video_item in video_products_list %}
+        {% set video_category_id = video_item.category_id %}
+        {% if video_category_id is mapping %}
+          {% set video_category_id = video_category_id.id %}
+        {% endif %}
+        {% if video_category_id|string == category.id|string %}
+          {% set _ = category_video_with_products.append(video_item) %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+  
+  {# عرض فيديو ومنتجات #}
+  {% if category_video_with_products | length > 0 %}
+    {% for video_item in category_video_with_products %}
+      {% set sectionId = 'category-video-' ~ category.id ~ '-' ~ loop.index %}
+      {% set settings = video_item %}
+      {% include 'sections/video-with-products.jinja' %}
+    {% endfor %}
+  {% else %}
+  {% endif %}
 
 {# البحث عن الإعدادات المطابقة للتصنيف الحالي - بدون JavaScript #}
 {% set hide_sub_categories_names = false %}

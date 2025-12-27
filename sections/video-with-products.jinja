@@ -35,8 +35,8 @@
 					{% endif %}
 				</div>
 				<div class="tp-products-box-swiper">
-						{% if settings.products and settings.products.products %}
-						{% for product in settings.products.products %}
+						{% if settings.products and settings.products.results %}
+						{% for product in settings.products.results %}
 							<div class="swiper-slide">
 								{% set index=loop.index0 %}
                 {% include 'components/product-card.jinja' %}

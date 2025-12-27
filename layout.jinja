@@ -34,7 +34,6 @@
 {% set img_height_large_screen = settings.product_card_img_height_large_screen %}
 {% set img_height_small_screen = settings.product_card_img_height_small_screen %}
 {% set another_img = settings.product_card_another_img %}
-{% set add_cart_small = settings.product_card_add_cart_small %}
 {% set promotional_image = settings.product_card_promotional_image %}
 {% set hide_short_description = settings.product_single_hide_short_description %}
 {% set hide_share = settings.product_single_hide_share %}
@@ -79,8 +78,8 @@
       window.imgHeightLargeScreen = {% if img_height_large_screen is defined and img_height_large_screen is not none %}{{ img_height_large_screen }}{% else %}13{% endif %};
       window.imgHeightSmallScreen = {% if img_height_small_screen is defined and img_height_small_screen is not none %}{{ img_height_small_screen }}{% else %}11{% endif %};
       
-      // حساب القيم العشرية وتحديث CSS variables
-      document.addEventListener('DOMContentLoaded', function() {
+      // حساب القيم العشرية وتحديث CSS variables - تنفيذ فوري
+      (function() {
         const root = document.documentElement;
         if (window.imgHeightLargeScreen) {
           root.style.setProperty('--img-height-large-screen', (window.imgHeightLargeScreen / 10).toString());
@@ -88,7 +87,7 @@
         if (window.imgHeightSmallScreen) {
           root.style.setProperty('--img-height-small-screen', (window.imgHeightSmallScreen / 10).toString());
         }
-      });
+      })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -146,11 +145,6 @@
         font-style: normal;
         font-display: block;
       }
-
-      .header-box .middle-box a img,
-      .tp-footer-logo img {
-    display: none;
-}
 
 	</style>
 

@@ -2688,6 +2688,25 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .product-box .tp-content-wrapper .tp-price-product .discount {
+    padding: 0 4px;
+  }
+
+  .product-card-qty-btn {
+    width: 20px;
+    height: 20px;
+  }
+
+  .product-card-qty-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .product-card-quantity-input {
+    width: 28px;
+    height: 23px;
+  }
+
 }
 
 @media (max-width:450px) {

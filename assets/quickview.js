@@ -389,7 +389,7 @@ function renderQuickView(product, productSlug, attributes = null) {
                     <path d="M12 4V20M20 12H4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </button>
-                <input type="number" id="quickview-quantity-input" class="product-quantity-input" value="1" min="1" max="${(currentProduct.is_infinite === false && currentProduct.quantity) ? currentProduct.quantity : (product.is_infinite === false && product.quantity) ? product.quantity : 100}" readonly>
+                <input type="number" id="quickview-quantity-input" name="quantity" class="product-quantity-input" value="1" min="1" max="${(currentProduct.is_infinite === false && currentProduct.quantity) ? currentProduct.quantity : (product.is_infinite === false && product.quantity) ? product.quantity : 100}" readonly>
                 <button type="button" class="btn-quantity decrease-quantity-quickview" aria-label="decrease">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none">
                     <path d="M20 12L4 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1170,16 +1170,21 @@ function addToCartFromQuickView(productId) {
     });
   }
   
-  // إضافة hidden input للكمية
-  let quantityInput = form.querySelector('input[name="quantity"]');
-  if (!quantityInput) {
-    quantityInput = document.createElement('input');
-    quantityInput.type = 'hidden';
-    quantityInput.name = 'quantity';
-    form.appendChild(quantityInput);
-  }
+  // قراءة الكمية من input
   const quantity = parseInt($('#quickview-quantity-input').val()) || 1;
-  quantityInput.value = quantity;
+  
+  // التأكد من أن قيمة الكمية محدثة في input (الآن input الكمية يحتوي على name="quantity")
+  const quantityInput = form.querySelector('input[name="quantity"]');
+  if (quantityInput) {
+    quantityInput.value = quantity;
+  } else {
+    // إذا لم يكن موجوداً، نضيف hidden input للكمية
+    const hiddenQuantityInput = document.createElement('input');
+    hiddenQuantityInput.type = 'hidden';
+    hiddenQuantityInput.name = 'quantity';
+    hiddenQuantityInput.value = quantity;
+    form.appendChild(hiddenQuantityInput);
+  }
   
   // التحقق من صحة الـ form
   if (form && !form.checkValidity()) {
@@ -1196,9 +1201,35 @@ function addToCartFromQuickView(productId) {
     return;
   }
   
-  // إضافة المنتج للسلة باستخدام form_id (مثل صفحة المنتج)
+  // إضافة المنتج للسلة - قراءة جميع البيانات من الـ form وتمريرها مباشرة
   if (window.zid && window.zid.cart && window.zid.cart.addProduct) {
-    window.zid.cart.addProduct({ form_id: 'quickview-product-form' }, { showErrorNotification: true })
+    // قراءة جميع الخيارات من الـ form
+    const formData = new FormData(form);
+    const options = {};
+    for (const [key, value] of formData.entries()) {
+      if (key.startsWith('option_')) {
+        options[key] = value;
+      }
+    }
+    
+    // بناء payload مع جميع البيانات المطلوبة
+    const addProductPayload = {
+      product_id: finalProductId,
+      quantity: quantity,
+      ...options
+    };
+    
+    // إضافة custom_input_fields إذا كانت موجودة
+    const customFields = form.querySelectorAll('.quickview-field-input');
+    customFields.forEach(field => {
+      const fieldId = field.getAttribute('data-field-id');
+      const fieldName = field.getAttribute('name');
+      if (fieldId && fieldName && field.value) {
+        addProductPayload[fieldName] = field.value;
+      }
+    });
+    
+    window.zid.cart.addProduct(addProductPayload, { showErrorNotification: true })
       .then(function(response) {
         if (response) {
           // تحديث السلة
