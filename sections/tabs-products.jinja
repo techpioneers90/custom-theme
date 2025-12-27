@@ -49,7 +49,8 @@
     <div class="tp-tabs-content">
       {% if settings.tabs %}
         {% for tab in settings.tabs %}
-          <div class="tp-tab-content {% if loop.first %}active{% endif %}" data-tab-content="tab-{{ sectionId }}-{{ loop.index }}">
+          <div class="tp-tab-content {% if loop.first %}active{% endif %}" data-tab-content="tab-{{ sectionId }}-{{ loop.index }}" 
+               {% if tab.category and tab.category.id %}data-category-id="{{ tab.category.id }}"{% endif %}>
             <div class="tp-products-swiper">
               {% if tab.category and tab.category.results %}
                 {% for product in tab.category.results[:limit] %}
@@ -81,6 +82,110 @@
 (function() {
     const arrowNextClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_right' : 'icon-keyboard_arrow_left';
     const arrowPrevClass = (window.appDirection === 'ltr') ? 'icon-keyboard_arrow_left' : 'icon-keyboard_arrow_right';
+    const sectionId = "{{ sectionId }}";
+    const limit = {{ limit }};
+
+    // دالة لجلب المنتجات من API
+    async function loadTabProducts(tabContent) {
+        const slider = tabContent.querySelector('.tp-products-swiper');
+        if (!slider) return;
+
+        // إذا كان هناك منتجات موجودة بالفعل (من الصفحة الرئيسية)، لا نحتاج لجلبها
+        // نتحقق من وجود swiper-slide يحتوي على product-box
+        const existingProducts = slider.querySelectorAll('.swiper-slide .product-box, .product-box');
+        if (existingProducts.length > 0) {
+            return; // المنتجات موجودة بالفعل، لا حاجة لجلبها من API
+        }
+
+        const categoryId = tabContent.getAttribute('data-category-id');
+        if (!categoryId || !window.zid || !window.zid.products || !window.zid.products.list) {
+            return;
+        }
+
+        // عرض حالة التحميل
+        slider.innerHTML = '<div class="loading-products">جاري التحميل...</div>';
+
+        try {
+            const response = await window.zid.products.list({
+                categories: categoryId,
+                page_size: limit
+            }, { showErrorNotification: true });
+
+            if (response && response.results && response.results.length > 0) {
+                slider.innerHTML = '';
+                
+                // استخدام createProductCard من load-more.js إذا كان متاحاً
+                // نتحقق من window.createProductCard أولاً، وإذا لم تكن متاحة ننتظر قليلاً
+                let createCard = window.createProductCard;
+                
+                // إذا لم تكن متاحة، ننتظر قليلاً (قد يكون load-more.js لم يتم تحميله بعد)
+                if (!createCard && typeof createProductCard !== 'undefined') {
+                    createCard = createProductCard;
+                }
+                
+                // إذا لم تكن متاحة بعد، ننتظر حتى 2 ثانية
+                if (!createCard) {
+                    let attempts = 0;
+                    while (!createCard && attempts < 20) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        createCard = window.createProductCard || (typeof createProductCard !== 'undefined' ? createProductCard : null);
+                        attempts++;
+                    }
+                }
+                
+                if (typeof createCard === 'function') {
+                    for (const product of response.results) {
+                        // createProductCard ترجع عنصر DOM، ليس HTML string
+                        const productElement = await createCard(product);
+                        if (productElement) {
+                            const slideDiv = document.createElement('div');
+                            slideDiv.className = 'swiper-slide';
+                            slideDiv.appendChild(productElement);
+                            slider.appendChild(slideDiv);
+                        }
+                    }
+                    
+                    // تفعيل العداد التنازلي والتحقق من الأسعار بعد إضافة جميع المنتجات
+                    if (typeof initializeCountdowns === 'function') {
+                        initializeCountdowns(slider);
+                    }
+                    
+                    if (typeof formatPrices === 'function') {
+                        formatPrices(slider);
+                    }
+                } else {
+                    // إذا لم تكن createProductCard متاحة، نستخدم طريقة بديلة
+                    console.warn('createProductCard function not found, using fallback method');
+                    for (const product of response.results) {
+                        const slideDiv = document.createElement('div');
+                        slideDiv.className = 'swiper-slide';
+                        slideDiv.innerHTML = `
+                            <div class="product-box">
+                                <a href="${product.html_url || '#'}">
+                                    <div class="box-img-product">
+                                        <img src="${product.images && product.images.length ? product.images[0].image.large : ''}" alt="${product.name}">
+                                    </div>
+                                    <h3>${product.name}</h3>
+                                    <div class="price">${product.price_string || ''}</div>
+                                </a>
+                            </div>
+                        `;
+                        slider.appendChild(slideDiv);
+                    }
+                }
+
+                // تهيئة الـ slider بعد تحميل المنتجات
+                if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+                    initSlickSlider(slider);
+                }
+            } else {
+                slider.innerHTML = '<div class="no-products">لا توجد منتجات</div>';
+            }
+        } catch (error) {
+            console.error('Error loading tab products:', error);
+            slider.innerHTML = '<div class="error-loading">حدث خطأ أثناء تحميل المنتجات</div>';
+        }
+    }
 
     function initSlickSlider(slider) {
         if (!slider || slider.querySelectorAll('.product-box').length === 0) return;
@@ -145,15 +250,25 @@
     }
 
     function initTabs() {
-        const section = document.querySelector('[section-id="{{ sectionId }}"]');
+        const section = document.querySelector('[section-id="' + sectionId + '"]');
         if (!section) return;
 
         const tabs = section.querySelectorAll(".tp-tab-item");
         const tabContents = section.querySelectorAll(".tp-tab-content");
 
-        const firstSlider = section.querySelector(".tp-tab-content.active .tp-products-swiper");
-        if (firstSlider && typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
-            initSlickSlider(firstSlider);
+        // تحميل منتجات التبويب الأول إذا كان نشطاً
+        const firstTabContent = section.querySelector(".tp-tab-content.active");
+        if (firstTabContent) {
+            const firstSlider = firstTabContent.querySelector(".tp-products-swiper");
+            if (firstSlider && firstSlider.querySelectorAll('.product-box').length === 0) {
+                loadTabProducts(firstTabContent).then(() => {
+                    if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+                        initSlickSlider(firstSlider);
+                    }
+                });
+            } else if (firstSlider && typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+                initSlickSlider(firstSlider);
+            }
         }
 
         tabs.forEach(tab => {
@@ -169,7 +284,14 @@
                     targetContent.classList.add("active");
 
                     const slider = targetContent.querySelector(".tp-products-swiper");
-                    if (slider && typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+                    // تحميل المنتجات إذا لم تكن موجودة
+                    if (slider && slider.querySelectorAll('.product-box').length === 0) {
+                        loadTabProducts(targetContent).then(() => {
+                            if (typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
+                                initSlickSlider(slider);
+                            }
+                        });
+                    } else if (slider && typeof $ !== 'undefined' && typeof $.fn.slick !== 'undefined') {
                         initSlickSlider(slider);
                     }
                 }
